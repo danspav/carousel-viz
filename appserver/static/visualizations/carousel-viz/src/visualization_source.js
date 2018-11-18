@@ -89,7 +89,7 @@ define([
 		
 			// Now load the visualisation
 			var oCarousel= new carousel_viz.carousel_viz();
-			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace, mvc);
+			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 			oCarousel.setData(data)
 			this.$el.html(oCarousel.getHTML());
 					
