@@ -88,7 +88,7 @@ define([
 			var carousel_viz = require('carousel-viz');
 		
 			// Now load the visualisation
-			var oCarousel= new carousel_viz();
+			var oCarousel= new carousel_viz.carousel_viz();
 			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace, mvc);
 			oCarousel.setData(data)
 			this.$el.html(oCarousel.getHTML());
