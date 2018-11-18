@@ -1,4 +1,107 @@
-<form class="splunk-formatter-section" section-label="format">
-    <!-- Add html here to create formatter options -->
-    <p>No Options.</p>
+<!-- ---------------------  Options Form ---------------------------->
+<form class="splunk-formatter-section" section-label="Options">
+   <!-- slidesToShow -->
+	<splunk-control-group label="Show X Slides">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.slidesToShow" value="3"></splunk-text-input>
+    </splunk-control-group>
+	
+	
+	 <!-- Autoplay? -->
+	 <splunk-control-group label="Autoplay">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.autoplay" value="true">
+			<option value="true">True</option>
+			<option value="false">False</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	
+	
+	<!-- Animation Time -->
+	<splunk-control-group label="Autoplay Speed">
+		<splunk-select name="{{VIZ_NAMESPACE}}.autoplaySpeed" value="3000">
+			<option value="10000">Very Slow</option>
+			<option value="7500">Slow</option>
+			<option value="3000">Normal</option>
+			<option value="2000">Fast</option>
+			<option value="1000">Very Fast</option>
+		</splunk-select>
+	</splunk-control-group>
+	
+   
+</form>
+
+
+
+<!-- ---------------------  Format Form ---------------------------->
+<form class="splunk-formatter-section" section-label="Format">
+
+	
+	<!-- Change Case -->
+	 <splunk-control-group label="Change Case">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.forceAllCaps" value="true">
+			<option value="true">ALL CAPS</option>
+			<option value="false">No Change</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	
+	<!-- Caption -->
+	<splunk-control-group label="Default Caption">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.defaultCaption" value=""></splunk-text-input>
+    </splunk-control-group>
+	</form>
+
+
+<!-- ---------------------  Themes Form ---------------------------->
+<form class="splunk-formatter-section" section-label="Number Format">
+	<!-- Themes -->
+	<splunk-control-group label="Precision">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.numDecimalPlaces" value="0" section-label="Precision">
+			<option value="0">0</option>
+			<option value="1">0.0</option>
+			<option value="2">0.00</option>
+			<option value="3">0.000</option>
+			<option value="4">0.0000</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	
+		
+	<!-- Thousands Separators  -->
+	 <splunk-control-group label="Use Thousands Separators">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.thousandsSeparators" value="true">
+			<option value="true">Yes</option>
+			<option value="false">No</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	
+	<!-- Unit -->
+	<splunk-control-group label="Unit">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.unit" value=""></splunk-text-input>
+    </splunk-control-group>
+	
+			
+	<!-- Unit Position  -->
+	 <splunk-control-group label="Use Thousands Separators">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.unitPosition" value="after">
+			<option value="before">Before</option>
+			<option value="after">After</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+</form>
+
+
+<!-- ---------------------  Tokens Form ---------------------------->
+<form class="splunk-formatter-section" section-label="Tokens" help="Tokens for current term, and optional ID field.">
+	<!-- Term Token -->
+	<splunk-control-group label="Value Token">
+		<splunk-text-input name="{{VIZ_NAMESPACE}}.token_value" value="cv_value"></splunk-text-input>
+	</splunk-control-group>
+	
+	<!-- ID Token -->
+	<splunk-control-group label="Caption Token">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.token_capiton" value="cv_caption"></splunk-text-input>
+	</splunk-control-group>
 </form>
