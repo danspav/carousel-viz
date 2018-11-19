@@ -92,7 +92,9 @@ define([
 			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 			oCarousel.setData(data)
 			this.$el.html(oCarousel.getHTML());
-					
+			filltext = require("filltext");
+			slick = require("slick");
+			
 			oCarousel.start();
 
         },
