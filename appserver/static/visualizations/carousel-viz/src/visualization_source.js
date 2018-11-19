@@ -7,7 +7,7 @@ define([
             'api/SplunkVisualizationBase',
             'api/SplunkVisualizationUtils',
 			'carousel-viz',
-			'filltext',
+			'textfill',
 			'slick'
             // Add required assets to this list
         ],
@@ -17,7 +17,7 @@ define([
             SplunkVisualizationBase,
             vizUtils,
 			carousel_viz,
-			filltext,
+			textfill,
 			slick
         ) {
   
@@ -92,7 +92,7 @@ define([
 			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 			oCarousel.setData(data)
 			this.$el.html(oCarousel.getHTML());
-			filltext = require("filltext");
+			textfill = require("textfill");
 			slick = require("slick");
 			
 			oCarousel.start();
