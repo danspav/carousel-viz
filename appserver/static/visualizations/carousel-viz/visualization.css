@@ -134,6 +134,7 @@
     .slick-prev:before,
     .slick-next:before {
       color: black;
+	      opacity: .75;
     }
 
 
@@ -227,7 +228,7 @@
     line-height: 1;
 
     opacity: .75;
-    color: white;
+    color: black;
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
