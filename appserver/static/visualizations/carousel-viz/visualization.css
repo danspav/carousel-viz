@@ -193,7 +193,7 @@
 
     cursor: pointer;
 
-    color: transparent;
+    color: black;
     border: none;
     outline: none;
     background: transparent;
@@ -220,6 +220,7 @@
     opacity: .25;
 }
 
+
 .slick-prev:before,
 .slick-next:before
 {
@@ -228,7 +229,7 @@
     line-height: 1;
 
     opacity: .75;
-    color: black;
+    color: black!important;
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
