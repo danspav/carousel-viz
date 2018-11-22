@@ -1,7 +1,7 @@
 [default]
 default.visualizations.custom.carousel-viz.carousel-viz.slidesToShow = <number>
 default.visualizations.custom.carousel-viz.carousel-viz.autoplay = <boolean>
-default.visualizations.custom.carousel-viz.carousel-viz.autoplaySpeed = <number>
+default.visualizations.custom.carousel-viz.carousel-viz.autoplaySpeed = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.forceAllCaps = <boolean>
 default.visualizations.custom.carousel-viz.carousel-viz.defaultCaption = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.numDecimalPlaces = <number>

@@ -18,12 +18,12 @@
 	
 	<!-- Animation Time -->
 	<splunk-control-group label="Autoplay Speed">
-		<splunk-select name="{{VIZ_NAMESPACE}}.autoplaySpeed" value="3000">
-			<option value="10000">Very Slow</option>
-			<option value="7500">Slow</option>
-			<option value="3000">Normal</option>
-			<option value="2000">Fast</option>
-			<option value="1000">Very Fast</option>
+		<splunk-select name="{{VIZ_NAMESPACE}}.autoplaySpeed" value="normal">
+			<option value="vslow">Very Slow</option>
+			<option value="slow">Slow</option>
+			<option value="normal">Normal</option>
+			<option value="fast">Fast</option>
+			<option value="vfast">Very Fast</option>
 		</splunk-select>
 	</splunk-control-group>
 	
@@ -69,7 +69,7 @@
 		
 	<!-- Thousands Separators  -->
 	 <splunk-control-group label="Use Thousands Separators">
-		<splunk-radio-input name="{{VIZ_NAMESPACE}}.thousandsSeparators" value="true">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.thousandsSeparator" value="true">
 			<option value="true">Yes</option>
 			<option value="false">No</option>
 		</splunk-radio-input>
