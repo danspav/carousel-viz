@@ -15,3 +15,4 @@ default.visualizations.custom.carousel-viz.carousel-viz.colorMode = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.rotation = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.showDots = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.showArrows = <string>
+default.visualizations.custom.carousel-viz.carousel-viz.autWidth = <string>
