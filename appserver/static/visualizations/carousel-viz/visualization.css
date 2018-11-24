@@ -374,6 +374,7 @@ div.singlevaluebox{
 	margin-bottom: 5px;
 	padding: 0px 5px 0px 5px;
 	border-radius: 5px 5px 5px 5px;
+	width: 80%;
 }
 div.yellowBlock{background-color:#F7BC38;	
 	color: white;
