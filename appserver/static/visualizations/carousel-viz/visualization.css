@@ -361,15 +361,14 @@
 	
 /* Visualization CSS */
 
-.xsmall{height: 75px;}
-.small{height: 150px;}
-.normal{height: 250px;}	
-.large{height: 300px;}
-.xlarge{height: 500px;}
+.xsmall{height: 75px; height: 100px}
+.small{height: 150px; height: 200px;}
+.normal{height: 250px;height: 300px;}	
+.large{height: 300px; height: 400px;}
+.xlarge{height: 500px; height: 500px;}
 
 
 div.singlevaluebox{
-	width: auto; 
 	font-family:verdana;
 	text-align:center;
 	margin-bottom: 5px;
