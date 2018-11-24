@@ -361,12 +361,16 @@
 	
 /* Visualization CSS */
 
-.xsmall{height:  75px; width: 100px; margin-right: 5px;}
-.small{height:  100px; width: 200px; margin-right: 10px;}
-.normal{height: 150px; width: 300px; margin-right: 15px;}	
-.large{height:  200px; width: 400px; margin-right: 20px;}
-.xlarge{height: 250px; width: 500px; margin-right: 25px;}
+.xsmall{height:  75px; width: 100px; padding-right: 5px;}
+.small{height:  100px; width: 200px; padding-right: 10px;}
+.normal{height: 150px; width: 300px; padding-right: 15px;}	
+.large{height:  200px; width: 400px; padding-right: 20px;}
+.xlarge{height: 250px; width: 500px; padding-right: 25px;}
 
+
+div.parent{
+	
+}
 
 div.singlevaluebox{
 	font-family:verdana;
