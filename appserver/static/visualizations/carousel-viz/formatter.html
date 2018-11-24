@@ -5,6 +5,11 @@
         <splunk-text-input name="{{VIZ_NAMESPACE}}.slidesToShow" value="3"></splunk-text-input>
     </splunk-control-group>
 	
+	<splunk-control-group label="Scroll X Slides">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.slidesToScroll" value="1"></splunk-text-input>
+    </splunk-control-group>
+	
+	
 	
 	 <!-- Autoplay? -->
 	 <splunk-control-group label="Autoplay">
@@ -31,6 +36,14 @@
 		</splunk-radio-input>
 	</splunk-control-group>
 	
+	
+	<!-- Autoplay? -->
+	 <splunk-control-group label="showArrows">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.showArrows" value="false">
+			<option value="true">True</option>
+			<option value="false">False</option>
+		</splunk-radio-input>
+	</splunk-control-group>
 	
 	<!-- Animation Time -->
 	<splunk-control-group label="Autoplay Speed">
