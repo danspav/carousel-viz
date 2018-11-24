@@ -134,17 +134,17 @@
     .slick-prev:before,
     .slick-next:before {
       color: black;
-	      opacity: .75;
+	      <!-- opacity: .75; -->
     }
 
 
     .slick-slide {
       transition: all ease-in-out .3s;
-      opacity: .2;
+   <!--   opacity: .2;-->
     }
     
     .slick-active {
-      opacity: .5;
+    <!--  opacity: .5;-->
     }
 
     .slick-current {
@@ -223,7 +223,7 @@
     font-size: 20px;
     line-height: 1;
 
-    opacity: .75;
+    <!--opacity: .75;-->
     color: black!important;
 
     -webkit-font-smoothing: antialiased;
@@ -431,4 +431,5 @@ div.caption{font-size: 12px; font-weight:bold;height: 20%;	white-space:nowrap;
 	align-items: center;
 	-webkit-box-pack: center;
 	-ms-flex-pack: center;
-	justify-content: center;}
+	justify-content: center;
+}
