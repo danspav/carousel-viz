@@ -56,10 +56,21 @@
 	</splunk-control-group>
 	
 	
+		<!-- Change Case -->
+	 <splunk-control-group label="Color Mode">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.colorMode" value="true">
+			<option value="background">Background</option>
+			<option value="foreground">Foreground</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
 	<!-- Caption -->
 	<splunk-control-group label="Default Caption">
         <splunk-text-input name="{{VIZ_NAMESPACE}}.defaultCaption" value=""></splunk-text-input>
     </splunk-control-group>
+	
+	
+	
 	</form>
 
 
