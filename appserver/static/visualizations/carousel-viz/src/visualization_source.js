@@ -40,31 +40,10 @@ define([
 				return false;
 			}
 			// We need a minimum of 3 fields returned
-			if (data.fields.length < 3) {
-				throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value, unit, caption");
+			if (data.fields.length < 1) {
+				throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
 			}
 
-			//Make sure we have the following: value, unit, caption
-			var i = 0;
-			var hasValue = false;
-			var hasUnit = false;
-			var hasCaption = false;
-			var hasRange = false;
-			for (i = 0; i < data.fields.length; i++) {
-				if (data.fields[i].name == "value")
-					hasValue = true;
-				if (data.fields[i].name == "caption")
-					hasCaption = true;
-				if (data.fields[i].name == "unit")
-					hasUnit = true;
-				if (data.fields[i].name == "range" || data.fields[i].name == "style")
-					hasRange = true;
-			}
-
-			// Check for invalid data
-			if (!(hasValue && hasCaption && hasUnit )) {
-				throw new SplunkVisualizationBase.VisualizationError('Missing values. Please include the following fields in your search query: value, unit, caption. E.g. ...| table value, unit, caption');
-			}
 			return data;
         },
   
@@ -94,7 +73,6 @@ define([
 			this.$el.html(oCarousel.getHTML());
 			textfill = require("textfill");
 			slick = require("slick");
-			
 			oCarousel.start();
 
         },
