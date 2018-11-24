@@ -13,7 +13,7 @@ cd /opt/git/carousel-viz/carousel-viz/appserver/static/visualizations/carousel-v
 npm run build
 rm -r /opt/splunk/etc/apps/carousel-viz
 mkdir /opt/splunk/etc/apps/carousel-viz
-cp -R /opt/git/carousel-viz/carousel-viz /opt/splunk/etc/apps/carousel-viz
+cp -R /opt/git/carousel-viz/carousel-viz /opt/splunk/etc/apps
 chown -R splunk:splunk /opt/splunk
 /opt/splunk/bin/splunk restart
 
