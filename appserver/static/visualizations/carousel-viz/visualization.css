@@ -361,11 +361,11 @@
 	
 /* Visualization CSS */
 
-.xsmall{height: 75px; width: 100px}
-.small{height: 150px; width: 200px;}
-.normal{height: 250px;width: 300px;}	
-.large{height: 300px; width: 400px;}
-.xlarge{height: 500px; width: 500px;}
+.xsmall{height:  75px; width: 100px}
+.small{height:  100px; width: 200px;}
+.normal{height: 150px; width: 300px;}	
+.large{height:  200px; width: 400px;}
+.xlarge{height: 250px; width: 500px;}
 
 
 div.singlevaluebox{
