@@ -426,9 +426,8 @@ div.value{
 	-webkit-box-pack: center;
 	-ms-flex-pack: center;
 	justify-content: center;
-	text-overflow: ellipsis;
 }
-div.value span{white-space:nowrap;}
+div.value span{white-space:nowrap;text-overflow: ellipsis;}
 div.caption{
 	font-size: 12px; font-weight:bold;height: 20%;	white-space:nowrap;
 	text-overflow: ellipsis;
@@ -442,3 +441,4 @@ div.caption{
 	-ms-flex-pack: center;
 	justify-content: center;
 }
+div.caption span{white-space:nowrap;text-overflow: ellipsis;}
