@@ -413,7 +413,7 @@ div.redNoBackground {
 
 
 div.value{
-	font: Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
+	font-family: Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
 	height: 80%;
 	width: 100%;
 	white-space:nowrap;
