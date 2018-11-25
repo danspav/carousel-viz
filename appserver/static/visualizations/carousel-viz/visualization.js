@@ -1,4 +1,4 @@
-define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(__WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__) { return /******/ (function(modules) { // webpackBootstrap
+define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) { return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 
@@ -42,22 +42,28 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
 	 * Visualization source
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 	            __webpack_require__(1),
+	            __webpack_require__(7),
 	            __webpack_require__(2),
 	            __webpack_require__(3),
-	            __webpack_require__(4)
+				__webpack_require__(4),
+				__webpack_require__(5),
+				__webpack_require__(6)
 	            // Add required assets to this list
 	        ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	            $,
 	            _,
 	            SplunkVisualizationBase,
-	            vizUtils
+	            vizUtils,
+				carousel_viz,
+				textfill,
+				slick
 	        ) {
 	  
 	    // Extend from SplunkVisualizationBase
@@ -66,10 +72,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        initialize: function() {
 	            SplunkVisualizationBase.prototype.initialize.apply(this, arguments);
 	            this.$el = $(this.el);
-
-	            this.$el.append('<h3>This is a custom visualization stand in.</h3>');
-	            this.$el.append('<p>Edit your custom visualization app to render something here.</p>');
-	            
+	     
 	            // Initialization logic goes here
 	        },
 
@@ -77,9 +80,16 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        // The returned object will be passed to updateView as 'data'
 	        formatData: function(data) {
 
-	            // Format data 
+	           // Check for an empty data object
+				if (data.rows.length < 1) {
+					return false;
+				}
+				// We need a minimum of 3 fields returned
+				if (data.fields.length < 1) {
+					throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
+				}
 
-	            return data;
+				return data;
 	        },
 	  
 	        // Implement updateView to render a visualization.
@@ -87,7 +97,28 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        //  'config' will be the configuration property object
 	        updateView: function(data, config) {
 	            
-	            // Draw something here
+	            if (!data) {
+					return;
+				}
+
+				// Assign datum to the data object returned from formatData
+				if (!data.meta.done)
+					return;
+				
+				
+				// Clear the div
+				this.$el.empty();
+
+				var carousel_viz = __webpack_require__(4);
+			
+				// Now load the visualisation
+				var oCarousel= new carousel_viz.carousel_viz();
+				oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
+				oCarousel.setData(data)
+				this.$el.html(oCarousel.getHTML());
+				textfill = __webpack_require__(5);
+				slick = __webpack_require__(6);
+				oCarousel.start();
 
 	        },
 
@@ -95,7 +126,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        getInitialDataParams: function() {
 	            return ({
 	                outputMode: SplunkVisualizationBase.ROW_MAJOR_OUTPUT_MODE,
-	                count: 10000
+	                count: 1000
 	            });
 	        },
 
@@ -104,9 +135,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    });
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	 * jQuery JavaScript Library v2.2.4
@@ -9924,13 +9955,3732 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	}));
 
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.8.3
+	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	class carousel_viz{
+		constructor(){
+			this.slides = [];
+			this.slidesToShow = 3;
+			this.slidesToScroll = 1;
+			this.autoplay = true; 
+			this.autoplaySpeed = 3000;
+			this.colorMode = true;
+			this.value = "";
+			this.caption="";
+			this.unit = "";
+			this.numDecimalPlaces="0"
+			this.thousandsSeparator = false;
+			this.unitPosition = "after";
+			this.isInfinite = true;
+			this.size = "normal";
+			this.showArrows = false;
+			this.autoWidth = true;
+			// Value Options
+			this.forceAllCaps = false;
+			this.numDecimalPlaces = 0;
+			this.showDots = false;
+			
+			this.id = this.createUUID();
+			this.validAutoplaySpeeds={"vslow":10000,"slow":7500,"normal":3000,"fast":2000,"vfast":1000};
+			this.validSizes={"xsmall":75,"small":100,"normal":250,"large":300,"xlarge":500};
+		}
+
+		
+		
+			
+		setConfig(config, namespace){
+			var vizUtils = __webpack_require__(3);
+			// Get Config parameters:
+			this.slidesToShow = parseInt(config[namespace + 'slidesToShow']) || 3;
+			this.autoplay = vizUtils.escapeHtml(config[namespace + "autoplay"]) || true;
+			this.slidesToScroll = parseInt(config[namespace + 'slidesToScroll']) || 1;
+			
+			this.forceAllCaps = vizUtils.escapeHtml(config[namespace + "forceAllCaps"]) || false;
+			this.autoplaySpeed = vizUtils.escapeHtml(config[namespace + 'autoplaySpeed']) || "normal";
+			this.numDecimalPlaces = parseInt(config[namespace + 'numDecimalPlaces']) || 0;
+			this.colorMode = vizUtils.escapeHtml(config[namespace + "colorMode"]) || "foreground";
+			this.thousandsSeparator = vizUtils.escapeHtml(config[namespace + "thousandsSeparator"]) || false;
+			this.unitPosition = vizUtils.escapeHtml(config[namespace + "unitPosition"]) || "after";
+			this.defaultCaption = vizUtils.escapeHtml(config[namespace + 'defaultCaption']) || ""; 
+			this.size = vizUtils.escapeHtml(config[namespace + 'size']) || "normal"; 
+			this.unit = vizUtils.escapeHtml(config[namespace + 'unit']) || ""; 
+			this.caption = vizUtils.escapeHtml(config[namespace + 'caption']) || ""; 
+			this.isInfinite = vizUtils.escapeHtml(config[namespace + 'rotation']) || "infinite"; 
+			this.showDots = vizUtils.escapeHtml(config[namespace + 'showDots']) || false; 
+			this.showDots = vizUtils.escapeHtml(config[namespace + 'showArrows']) || false; 
+
+			this.autoWidth = vizUtils.escapeHtml(config[namespace + 'autoWidth']) || false; 
+			
+			if (this.autoplaySpeed < 1000){ this.autoplaySpeed=1000;}
+			//Enforce Boolean values to be boolean
+			this.forceAllCaps = (this.forceAllCaps=="true");
+			this.isInfinite = (this.isInfinite=="infinite");
+			this.autoplay=(this.auotplay || this.autoplay=="true");
+			this.showDots = (this.showDots=="true");
+			this.showArrows = (this.showArrows=="true");
+			this.autoWidth = (this.autoWidth=="true");
+			this.colorMode = this.colorMode=="foreground" ? "foreground" : "background";
+			if(this.numDecimalPlaces >4) { this.numDecimalPlaces=4;}
+			if(this.numDecimalPlaces <0) { this.numDecimalPlaces=0;}
+			if(this.slidesToShow >10) { this.slidesToShow=10;}
+			if(this.slidesToShow <1) { this.slidesToShow=1;}
+			if (this.slidesToScroll >  this.slidesToShow) { this.slidesToScroll = this.slidesToShow;}
+			if (this.slidesToScroll <  1) { this.slidesToScroll = 1;}
+
+			if(this.unitPosition!="after"){ this.unitPosition="before";}
+			if(!this.validAutoplaySpeeds[this.autoplaySpeed]) { this.autoplaySpeed=3000;} else{ this.autoplaySpeed=this.validAutoplaySpeeds[this.autoplaySpeed];}
+			if(!this.validSizes[this.size]) { this.size="normal";}
+			this.thousandsSeparator = (this.thousandsSeparator=="true")
+		}
+		
+		// Create a unique ID for the CSS selector
+		createUUID() {
+			var s = [];
+			var hexDigits = "0123456789abcdef";
+			for (var i = 0; i < 10; i++) {
+				s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+			}
+			var uuid = s.join("");
+			return "cv_" + uuid;
+		}
+		
+		
+		setData(data){
+				var i = 0;
+				var fields = [];
+				var oSlide;
+				var data_item;
+				var rangeFieldName = "";
+				var current_item;
+				var vizUtils = __webpack_require__(3);
+				const { carousel_viz, carousel_viz_slide} = __webpack_require__(4);
+				try{
+					//------------------------------  Get data row field indexes ----------------------------------------------------------------------
+					for (i=0; i<data.fields.length; i++){
+						fields[data.fields[i].name.toLowerCase()]  = i;
+					}
+					// we don't need to call it value - just use the first field
+					if(typeof fields["value"] === 'undefined'){ fields['value'] = 0;}
+					for (i=0; i<data.rows.length; i++){
+						data_item = data.rows[i];
+						if(typeof data_item[fields["style"]] === 'undefined'){
+							rangeFieldName = "range";
+						}else{
+							rangeFieldName = "style";
+						}
+						//------------------------------  Create or Locate item Objects ----------------------------------------------------------------------
+						oSlide = new carousel_viz_slide();
+						oSlide.value              = vizUtils.escapeHtml(data_item[fields["value"]])
+						oSlide.unit               = vizUtils.escapeHtml(data_item[fields["unit"]])
+						if (oSlide.unit=="") { oSlide.unit = this.unit;}
+						if (typeof fields["caption"] ==='undefined' || data_item[fields["caption"]]==""){ oSlide.caption = this.defaultCaption;} else {oSlide.caption=vizUtils.escapeHtml(data_item[fields["caption"]]);}
+						if (typeof fields["range"] ==='undefined' || data_item[fields["range"]]==""){ oSlide.range = "default";}else{oSlide.range=vizUtils.escapeHtml(data_item[fields[rangeFieldName]]);}
+						
+						oSlide.size				  = this.size;
+						oSlide.forceAllCaps       = this.forceAllCaps;
+						oSlide.numDecimalPlaces   = this.numDecimalPlaces;
+						oSlide.colorMode          = this.colorMode;
+						oSlide.thousandsSeparator = this.thousandsSeparator;
+						oSlide.unitPosition	      = this.unitPosition;
+											
+						this.slides.push(oSlide);
+					}	
+				} catch(err) {
+					console.log("Error setting data. " + err);
+				}
+			}
+		
+		
+		getHTML(){
+			var html = "";
+			var value = this.value
+			var i =0;
+			 html ='<div id="'  + this.id + '" class="center">';
+			 for(i=0;i<this.slides.length;i++){
+				 html += this.slides[i].getHTML();
+			 }
+			 html += '</div>';
+			 return html;
+		}
+		
+		start(){
+					var objCarousel = this;
+					window.jQuery("div#" + this.id + " div.value").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:240,widthOnly:true});
+					window.jQuery("div#" + this.id + " div.caption").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:18,minFontPixels:8});
+					
+					window.jQuery('#' + this.id).slick({
+					  centerMode: false,
+					  dots: this.showDots,
+					  arrows: this.showArrows,
+					  infinite: this.isInfinite,
+					  variableWidth: this.autoWidth,
+					  centerPadding: '60px',
+					  slidesToShow: objCarousel.slidesToShow,
+					  slidesToScroll: objCarousel.slidesToScroll,				  
+					  autoplay: objCarousel.autoplay,
+					  autoplaySpeed: objCarousel.autoplaySpeed,
+					  adaptiveHeight: true,
+					  pauseOnFocus: true,
+					  focusOnSelect: true,
+			  		  cssEase: 'linear',
+					});
+		    		
+					// On edge hit
+					window.jQuery("div#" + this.id ).on('reSize', function(event, slick){
+						$("div.value").textfill({allowOverflow:false,changeLineHeight:false,maxFontPixels:1000,widthOnly:false});
+						$("div.caption").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:18,minFontPixels:8});
+					});
+					
+					/*
+					window.jQuery( window ).resize(function() {
+						$("div.value").textfill({allowOverflow:false,changeLineHeight:false,maxFontPixels:1000,widthOnly:false});
+						$("div.caption").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:18,minFontPixels:8});
+					});
+					*/
+					
+					
+
+				/*
+				
+				 responsive: [
+						{
+						  breakpoint: 768,
+						  settings: {
+							arrows: false,
+							centerMode: true,
+							centerPadding: '40px',
+							slidesToShow: objCarousel.slidesToShow
+						  }
+						},
+						{
+						  breakpoint: 480,
+						  settings: {
+							arrows: false,
+							centerMode: true,
+							centerPadding: '40px',
+							slidesToShow: 1
+						  }
+						}
+					  ]
+					  
+					  */
+
+					
+			}
+		
+		}
+		
+		
+		/* Slide class
+			This class defines a slide in the carousel.
+			There will be multiple instances, each showing a different row of the results.
+		*/
+		class carousel_viz_slide{
+
+			constructor(){
+				this.value = "";	
+				this.caption = "";	
+				this.unit = "";
+				this.range = "";
+				this.forceAllCaps = false;
+				this.numDecimalPlaces = 0;
+				this.colorMode = "foreground";
+				this.thousandsSeparator = false;
+				this.unitPosition = "right";
+				this.size = "normal";
+			}
+			
+			/* Returns the CSS class for the current slide based on Range/Style and colorMode status */
+			getStyle(){
+				var style = this.size;
+				switch(this.range.toLowerCase()){
+					case "low":
+					case "green":
+					case "ok":
+						style += " green";
+						break;
+					case "elevated":
+					case "yellow":
+					case "amber":
+					case "orange":
+					case "warning":
+						style += " yellow";
+						break;
+					case "severe":
+					case "critical":
+					case "red":
+						style +=" red";
+						break;
+					default:
+						style +=" default";
+						break;
+				}
+			
+				if (this.colorMode=="background"){
+					style += 'Block';
+				}else{
+					style += 'NoBackground';
+				}
+				
+				return style;
+			}
+
+			
+		numberWithCommas(x){
+			var parts = x.toString().split(".");
+			parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return parts.join(".");siz
+		}
+		
+
+			//Format the value - eg UPPERCASE, 1,000  23.22
+			getValue(){
+				var formattedValue = this.value;
+				
+				if(! isNaN(formattedValue)){
+					formattedValue = Number(Math.round(parseInt(formattedValue,10)+'e'+this.numDecimalPlaces)+'e-'+this.numDecimalPlaces).toFixed(this.numDecimalPlaces);;
+					if(this.thousandsSeparator){ formattedValue = this.numberWithCommas(formattedValue);}
+				}
+				
+				if (this.forceAllCaps){
+					formattedValue = formattedValue.toUpperCase();
+				}
+				
+				return formattedValue;
+			}
+			
+			/* A simple HTML block representing the Slide's HTML content. */
+			getHTML(){
+				var html = "<div class=\"parent " + this.size + "\"><div style=\"margin: 0px 15px 0px 15px;\">";
+				html += '<div class="singlevaluebox ' + this.getStyle() + '">';
+				
+				if(this.unitPosition=="before"){
+					html += '<div class="value"><span>' + this.unit + "&thinsp;" +  this.getValue() +  '</span></div>';
+				}else{
+					html += '<div class="value"><span>' + this.getValue() + "&thinsp;" + this.unit +  '</span></div>';
+				}
+				html += '<div class="caption"><span>' + this.caption + '</span></div>';
+				html += '</div></div></div>';
+				return html;
+			}
+			
+			
+
+			
+			
+		}
+		
+		
+		
+	module.exports = { carousel_viz, carousel_viz_slide}
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+	/**
+	 * @preserve  textfill
+	 * @name      jquery.textfill.js
+	 * @author    Russ Painter (GeekyMonkey)
+	 * @author    Yu-Jie Lin
+	 * @author    Alexandre Dantas
+	 * @version   0.6.2
+	 * @date      2018-02-24
+	 * @copyright (c) 2009
+	 * @license   MIT License
+	 * @homepage  https://github.com/jquery-textfill/jquery-textfill
+	 * @example   http://jquery-textfill.github.io/jquery-textfill/index.html
+	 */
+	; (function($) {
+
+		/**
+		 * Resizes an inner element's font so that the
+		 * inner element completely fills the outer element.
+		 *
+		 * @param {Object} options User options that take
+		 *                         higher precedence when
+		 *                         merging with the default ones.
+		 *
+		 * @return All outer elements processed
+		 */
+		$.fn.textfill = function(options) {
+
+			// ______  _______ _______ _______ _     _        _______ _______
+			// |     \ |______ |______ |_____| |     | |         |    |______
+			// |_____/ |______ |       |     | |_____| |_____    |    ______|
+			//
+			// Merging user options with the default values
+
+			var defaults = {
+				debug            : false,
+				maxFontPixels    : 40,
+				minFontPixels    : 4,
+				innerTag         : 'span',
+				widthOnly        : false,
+				success          : null, // callback when a resizing is done
+				fail             : null, // callback when a resizing is failed
+				complete         : null, // callback when all is done
+				explicitWidth    : null,
+				explicitHeight   : null,
+				changeLineHeight : false,
+				truncateOnFail   : false,
+				allowOverflow    : false // If true, text will stay at minFontPixels but overflow container w/out failing 
+			};
+
+			var Opts = $.extend(defaults, options);
+
+			// _______ _     _ __   _ _______ _______ _____  _____  __   _ _______
+			// |______ |     | | \  | |          |      |   |     | | \  | |______
+			// |       |_____| |  \_| |_____     |    __|__ |_____| |  \_| ______|
+			//
+			// Predefining the awesomeness
+
+			// Output arguments to the Debug console
+			// if "Debug Mode" is enabled
+			function _debug() {
+				if (!Opts.debug
+					||  typeof console       == 'undefined'
+					||  typeof console.debug == 'undefined') {
+					return;
+				}
+				console.debug.apply(console, arguments);
+			}
+
+			// Output arguments to the Warning console
+			function _warn() {
+				if (typeof console      == 'undefined' ||
+					typeof console.warn == 'undefined') {
+					return;
+				}
+				console.warn.apply(console, arguments);
+			}
+
+			// Outputs all information on the current sizing
+			// of the font.
+			function _debug_sizing(prefix, ourText, maxHeight, maxWidth, minFontPixels, maxFontPixels) {
+
+				function _m(v1, v2) {
+
+					var marker = ' / ';
+
+					if (v1 > v2) {
+						marker = ' > ';
+					}
+					else if (v1 == v2) {
+						marker = ' = ';
+					}
+					return marker;
+				}
+
+				_debug(
+					'[TextFill] '  + prefix + ' { ' +
+					'font-size: ' + ourText.css('font-size') + ',' +
+					'Height: '    + ourText.height() + 'px ' + _m(ourText.height(), maxHeight) + maxHeight + 'px,' +
+					'Width: '     + ourText.width()  + _m(ourText.width() , maxWidth)  + maxWidth + ',' +
+					'minFontPixels: ' + minFontPixels + 'px, ' +
+					'maxFontPixels: ' + maxFontPixels + 'px }'
+				);
+			}
+
+			/**
+			 * Calculates which size the font can get resized,
+			 * according to constrains.
+			 *
+			 * @param {String} prefix Gets shown on the console before
+			 *                        all the arguments, if debug mode is on.
+			 * @param {Object} ourText The DOM element to resize,
+			 *                         that contains the text.
+			 * @param {function} func Function called on `ourText` that's
+			 *                        used to compare with `max`.
+			 * @param {number} max Maximum value, that gets compared with
+			 *                     `func` called on `ourText`.
+			 * @param {number} minFontPixels Minimum value the font can
+			 *                               get resized to (in pixels).
+			 * @param {number} maxFontPixels Maximum value the font can
+			 *                               get resized to (in pixels).
+			 *
+			 * @return Size (in pixels) that the font can be resized.
+			 */
+			function _sizing(prefix, ourText, func, max, maxHeight, maxWidth, minFontPixels, maxFontPixels) {
+
+				_debug_sizing(
+					prefix, ourText,
+					maxHeight, maxWidth,
+					minFontPixels, maxFontPixels
+				);
+
+				// The kernel of the whole plugin, take most attention
+				// on this part.
+				//
+				// This is a loop that keeps increasing the `font-size`
+				// until it fits the parent element.
+				//
+				// - Start from the minimal allowed value (`minFontPixels`)
+				// - Guesses an average font size (in pixels) for the font,
+				// - Resizes the text and sees if its size is within the
+				//   boundaries (`minFontPixels` and `maxFontPixels`).
+				//   - If so, keep guessing until we break.
+				//   - If not, return the last calculated size.
+				//
+				// I understand this is not optimized and we should
+				// consider implementing something akin to
+				// Daniel Hoffmann's answer here:
+				//
+				//     http://stackoverflow.com/a/17433451/1094964
+				//
+				
+				while (minFontPixels < (Math.floor(maxFontPixels) - 1)) {
+
+					var fontSize = Math.floor((minFontPixels + maxFontPixels) / 2);
+					ourText.css('font-size', fontSize);
+					var curSize = func.call(ourText);
+
+					if (curSize <= max) {
+						minFontPixels = fontSize;
+
+						if (curSize == max) {
+							break;
+						}
+					}
+					else {
+						maxFontPixels = fontSize;
+					}
+
+					_debug_sizing(
+						prefix, ourText,
+						maxHeight, maxWidth,
+						minFontPixels, maxFontPixels
+					);
+				}
+
+				ourText.css('font-size', maxFontPixels);
+
+				if (func.call(ourText) <= max) {
+					minFontPixels = maxFontPixels;
+
+					_debug_sizing(
+						prefix + '* ', ourText,
+						maxHeight, maxWidth,
+						minFontPixels, maxFontPixels
+					);
+				}
+				return minFontPixels;
+			}
+
+			// _______ _______ _______  ______ _______
+			// |______    |    |_____| |_____/    |
+			// ______|    |    |     | |    \_    |
+	        //
+			// Let's get it started (yeah)!
+
+			_debug('[TextFill] Start Debug');
+
+			this.each(function() {
+
+				// Contains the child element we will resize.
+				// $(this) means the parent container
+				var ourText = $(Opts.innerTag + ':first', this);
+
+				_debug('[TextFill] Inner text: ' + ourText.text());
+				_debug('[TextFill] All options: ', Opts);
+				_debug('[TextFill] Maximum sizes: { ' +
+					   'Height: ' + maxHeight + 'px, ' +
+					   'Width: '  + maxWidth  + 'px' + ' }'
+					  );
+
+				if (!ourText.is(':visible')) {
+					// Failure callback
+					if (Opts.fail)
+						Opts.fail(this);
+
+					_debug(
+						'[TextFill] Failure { ' +
+						'Current Width: '  + ourText.width()  + ', ' +
+						'Maximum Width: '  + maxWidth         + ', ' +
+						'Current Height: ' + ourText.height() + ', ' +
+						'Maximum Height: ' + maxHeight        + ' }'
+					);
+
+					return;
+				}
+
+				// Will resize to this dimensions.
+				// Use explicit dimensions when specified
+				var maxHeight = Opts.explicitHeight || $(this).height();
+				var maxWidth  = Opts.explicitWidth  || $(this).width();
+
+				var oldFontSize = ourText.css('font-size');
+
+				var lineHeight  = parseFloat(ourText.css('line-height')) / parseFloat(oldFontSize);
+
+				var minFontPixels = Opts.minFontPixels;
+
+				// Remember, if this `maxFontPixels` is negative,
+				// the text will resize to as long as the container
+				// can accomodate
+				var maxFontPixels = (Opts.maxFontPixels <= 0 ?
+									 maxHeight :
+									 Opts.maxFontPixels);
+
+				// Let's start it all!
+
+				// 1. Calculate which `font-size` would
+				//    be best for the Height
+				var fontSizeHeight = undefined;
+
+				if (Opts.widthOnly) {
+					// We need to measure with nowrap otherwise wrapping occurs and the measurement is wrong
+	      			ourText.css('white-space', 'nowrap' );
+				} else {
+					fontSizeHeight = _sizing(
+						'Height', ourText,
+						$.fn.height, maxHeight,
+						maxHeight, maxWidth,
+						minFontPixels, maxFontPixels
+					);
+				}
+
+				// 2. Calculate which `font-size` would
+				//    be best for the Width
+				var fontSizeWidth = undefined;
+
+				fontSizeWidth = _sizing(
+					'Width', ourText,
+					$.fn.width, maxWidth,
+					maxHeight, maxWidth,
+					minFontPixels, maxFontPixels
+				);
+
+				// 3. Actually resize the text!
+
+				if (Opts.widthOnly) {
+					ourText.css({
+						'font-size'  : fontSizeWidth
+					});
+
+					if (Opts.changeLineHeight) {
+						ourText.parent().css(
+							'line-height',
+							(lineHeight * fontSizeWidth + 'px')
+						);
+					}
+				}
+				else {
+					var fontSizeFinal = Math.min(fontSizeHeight, fontSizeWidth);
+
+					ourText.css('font-size', fontSizeFinal);
+
+					if (Opts.changeLineHeight) {
+						ourText.parent().css(
+							'line-height',
+							(lineHeight * fontSizeFinal) + 'px'
+						);
+					}
+				}
+
+				_debug(
+					'[TextFill] Finished { ' +
+					'Old font-size: ' + oldFontSize              + ', ' +
+					'New font-size: ' + ourText.css('font-size') + ' }'
+				);
+
+				// Oops, something wrong happened!
+				// If font-size increasing, we weren't supposed to exceed the original size 
+				// If font-size decreasing, we hit minFontPixels, and still won't fit 
+				if ((ourText.width()  > maxWidth && !Opts.allowOverflow) ||
+					(ourText.height() > maxHeight && !Opts.widthOnly && !Opts.allowOverflow)) { 
+
+					ourText.css('font-size', oldFontSize);
+
+					// Failure callback
+					if (Opts.fail) {
+						Opts.fail(this);
+					}
+
+					_debug(
+						'[TextFill] Failure { ' +
+						'Current Width: '  + ourText.width()  + ', ' +
+						'Maximum Width: '  + maxWidth         + ', ' +
+						'Current Height: ' + ourText.height() + ', ' +
+						'Maximum Height: ' + maxHeight        + ' }'
+					);
+				}
+				else if (Opts.success) {
+					Opts.success(this);
+				}
+			});
+
+			// Complete callback
+			if (Opts.complete) {
+				Opts.complete(this);
+			}
+
+			_debug('[TextFill] End Debug');
+			return this;
+		};
+
+	})(jQuery);
+
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+	/*
+	     _ _      _       _
+	 ___| (_) ___| | __  (_)___
+	/ __| | |/ __| |/ /  | / __|
+	\__ \ | | (__|   < _ | \__ \
+	|___/_|_|\___|_|\_(_)/ |___/
+	                   |__/
+
+	 Version: 1.9.0
+	  Author: Ken Wheeler
+	 Website: http://kenwheeler.github.io
+	    Docs: http://kenwheeler.github.io/slick
+	    Repo: http://github.com/kenwheeler/slick
+	  Issues: http://github.com/kenwheeler/slick/issues
+
+	 */
+	/* global window, document, define, jQuery, setInterval, clearInterval */
+
+
+
+	(function($) {
+	    'use strict';
+	    var Slick = window.Slick || {};
+
+	    Slick = (function() {
+
+	        var instanceUid = 0;
+
+	        function Slick(element, settings) {
+
+	            var _ = this, dataSettings;
+
+	            _.defaults = {
+	                accessibility: true,
+	                adaptiveHeight: false,
+	                appendArrows: $(element),
+	                appendDots: $(element),
+	                arrows: true,
+	                asNavFor: null,
+	                prevArrow: '<button class="slick-prev" aria-label="Previous" type="button">Previous</button>',
+	                nextArrow: '<button class="slick-next" aria-label="Next" type="button">Next</button>',
+	                autoplay: false,
+	                autoplaySpeed: 3000,
+	                centerMode: false,
+	                centerPadding: '50px',
+	                cssEase: 'ease',
+	                customPaging: function(slider, i) {
+	                    return $('<button type="button" />').text(i + 1);
+	                },
+	                dots: false,
+	                dotsClass: 'slick-dots',
+	                draggable: true,
+	                easing: 'linear',
+	                edgeFriction: 0.35,
+	                fade: false,
+	                focusOnSelect: false,
+	                focusOnChange: false,
+	                infinite: true,
+	                initialSlide: 0,
+	                lazyLoad: 'ondemand',
+	                mobileFirst: false,
+	                pauseOnHover: true,
+	                pauseOnFocus: true,
+	                pauseOnDotsHover: false,
+	                respondTo: 'window',
+	                responsive: null,
+	                rows: 1,
+	                rtl: false,
+	                slide: '',
+	                slidesPerRow: 1,
+	                slidesToShow: 1,
+	                slidesToScroll: 1,
+	                speed: 500,
+	                swipe: true,
+	                swipeToSlide: false,
+	                touchMove: true,
+	                touchThreshold: 5,
+	                useCSS: true,
+	                useTransform: true,
+	                variableWidth: false,
+	                vertical: false,
+	                verticalSwiping: false,
+	                waitForAnimate: true,
+	                zIndex: 1000
+	            };
+
+	            _.initials = {
+	                animating: false,
+	                dragging: false,
+	                autoPlayTimer: null,
+	                currentDirection: 0,
+	                currentLeft: null,
+	                currentSlide: 0,
+	                direction: 1,
+	                $dots: null,
+	                listWidth: null,
+	                listHeight: null,
+	                loadIndex: 0,
+	                $nextArrow: null,
+	                $prevArrow: null,
+	                scrolling: false,
+	                slideCount: null,
+	                slideWidth: null,
+	                $slideTrack: null,
+	                $slides: null,
+	                sliding: false,
+	                slideOffset: 0,
+	                swipeLeft: null,
+	                swiping: false,
+	                $list: null,
+	                touchObject: {},
+	                transformsEnabled: false,
+	                unslicked: false
+	            };
+
+	            $.extend(_, _.initials);
+
+	            _.activeBreakpoint = null;
+	            _.animType = null;
+	            _.animProp = null;
+	            _.breakpoints = [];
+	            _.breakpointSettings = [];
+	            _.cssTransitions = false;
+	            _.focussed = false;
+	            _.interrupted = false;
+	            _.hidden = 'hidden';
+	            _.paused = true;
+	            _.positionProp = null;
+	            _.respondTo = null;
+	            _.rowCount = 1;
+	            _.shouldClick = true;
+	            _.$slider = $(element);
+	            _.$slidesCache = null;
+	            _.transformType = null;
+	            _.transitionType = null;
+	            _.visibilityChange = 'visibilitychange';
+	            _.windowWidth = 0;
+	            _.windowTimer = null;
+
+	            dataSettings = $(element).data('slick') || {};
+
+	            _.options = $.extend({}, _.defaults, settings, dataSettings);
+
+	            _.currentSlide = _.options.initialSlide;
+
+	            _.originalSettings = _.options;
+
+	            if (typeof document.mozHidden !== 'undefined') {
+	                _.hidden = 'mozHidden';
+	                _.visibilityChange = 'mozvisibilitychange';
+	            } else if (typeof document.webkitHidden !== 'undefined') {
+	                _.hidden = 'webkitHidden';
+	                _.visibilityChange = 'webkitvisibilitychange';
+	            }
+
+	            _.autoPlay = $.proxy(_.autoPlay, _);
+	            _.autoPlayClear = $.proxy(_.autoPlayClear, _);
+	            _.autoPlayIterator = $.proxy(_.autoPlayIterator, _);
+	            _.changeSlide = $.proxy(_.changeSlide, _);
+	            _.clickHandler = $.proxy(_.clickHandler, _);
+	            _.selectHandler = $.proxy(_.selectHandler, _);
+	            _.setPosition = $.proxy(_.setPosition, _);
+	            _.swipeHandler = $.proxy(_.swipeHandler, _);
+	            _.dragHandler = $.proxy(_.dragHandler, _);
+	            _.keyHandler = $.proxy(_.keyHandler, _);
+
+	            _.instanceUid = instanceUid++;
+
+	            // A simple way to check for HTML strings
+	            // Strict HTML recognition (must start with <)
+	            // Extracted from jQuery v1.11 source
+	            _.htmlExpr = /^(?:\s*(<[\w\W]+>)[^>]*)$/;
+
+
+	            _.registerBreakpoints();
+	            _.init(true);
+
+	        }
+
+	        return Slick;
+
+	    }());
+
+	    Slick.prototype.activateADA = function() {
+	        var _ = this;
+
+	        _.$slideTrack.find('.slick-active').attr({
+	            'aria-hidden': 'false'
+	        }).find('a, input, button, select').attr({
+	            'tabindex': '0'
+	        });
+
+	    };
+
+	    Slick.prototype.addSlide = Slick.prototype.slickAdd = function(markup, index, addBefore) {
+
+	        var _ = this;
+
+	        if (typeof(index) === 'boolean') {
+	            addBefore = index;
+	            index = null;
+	        } else if (index < 0 || (index >= _.slideCount)) {
+	            return false;
+	        }
+
+	        _.unload();
+
+	        if (typeof(index) === 'number') {
+	            if (index === 0 && _.$slides.length === 0) {
+	                $(markup).appendTo(_.$slideTrack);
+	            } else if (addBefore) {
+	                $(markup).insertBefore(_.$slides.eq(index));
+	            } else {
+	                $(markup).insertAfter(_.$slides.eq(index));
+	            }
+	        } else {
+	            if (addBefore === true) {
+	                $(markup).prependTo(_.$slideTrack);
+	            } else {
+	                $(markup).appendTo(_.$slideTrack);
+	            }
+	        }
+
+	        _.$slides = _.$slideTrack.children(this.options.slide);
+
+	        _.$slideTrack.children(this.options.slide).detach();
+
+	        _.$slideTrack.append(_.$slides);
+
+	        _.$slides.each(function(index, element) {
+	            $(element).attr('data-slick-index', index);
+	        });
+
+	        _.$slidesCache = _.$slides;
+
+	        _.reinit();
+
+	    };
+
+	    Slick.prototype.animateHeight = function() {
+	        var _ = this;
+	        if (_.options.slidesToShow === 1 && _.options.adaptiveHeight === true && _.options.vertical === false) {
+	            var targetHeight = _.$slides.eq(_.currentSlide).outerHeight(true);
+	            _.$list.animate({
+	                height: targetHeight
+	            }, _.options.speed);
+	        }
+	    };
+
+	    Slick.prototype.animateSlide = function(targetLeft, callback) {
+
+	        var animProps = {},
+	            _ = this;
+
+	        _.animateHeight();
+
+	        if (_.options.rtl === true && _.options.vertical === false) {
+	            targetLeft = -targetLeft;
+	        }
+	        if (_.transformsEnabled === false) {
+	            if (_.options.vertical === false) {
+	                _.$slideTrack.animate({
+	                    left: targetLeft
+	                }, _.options.speed, _.options.easing, callback);
+	            } else {
+	                _.$slideTrack.animate({
+	                    top: targetLeft
+	                }, _.options.speed, _.options.easing, callback);
+	            }
+
+	        } else {
+
+	            if (_.cssTransitions === false) {
+	                if (_.options.rtl === true) {
+	                    _.currentLeft = -(_.currentLeft);
+	                }
+	                $({
+	                    animStart: _.currentLeft
+	                }).animate({
+	                    animStart: targetLeft
+	                }, {
+	                    duration: _.options.speed,
+	                    easing: _.options.easing,
+	                    step: function(now) {
+	                        now = Math.ceil(now);
+	                        if (_.options.vertical === false) {
+	                            animProps[_.animType] = 'translate(' +
+	                                now + 'px, 0px)';
+	                            _.$slideTrack.css(animProps);
+	                        } else {
+	                            animProps[_.animType] = 'translate(0px,' +
+	                                now + 'px)';
+	                            _.$slideTrack.css(animProps);
+	                        }
+	                    },
+	                    complete: function() {
+	                        if (callback) {
+	                            callback.call();
+	                        }
+	                    }
+	                });
+
+	            } else {
+
+	                _.applyTransition();
+	                targetLeft = Math.ceil(targetLeft);
+
+	                if (_.options.vertical === false) {
+	                    animProps[_.animType] = 'translate3d(' + targetLeft + 'px, 0px, 0px)';
+	                } else {
+	                    animProps[_.animType] = 'translate3d(0px,' + targetLeft + 'px, 0px)';
+	                }
+	                _.$slideTrack.css(animProps);
+
+	                if (callback) {
+	                    setTimeout(function() {
+
+	                        _.disableTransition();
+
+	                        callback.call();
+	                    }, _.options.speed);
+	                }
+
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.getNavTarget = function() {
+
+	        var _ = this,
+	            asNavFor = _.options.asNavFor;
+
+	        if ( asNavFor && asNavFor !== null ) {
+	            asNavFor = $(asNavFor).not(_.$slider);
+	        }
+
+	        return asNavFor;
+
+	    };
+
+	    Slick.prototype.asNavFor = function(index) {
+
+	        var _ = this,
+	            asNavFor = _.getNavTarget();
+
+	        if ( asNavFor !== null && typeof asNavFor === 'object' ) {
+	            asNavFor.each(function() {
+	                var target = $(this).slick('getSlick');
+	                if(!target.unslicked) {
+	                    target.slideHandler(index, true);
+	                }
+	            });
+	        }
+
+	    };
+
+	    Slick.prototype.applyTransition = function(slide) {
+
+	        var _ = this,
+	            transition = {};
+
+	        if (_.options.fade === false) {
+	            transition[_.transitionType] = _.transformType + ' ' + _.options.speed + 'ms ' + _.options.cssEase;
+	        } else {
+	            transition[_.transitionType] = 'opacity ' + _.options.speed + 'ms ' + _.options.cssEase;
+	        }
+
+	        if (_.options.fade === false) {
+	            _.$slideTrack.css(transition);
+	        } else {
+	            _.$slides.eq(slide).css(transition);
+	        }
+
+	    };
+
+	    Slick.prototype.autoPlay = function() {
+
+	        var _ = this;
+
+	        _.autoPlayClear();
+
+	        if ( _.slideCount > _.options.slidesToShow ) {
+	            _.autoPlayTimer = setInterval( _.autoPlayIterator, _.options.autoplaySpeed );
+	        }
+
+	    };
+
+	    Slick.prototype.autoPlayClear = function() {
+
+	        var _ = this;
+
+	        if (_.autoPlayTimer) {
+	            clearInterval(_.autoPlayTimer);
+	        }
+
+	    };
+
+	    Slick.prototype.autoPlayIterator = function() {
+
+	        var _ = this,
+	            slideTo = _.currentSlide + _.options.slidesToScroll;
+
+	        if ( !_.paused && !_.interrupted && !_.focussed ) {
+
+	            if ( _.options.infinite === false ) {
+
+	                if ( _.direction === 1 && ( _.currentSlide + 1 ) === ( _.slideCount - 1 )) {
+	                    _.direction = 0;
+	                }
+
+	                else if ( _.direction === 0 ) {
+
+	                    slideTo = _.currentSlide - _.options.slidesToScroll;
+
+	                    if ( _.currentSlide - 1 === 0 ) {
+	                        _.direction = 1;
+	                    }
+
+	                }
+
+	            }
+
+	            _.slideHandler( slideTo );
+
+	        }
+
+	    };
+
+	    Slick.prototype.buildArrows = function() {
+
+	        var _ = this;
+
+	        if (_.options.arrows === true ) {
+
+	            _.$prevArrow = $(_.options.prevArrow).addClass('slick-arrow');
+	            _.$nextArrow = $(_.options.nextArrow).addClass('slick-arrow');
+
+	            if( _.slideCount > _.options.slidesToShow ) {
+
+	                _.$prevArrow.removeClass('slick-hidden').removeAttr('aria-hidden tabindex');
+	                _.$nextArrow.removeClass('slick-hidden').removeAttr('aria-hidden tabindex');
+
+	                if (_.htmlExpr.test(_.options.prevArrow)) {
+	                    _.$prevArrow.prependTo(_.options.appendArrows);
+	                }
+
+	                if (_.htmlExpr.test(_.options.nextArrow)) {
+	                    _.$nextArrow.appendTo(_.options.appendArrows);
+	                }
+
+	                if (_.options.infinite !== true) {
+	                    _.$prevArrow
+	                        .addClass('slick-disabled')
+	                        .attr('aria-disabled', 'true');
+	                }
+
+	            } else {
+
+	                _.$prevArrow.add( _.$nextArrow )
+
+	                    .addClass('slick-hidden')
+	                    .attr({
+	                        'aria-disabled': 'true',
+	                        'tabindex': '-1'
+	                    });
+
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.buildDots = function() {
+
+	        var _ = this,
+	            i, dot;
+
+	        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
+
+	            _.$slider.addClass('slick-dotted');
+
+	            dot = $('<ul />').addClass(_.options.dotsClass);
+
+	            for (i = 0; i <= _.getDotCount(); i += 1) {
+	                dot.append($('<li />').append(_.options.customPaging.call(this, _, i)));
+	            }
+
+	            _.$dots = dot.appendTo(_.options.appendDots);
+
+	            _.$dots.find('li').first().addClass('slick-active');
+
+	        }
+
+	    };
+
+	    Slick.prototype.buildOut = function() {
+
+	        var _ = this;
+
+	        _.$slides =
+	            _.$slider
+	                .children( _.options.slide + ':not(.slick-cloned)')
+	                .addClass('slick-slide');
+
+	        _.slideCount = _.$slides.length;
+
+	        _.$slides.each(function(index, element) {
+	            $(element)
+	                .attr('data-slick-index', index)
+	                .data('originalStyling', $(element).attr('style') || '');
+	        });
+
+	        _.$slider.addClass('slick-slider');
+
+	        _.$slideTrack = (_.slideCount === 0) ?
+	            $('<div class="slick-track"/>').appendTo(_.$slider) :
+	            _.$slides.wrapAll('<div class="slick-track"/>').parent();
+
+	        _.$list = _.$slideTrack.wrap(
+	            '<div class="slick-list"/>').parent();
+	        _.$slideTrack.css('opacity', 0);
+
+	        if (_.options.centerMode === true || _.options.swipeToSlide === true) {
+	            _.options.slidesToScroll = 1;
+	        }
+
+	        $('img[data-lazy]', _.$slider).not('[src]').addClass('slick-loading');
+
+	        _.setupInfinite();
+
+	        _.buildArrows();
+
+	        _.buildDots();
+
+	        _.updateDots();
+
+
+	        _.setSlideClasses(typeof _.currentSlide === 'number' ? _.currentSlide : 0);
+
+	        if (_.options.draggable === true) {
+	            _.$list.addClass('draggable');
+	        }
+
+	    };
+
+	    Slick.prototype.buildRows = function() {
+
+	        var _ = this, a, b, c, newSlides, numOfSlides, originalSlides,slidesPerSection;
+
+	        newSlides = document.createDocumentFragment();
+	        originalSlides = _.$slider.children();
+
+	        if(_.options.rows > 0) {
+
+	            slidesPerSection = _.options.slidesPerRow * _.options.rows;
+	            numOfSlides = Math.ceil(
+	                originalSlides.length / slidesPerSection
+	            );
+
+	            for(a = 0; a < numOfSlides; a++){
+	                var slide = document.createElement('div');
+	                for(b = 0; b < _.options.rows; b++) {
+	                    var row = document.createElement('div');
+	                    for(c = 0; c < _.options.slidesPerRow; c++) {
+	                        var target = (a * slidesPerSection + ((b * _.options.slidesPerRow) + c));
+	                        if (originalSlides.get(target)) {
+	                            row.appendChild(originalSlides.get(target));
+	                        }
+	                    }
+	                    slide.appendChild(row);
+	                }
+	                newSlides.appendChild(slide);
+	            }
+
+	            _.$slider.empty().append(newSlides);
+	            _.$slider.children().children().children()
+	                .css({
+	                    'width':(100 / _.options.slidesPerRow) + '%',
+	                    'display': 'inline-block'
+	                });
+
+	        }
+
+	    };
+
+	    Slick.prototype.checkResponsive = function(initial, forceUpdate) {
+
+	        var _ = this,
+	            breakpoint, targetBreakpoint, respondToWidth, triggerBreakpoint = false;
+	        var sliderWidth = _.$slider.width();
+	        var windowWidth = window.innerWidth || $(window).width();
+
+	        if (_.respondTo === 'window') {
+	            respondToWidth = windowWidth;
+	        } else if (_.respondTo === 'slider') {
+	            respondToWidth = sliderWidth;
+	        } else if (_.respondTo === 'min') {
+	            respondToWidth = Math.min(windowWidth, sliderWidth);
+	        }
+
+	        if ( _.options.responsive &&
+	            _.options.responsive.length &&
+	            _.options.responsive !== null) {
+
+	            targetBreakpoint = null;
+
+	            for (breakpoint in _.breakpoints) {
+	                if (_.breakpoints.hasOwnProperty(breakpoint)) {
+	                    if (_.originalSettings.mobileFirst === false) {
+	                        if (respondToWidth < _.breakpoints[breakpoint]) {
+	                            targetBreakpoint = _.breakpoints[breakpoint];
+	                        }
+	                    } else {
+	                        if (respondToWidth > _.breakpoints[breakpoint]) {
+	                            targetBreakpoint = _.breakpoints[breakpoint];
+	                        }
+	                    }
+	                }
+	            }
+
+	            if (targetBreakpoint !== null) {
+	                if (_.activeBreakpoint !== null) {
+	                    if (targetBreakpoint !== _.activeBreakpoint || forceUpdate) {
+	                        _.activeBreakpoint =
+	                            targetBreakpoint;
+	                        if (_.breakpointSettings[targetBreakpoint] === 'unslick') {
+	                            _.unslick(targetBreakpoint);
+	                        } else {
+	                            _.options = $.extend({}, _.originalSettings,
+	                                _.breakpointSettings[
+	                                    targetBreakpoint]);
+	                            if (initial === true) {
+	                                _.currentSlide = _.options.initialSlide;
+	                            }
+	                            _.refresh(initial);
+	                        }
+	                        triggerBreakpoint = targetBreakpoint;
+	                    }
+	                } else {
+	                    _.activeBreakpoint = targetBreakpoint;
+	                    if (_.breakpointSettings[targetBreakpoint] === 'unslick') {
+	                        _.unslick(targetBreakpoint);
+	                    } else {
+	                        _.options = $.extend({}, _.originalSettings,
+	                            _.breakpointSettings[
+	                                targetBreakpoint]);
+	                        if (initial === true) {
+	                            _.currentSlide = _.options.initialSlide;
+	                        }
+	                        _.refresh(initial);
+	                    }
+	                    triggerBreakpoint = targetBreakpoint;
+	                }
+	            } else {
+	                if (_.activeBreakpoint !== null) {
+	                    _.activeBreakpoint = null;
+	                    _.options = _.originalSettings;
+	                    if (initial === true) {
+	                        _.currentSlide = _.options.initialSlide;
+	                    }
+	                    _.refresh(initial);
+	                    triggerBreakpoint = targetBreakpoint;
+	                }
+	            }
+
+	            // only trigger breakpoints during an actual break. not on initialize.
+	            if( !initial && triggerBreakpoint !== false ) {
+	                _.$slider.trigger('breakpoint', [_, triggerBreakpoint]);
+	            }
+	        }
+
+	    };
+
+	    Slick.prototype.changeSlide = function(event, dontAnimate) {
+
+	        var _ = this,
+	            $target = $(event.currentTarget),
+	            indexOffset, slideOffset, unevenOffset;
+
+	        // If target is a link, prevent default action.
+	        if($target.is('a')) {
+	            event.preventDefault();
+	        }
+
+	        // If target is not the <li> element (ie: a child), find the <li>.
+	        if(!$target.is('li')) {
+	            $target = $target.closest('li');
+	        }
+
+	        unevenOffset = (_.slideCount % _.options.slidesToScroll !== 0);
+	        indexOffset = unevenOffset ? 0 : (_.slideCount - _.currentSlide) % _.options.slidesToScroll;
+
+	        switch (event.data.message) {
+
+	            case 'previous':
+	                slideOffset = indexOffset === 0 ? _.options.slidesToScroll : _.options.slidesToShow - indexOffset;
+	                if (_.slideCount > _.options.slidesToShow) {
+	                    _.slideHandler(_.currentSlide - slideOffset, false, dontAnimate);
+	                }
+	                break;
+
+	            case 'next':
+	                slideOffset = indexOffset === 0 ? _.options.slidesToScroll : indexOffset;
+	                if (_.slideCount > _.options.slidesToShow) {
+	                    _.slideHandler(_.currentSlide + slideOffset, false, dontAnimate);
+	                }
+	                break;
+
+	            case 'index':
+	                var index = event.data.index === 0 ? 0 :
+	                    event.data.index || $target.index() * _.options.slidesToScroll;
+
+	                _.slideHandler(_.checkNavigable(index), false, dontAnimate);
+	                $target.children().trigger('focus');
+	                break;
+
+	            default:
+	                return;
+	        }
+
+	    };
+
+	    Slick.prototype.checkNavigable = function(index) {
+
+	        var _ = this,
+	            navigables, prevNavigable;
+
+	        navigables = _.getNavigableIndexes();
+	        prevNavigable = 0;
+	        if (index > navigables[navigables.length - 1]) {
+	            index = navigables[navigables.length - 1];
+	        } else {
+	            for (var n in navigables) {
+	                if (index < navigables[n]) {
+	                    index = prevNavigable;
+	                    break;
+	                }
+	                prevNavigable = navigables[n];
+	            }
+	        }
+
+	        return index;
+	    };
+
+	    Slick.prototype.cleanUpEvents = function() {
+
+	        var _ = this;
+
+	        if (_.options.dots && _.$dots !== null) {
+
+	            $('li', _.$dots)
+	                .off('click.slick', _.changeSlide)
+	                .off('mouseenter.slick', $.proxy(_.interrupt, _, true))
+	                .off('mouseleave.slick', $.proxy(_.interrupt, _, false));
+
+	            if (_.options.accessibility === true) {
+	                _.$dots.off('keydown.slick', _.keyHandler);
+	            }
+	        }
+
+	        _.$slider.off('focus.slick blur.slick');
+
+	        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
+	            _.$prevArrow && _.$prevArrow.off('click.slick', _.changeSlide);
+	            _.$nextArrow && _.$nextArrow.off('click.slick', _.changeSlide);
+
+	            if (_.options.accessibility === true) {
+	                _.$prevArrow && _.$prevArrow.off('keydown.slick', _.keyHandler);
+	                _.$nextArrow && _.$nextArrow.off('keydown.slick', _.keyHandler);
+	            }
+	        }
+
+	        _.$list.off('touchstart.slick mousedown.slick', _.swipeHandler);
+	        _.$list.off('touchmove.slick mousemove.slick', _.swipeHandler);
+	        _.$list.off('touchend.slick mouseup.slick', _.swipeHandler);
+	        _.$list.off('touchcancel.slick mouseleave.slick', _.swipeHandler);
+
+	        _.$list.off('click.slick', _.clickHandler);
+
+	        $(document).off(_.visibilityChange, _.visibility);
+
+	        _.cleanUpSlideEvents();
+
+	        if (_.options.accessibility === true) {
+	            _.$list.off('keydown.slick', _.keyHandler);
+	        }
+
+	        if (_.options.focusOnSelect === true) {
+	            $(_.$slideTrack).children().off('click.slick', _.selectHandler);
+	        }
+
+	        $(window).off('orientationchange.slick.slick-' + _.instanceUid, _.orientationChange);
+
+	        $(window).off('resize.slick.slick-' + _.instanceUid, _.resize);
+
+	        $('[draggable!=true]', _.$slideTrack).off('dragstart', _.preventDefault);
+
+	        $(window).off('load.slick.slick-' + _.instanceUid, _.setPosition);
+
+	    };
+
+	    Slick.prototype.cleanUpSlideEvents = function() {
+
+	        var _ = this;
+
+	        _.$list.off('mouseenter.slick', $.proxy(_.interrupt, _, true));
+	        _.$list.off('mouseleave.slick', $.proxy(_.interrupt, _, false));
+
+	    };
+
+	    Slick.prototype.cleanUpRows = function() {
+
+	        var _ = this, originalSlides;
+
+	        if(_.options.rows > 0) {
+	            originalSlides = _.$slides.children().children();
+	            originalSlides.removeAttr('style');
+	            _.$slider.empty().append(originalSlides);
+	        }
+
+	    };
+
+	    Slick.prototype.clickHandler = function(event) {
+
+	        var _ = this;
+
+	        if (_.shouldClick === false) {
+	            event.stopImmediatePropagation();
+	            event.stopPropagation();
+	            event.preventDefault();
+	        }
+
+	    };
+
+	    Slick.prototype.destroy = function(refresh) {
+
+	        var _ = this;
+
+	        _.autoPlayClear();
+
+	        _.touchObject = {};
+
+	        _.cleanUpEvents();
+
+	        $('.slick-cloned', _.$slider).detach();
+
+	        if (_.$dots) {
+	            _.$dots.remove();
+	        }
+
+	        if ( _.$prevArrow && _.$prevArrow.length ) {
+
+	            _.$prevArrow
+	                .removeClass('slick-disabled slick-arrow slick-hidden')
+	                .removeAttr('aria-hidden aria-disabled tabindex')
+	                .css('display','');
+
+	            if ( _.htmlExpr.test( _.options.prevArrow )) {
+	                _.$prevArrow.remove();
+	            }
+	        }
+
+	        if ( _.$nextArrow && _.$nextArrow.length ) {
+
+	            _.$nextArrow
+	                .removeClass('slick-disabled slick-arrow slick-hidden')
+	                .removeAttr('aria-hidden aria-disabled tabindex')
+	                .css('display','');
+
+	            if ( _.htmlExpr.test( _.options.nextArrow )) {
+	                _.$nextArrow.remove();
+	            }
+	        }
+
+
+	        if (_.$slides) {
+
+	            _.$slides
+	                .removeClass('slick-slide slick-active slick-center slick-visible slick-current')
+	                .removeAttr('aria-hidden')
+	                .removeAttr('data-slick-index')
+	                .each(function(){
+	                    $(this).attr('style', $(this).data('originalStyling'));
+	                });
+
+	            _.$slideTrack.children(this.options.slide).detach();
+
+	            _.$slideTrack.detach();
+
+	            _.$list.detach();
+
+	            _.$slider.append(_.$slides);
+	        }
+
+	        _.cleanUpRows();
+
+	        _.$slider.removeClass('slick-slider');
+	        _.$slider.removeClass('slick-initialized');
+	        _.$slider.removeClass('slick-dotted');
+
+	        _.unslicked = true;
+
+	        if(!refresh) {
+	            _.$slider.trigger('destroy', [_]);
+	        }
+
+	    };
+
+	    Slick.prototype.disableTransition = function(slide) {
+
+	        var _ = this,
+	            transition = {};
+
+	        transition[_.transitionType] = '';
+
+	        if (_.options.fade === false) {
+	            _.$slideTrack.css(transition);
+	        } else {
+	            _.$slides.eq(slide).css(transition);
+	        }
+
+	    };
+
+	    Slick.prototype.fadeSlide = function(slideIndex, callback) {
+
+	        var _ = this;
+
+	        if (_.cssTransitions === false) {
+
+	            _.$slides.eq(slideIndex).css({
+	                zIndex: _.options.zIndex
+	            });
+
+	            _.$slides.eq(slideIndex).animate({
+	                opacity: 1
+	            }, _.options.speed, _.options.easing, callback);
+
+	        } else {
+
+	            _.applyTransition(slideIndex);
+
+	            _.$slides.eq(slideIndex).css({
+	                opacity: 1,
+	                zIndex: _.options.zIndex
+	            });
+
+	            if (callback) {
+	                setTimeout(function() {
+
+	                    _.disableTransition(slideIndex);
+
+	                    callback.call();
+	                }, _.options.speed);
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.fadeSlideOut = function(slideIndex) {
+
+	        var _ = this;
+
+	        if (_.cssTransitions === false) {
+
+	            _.$slides.eq(slideIndex).animate({
+	                opacity: 0,
+	                zIndex: _.options.zIndex - 2
+	            }, _.options.speed, _.options.easing);
+
+	        } else {
+
+	            _.applyTransition(slideIndex);
+
+	            _.$slides.eq(slideIndex).css({
+	                opacity: 0,
+	                zIndex: _.options.zIndex - 2
+	            });
+
+	        }
+
+	    };
+
+	    Slick.prototype.filterSlides = Slick.prototype.slickFilter = function(filter) {
+
+	        var _ = this;
+
+	        if (filter !== null) {
+
+	            _.$slidesCache = _.$slides;
+
+	            _.unload();
+
+	            _.$slideTrack.children(this.options.slide).detach();
+
+	            _.$slidesCache.filter(filter).appendTo(_.$slideTrack);
+
+	            _.reinit();
+
+	        }
+
+	    };
+
+	    Slick.prototype.focusHandler = function() {
+
+	        var _ = this;
+
+	        // If any child element receives focus within the slider we need to pause the autoplay
+	        _.$slider
+	            .off('focus.slick blur.slick')
+	            .on(
+	                'focus.slick',
+	                '*',
+	                function(event) {
+	                    var $sf = $(this);
+
+	                    setTimeout(function() {
+	                        if( _.options.pauseOnFocus ) {
+	                            if ($sf.is(':focus')) {
+	                                _.focussed = true;
+	                                _.autoPlay();
+	                            }
+	                        }
+	                    }, 0);
+	                }
+	            ).on(
+	                'blur.slick',
+	                '*',
+	                function(event) {
+	                    var $sf = $(this);
+
+	                    // When a blur occurs on any elements within the slider we become unfocused
+	                    if( _.options.pauseOnFocus ) {
+	                        _.focussed = false;
+	                        _.autoPlay();
+	                    }
+	                }
+	            );
+	    };
+
+	    Slick.prototype.getCurrent = Slick.prototype.slickCurrentSlide = function() {
+
+	        var _ = this;
+	        return _.currentSlide;
+
+	    };
+
+	    Slick.prototype.getDotCount = function() {
+
+	        var _ = this;
+
+	        var breakPoint = 0;
+	        var counter = 0;
+	        var pagerQty = 0;
+
+	        if (_.options.infinite === true) {
+	            if (_.slideCount <= _.options.slidesToShow) {
+	                 ++pagerQty;
+	            } else {
+	                while (breakPoint < _.slideCount) {
+	                    ++pagerQty;
+	                    breakPoint = counter + _.options.slidesToScroll;
+	                    counter += _.options.slidesToScroll <= _.options.slidesToShow ? _.options.slidesToScroll : _.options.slidesToShow;
+	                }
+	            }
+	        } else if (_.options.centerMode === true) {
+	            pagerQty = _.slideCount;
+	        } else if(!_.options.asNavFor) {
+	            pagerQty = 1 + Math.ceil((_.slideCount - _.options.slidesToShow) / _.options.slidesToScroll);
+	        }else {
+	            while (breakPoint < _.slideCount) {
+	                ++pagerQty;
+	                breakPoint = counter + _.options.slidesToScroll;
+	                counter += _.options.slidesToScroll <= _.options.slidesToShow ? _.options.slidesToScroll : _.options.slidesToShow;
+	            }
+	        }
+
+	        return pagerQty - 1;
+
+	    };
+
+	    Slick.prototype.getLeft = function(slideIndex) {
+
+	        var _ = this,
+	            targetLeft,
+	            verticalHeight,
+	            verticalOffset = 0,
+	            targetSlide,
+	            coef;
+
+	        _.slideOffset = 0;
+	        verticalHeight = _.$slides.first().outerHeight(true);
+
+	        if (_.options.infinite === true) {
+	            if (_.slideCount > _.options.slidesToShow) {
+	                _.slideOffset = (_.slideWidth * _.options.slidesToShow) * -1;
+	                coef = -1
+
+	                if (_.options.vertical === true && _.options.centerMode === true) {
+	                    if (_.options.slidesToShow === 2) {
+	                        coef = -1.5;
+	                    } else if (_.options.slidesToShow === 1) {
+	                        coef = -2
+	                    }
+	                }
+	                verticalOffset = (verticalHeight * _.options.slidesToShow) * coef;
+	            }
+	            if (_.slideCount % _.options.slidesToScroll !== 0) {
+	                if (slideIndex + _.options.slidesToScroll > _.slideCount && _.slideCount > _.options.slidesToShow) {
+	                    if (slideIndex > _.slideCount) {
+	                        _.slideOffset = ((_.options.slidesToShow - (slideIndex - _.slideCount)) * _.slideWidth) * -1;
+	                        verticalOffset = ((_.options.slidesToShow - (slideIndex - _.slideCount)) * verticalHeight) * -1;
+	                    } else {
+	                        _.slideOffset = ((_.slideCount % _.options.slidesToScroll) * _.slideWidth) * -1;
+	                        verticalOffset = ((_.slideCount % _.options.slidesToScroll) * verticalHeight) * -1;
+	                    }
+	                }
+	            }
+	        } else {
+	            if (slideIndex + _.options.slidesToShow > _.slideCount) {
+	                _.slideOffset = ((slideIndex + _.options.slidesToShow) - _.slideCount) * _.slideWidth;
+	                verticalOffset = ((slideIndex + _.options.slidesToShow) - _.slideCount) * verticalHeight;
+	            }
+	        }
+
+	        if (_.slideCount <= _.options.slidesToShow) {
+	            _.slideOffset = 0;
+	            verticalOffset = 0;
+	        }
+
+	        if (_.options.centerMode === true && _.slideCount <= _.options.slidesToShow) {
+	            _.slideOffset = ((_.slideWidth * Math.floor(_.options.slidesToShow)) / 2) - ((_.slideWidth * _.slideCount) / 2);
+	        } else if (_.options.centerMode === true && _.options.infinite === true) {
+	            _.slideOffset += _.slideWidth * Math.floor(_.options.slidesToShow / 2) - _.slideWidth;
+	        } else if (_.options.centerMode === true) {
+	            _.slideOffset = 0;
+	            _.slideOffset += _.slideWidth * Math.floor(_.options.slidesToShow / 2);
+	        }
+
+	        if (_.options.vertical === false) {
+	            targetLeft = ((slideIndex * _.slideWidth) * -1) + _.slideOffset;
+	        } else {
+	            targetLeft = ((slideIndex * verticalHeight) * -1) + verticalOffset;
+	        }
+
+	        if (_.options.variableWidth === true) {
+
+	            if (_.slideCount <= _.options.slidesToShow || _.options.infinite === false) {
+	                targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex);
+	            } else {
+	                targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex + _.options.slidesToShow);
+	            }
+
+	            if (_.options.rtl === true) {
+	                if (targetSlide[0]) {
+	                    targetLeft = (_.$slideTrack.width() - targetSlide[0].offsetLeft - targetSlide.width()) * -1;
+	                } else {
+	                    targetLeft =  0;
+	                }
+	            } else {
+	                targetLeft = targetSlide[0] ? targetSlide[0].offsetLeft * -1 : 0;
+	            }
+
+	            if (_.options.centerMode === true) {
+	                if (_.slideCount <= _.options.slidesToShow || _.options.infinite === false) {
+	                    targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex);
+	                } else {
+	                    targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex + _.options.slidesToShow + 1);
+	                }
+
+	                if (_.options.rtl === true) {
+	                    if (targetSlide[0]) {
+	                        targetLeft = (_.$slideTrack.width() - targetSlide[0].offsetLeft - targetSlide.width()) * -1;
+	                    } else {
+	                        targetLeft =  0;
+	                    }
+	                } else {
+	                    targetLeft = targetSlide[0] ? targetSlide[0].offsetLeft * -1 : 0;
+	                }
+
+	                targetLeft += (_.$list.width() - targetSlide.outerWidth()) / 2;
+	            }
+	        }
+
+	        return targetLeft;
+
+	    };
+
+	    Slick.prototype.getOption = Slick.prototype.slickGetOption = function(option) {
+
+	        var _ = this;
+
+	        return _.options[option];
+
+	    };
+
+	    Slick.prototype.getNavigableIndexes = function() {
+
+	        var _ = this,
+	            breakPoint = 0,
+	            counter = 0,
+	            indexes = [],
+	            max;
+
+	        if (_.options.infinite === false) {
+	            max = _.slideCount;
+	        } else {
+	            breakPoint = _.options.slidesToScroll * -1;
+	            counter = _.options.slidesToScroll * -1;
+	            max = _.slideCount * 2;
+	        }
+
+	        while (breakPoint < max) {
+	            indexes.push(breakPoint);
+	            breakPoint = counter + _.options.slidesToScroll;
+	            counter += _.options.slidesToScroll <= _.options.slidesToShow ? _.options.slidesToScroll : _.options.slidesToShow;
+	        }
+
+	        return indexes;
+
+	    };
+
+	    Slick.prototype.getSlick = function() {
+
+	        return this;
+
+	    };
+
+	    Slick.prototype.getSlideCount = function() {
+
+	        var _ = this,
+	            slidesTraversed, swipedSlide, swipeTarget, centerOffset;
+
+	        centerOffset = _.options.centerMode === true ? Math.floor(_.$list.width() / 2) : 0;
+	        swipeTarget = (_.swipeLeft * -1) + centerOffset;
+
+	        if (_.options.swipeToSlide === true) {
+
+	            _.$slideTrack.find('.slick-slide').each(function(index, slide) {
+
+	                var slideOuterWidth, slideOffset, slideRightBoundary;
+	                slideOuterWidth = $(slide).outerWidth();
+	                slideOffset = slide.offsetLeft;
+	                if (_.options.centerMode !== true) {
+	                    slideOffset += (slideOuterWidth / 2);
+	                }
+
+	                slideRightBoundary = slideOffset + (slideOuterWidth);
+
+	                if (swipeTarget < slideRightBoundary) {
+	                    swipedSlide = slide;
+	                    return false;
+	                }
+	            });
+
+	            slidesTraversed = Math.abs($(swipedSlide).attr('data-slick-index') - _.currentSlide) || 1;
+
+	            return slidesTraversed;
+
+	        } else {
+	            return _.options.slidesToScroll;
+	        }
+
+	    };
+
+	    Slick.prototype.goTo = Slick.prototype.slickGoTo = function(slide, dontAnimate) {
+
+	        var _ = this;
+
+	        _.changeSlide({
+	            data: {
+	                message: 'index',
+	                index: parseInt(slide)
+	            }
+	        }, dontAnimate);
+
+	    };
+
+	    Slick.prototype.init = function(creation) {
+
+	        var _ = this;
+
+	        if (!$(_.$slider).hasClass('slick-initialized')) {
+
+	            $(_.$slider).addClass('slick-initialized');
+
+	            _.buildRows();
+	            _.buildOut();
+	            _.setProps();
+	            _.startLoad();
+	            _.loadSlider();
+	            _.initializeEvents();
+	            _.updateArrows();
+	            _.updateDots();
+	            _.checkResponsive(true);
+	            _.focusHandler();
+
+	        }
+
+	        if (creation) {
+	            _.$slider.trigger('init', [_]);
+	        }
+
+	        if (_.options.accessibility === true) {
+	            _.initADA();
+	        }
+
+	        if ( _.options.autoplay ) {
+
+	            _.paused = false;
+	            _.autoPlay();
+
+	        }
+
+	    };
+
+	    Slick.prototype.initADA = function() {
+	        var _ = this,
+	                numDotGroups = Math.ceil(_.slideCount / _.options.slidesToShow),
+	                tabControlIndexes = _.getNavigableIndexes().filter(function(val) {
+	                    return (val >= 0) && (val < _.slideCount);
+	                });
+
+	        _.$slides.add(_.$slideTrack.find('.slick-cloned')).attr({
+	            'aria-hidden': 'true',
+	            'tabindex': '-1'
+	        }).find('a, input, button, select').attr({
+	            'tabindex': '-1'
+	        });
+
+	        if (_.$dots !== null) {
+	            _.$slides.not(_.$slideTrack.find('.slick-cloned')).each(function(i) {
+	                var slideControlIndex = tabControlIndexes.indexOf(i);
+
+	                $(this).attr({
+	                    'role': 'tabpanel',
+	                    'id': 'slick-slide' + _.instanceUid + i,
+	                    'tabindex': -1
+	                });
+
+	                if (slideControlIndex !== -1) {
+	                   var ariaButtonControl = 'slick-slide-control' + _.instanceUid + slideControlIndex
+	                   if ($('#' + ariaButtonControl).length) {
+	                     $(this).attr({
+	                         'aria-describedby': ariaButtonControl
+	                     });
+	                   }
+	                }
+	            });
+
+	            _.$dots.attr('role', 'tablist').find('li').each(function(i) {
+	                var mappedSlideIndex = tabControlIndexes[i];
+
+	                $(this).attr({
+	                    'role': 'presentation'
+	                });
+
+	                $(this).find('button').first().attr({
+	                    'role': 'tab',
+	                    'id': 'slick-slide-control' + _.instanceUid + i,
+	                    'aria-controls': 'slick-slide' + _.instanceUid + mappedSlideIndex,
+	                    'aria-label': (i + 1) + ' of ' + numDotGroups,
+	                    'aria-selected': null,
+	                    'tabindex': '-1'
+	                });
+
+	            }).eq(_.currentSlide).find('button').attr({
+	                'aria-selected': 'true',
+	                'tabindex': '0'
+	            }).end();
+	        }
+
+	        for (var i=_.currentSlide, max=i+_.options.slidesToShow; i < max; i++) {
+	          if (_.options.focusOnChange) {
+	            _.$slides.eq(i).attr({'tabindex': '0'});
+	          } else {
+	            _.$slides.eq(i).removeAttr('tabindex');
+	          }
+	        }
+
+	        _.activateADA();
+
+	    };
+
+	    Slick.prototype.initArrowEvents = function() {
+
+	        var _ = this;
+
+	        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
+	            _.$prevArrow
+	               .off('click.slick')
+	               .on('click.slick', {
+	                    message: 'previous'
+	               }, _.changeSlide);
+	            _.$nextArrow
+	               .off('click.slick')
+	               .on('click.slick', {
+	                    message: 'next'
+	               }, _.changeSlide);
+
+	            if (_.options.accessibility === true) {
+	                _.$prevArrow.on('keydown.slick', _.keyHandler);
+	                _.$nextArrow.on('keydown.slick', _.keyHandler);
+	            }
+	        }
+
+	    };
+
+	    Slick.prototype.initDotEvents = function() {
+
+	        var _ = this;
+
+	        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
+	            $('li', _.$dots).on('click.slick', {
+	                message: 'index'
+	            }, _.changeSlide);
+
+	            if (_.options.accessibility === true) {
+	                _.$dots.on('keydown.slick', _.keyHandler);
+	            }
+	        }
+
+	        if (_.options.dots === true && _.options.pauseOnDotsHover === true && _.slideCount > _.options.slidesToShow) {
+
+	            $('li', _.$dots)
+	                .on('mouseenter.slick', $.proxy(_.interrupt, _, true))
+	                .on('mouseleave.slick', $.proxy(_.interrupt, _, false));
+
+	        }
+
+	    };
+
+	    Slick.prototype.initSlideEvents = function() {
+
+	        var _ = this;
+
+	        if ( _.options.pauseOnHover ) {
+
+	            _.$list.on('mouseenter.slick', $.proxy(_.interrupt, _, true));
+	            _.$list.on('mouseleave.slick', $.proxy(_.interrupt, _, false));
+
+	        }
+
+	    };
+
+	    Slick.prototype.initializeEvents = function() {
+
+	        var _ = this;
+
+	        _.initArrowEvents();
+
+	        _.initDotEvents();
+	        _.initSlideEvents();
+
+	        _.$list.on('touchstart.slick mousedown.slick', {
+	            action: 'start'
+	        }, _.swipeHandler);
+	        _.$list.on('touchmove.slick mousemove.slick', {
+	            action: 'move'
+	        }, _.swipeHandler);
+	        _.$list.on('touchend.slick mouseup.slick', {
+	            action: 'end'
+	        }, _.swipeHandler);
+	        _.$list.on('touchcancel.slick mouseleave.slick', {
+	            action: 'end'
+	        }, _.swipeHandler);
+
+	        _.$list.on('click.slick', _.clickHandler);
+
+	        $(document).on(_.visibilityChange, $.proxy(_.visibility, _));
+
+	        if (_.options.accessibility === true) {
+	            _.$list.on('keydown.slick', _.keyHandler);
+	        }
+
+	        if (_.options.focusOnSelect === true) {
+	            $(_.$slideTrack).children().on('click.slick', _.selectHandler);
+	        }
+
+	        $(window).on('orientationchange.slick.slick-' + _.instanceUid, $.proxy(_.orientationChange, _));
+
+	        $(window).on('resize.slick.slick-' + _.instanceUid, $.proxy(_.resize, _));
+
+	        $('[draggable!=true]', _.$slideTrack).on('dragstart', _.preventDefault);
+
+	        $(window).on('load.slick.slick-' + _.instanceUid, _.setPosition);
+	        $(_.setPosition);
+
+	    };
+
+	    Slick.prototype.initUI = function() {
+
+	        var _ = this;
+
+	        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
+
+	            _.$prevArrow.show();
+	            _.$nextArrow.show();
+
+	        }
+
+	        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
+
+	            _.$dots.show();
+
+	        }
+
+	    };
+
+	    Slick.prototype.keyHandler = function(event) {
+
+	        var _ = this;
+	         //Dont slide if the cursor is inside the form fields and arrow keys are pressed
+	        if(!event.target.tagName.match('TEXTAREA|INPUT|SELECT')) {
+	            if (event.keyCode === 37 && _.options.accessibility === true) {
+	                _.changeSlide({
+	                    data: {
+	                        message: _.options.rtl === true ? 'next' :  'previous'
+	                    }
+	                });
+	            } else if (event.keyCode === 39 && _.options.accessibility === true) {
+	                _.changeSlide({
+	                    data: {
+	                        message: _.options.rtl === true ? 'previous' : 'next'
+	                    }
+	                });
+	            }
+	        }
+
+	    };
+
+	    Slick.prototype.lazyLoad = function() {
+
+	        var _ = this,
+	            loadRange, cloneRange, rangeStart, rangeEnd;
+
+	        function loadImages(imagesScope) {
+
+	            $('img[data-lazy]', imagesScope).each(function() {
+
+	                var image = $(this),
+	                    imageSource = $(this).attr('data-lazy'),
+	                    imageSrcSet = $(this).attr('data-srcset'),
+	                    imageSizes  = $(this).attr('data-sizes') || _.$slider.attr('data-sizes'),
+	                    imageToLoad = document.createElement('img');
+
+	                imageToLoad.onload = function() {
+
+	                    image
+	                        .animate({ opacity: 0 }, 100, function() {
+
+	                            if (imageSrcSet) {
+	                                image
+	                                    .attr('srcset', imageSrcSet );
+
+	                                if (imageSizes) {
+	                                    image
+	                                        .attr('sizes', imageSizes );
+	                                }
+	                            }
+
+	                            image
+	                                .attr('src', imageSource)
+	                                .animate({ opacity: 1 }, 200, function() {
+	                                    image
+	                                        .removeAttr('data-lazy data-srcset data-sizes')
+	                                        .removeClass('slick-loading');
+	                                });
+	                            _.$slider.trigger('lazyLoaded', [_, image, imageSource]);
+	                        });
+
+	                };
+
+	                imageToLoad.onerror = function() {
+
+	                    image
+	                        .removeAttr( 'data-lazy' )
+	                        .removeClass( 'slick-loading' )
+	                        .addClass( 'slick-lazyload-error' );
+
+	                    _.$slider.trigger('lazyLoadError', [ _, image, imageSource ]);
+
+	                };
+
+	                imageToLoad.src = imageSource;
+
+	            });
+
+	        }
+
+	        if (_.options.centerMode === true) {
+	            if (_.options.infinite === true) {
+	                rangeStart = _.currentSlide + (_.options.slidesToShow / 2 + 1);
+	                rangeEnd = rangeStart + _.options.slidesToShow + 2;
+	            } else {
+	                rangeStart = Math.max(0, _.currentSlide - (_.options.slidesToShow / 2 + 1));
+	                rangeEnd = 2 + (_.options.slidesToShow / 2 + 1) + _.currentSlide;
+	            }
+	        } else {
+	            rangeStart = _.options.infinite ? _.options.slidesToShow + _.currentSlide : _.currentSlide;
+	            rangeEnd = Math.ceil(rangeStart + _.options.slidesToShow);
+	            if (_.options.fade === true) {
+	                if (rangeStart > 0) rangeStart--;
+	                if (rangeEnd <= _.slideCount) rangeEnd++;
+	            }
+	        }
+
+	        loadRange = _.$slider.find('.slick-slide').slice(rangeStart, rangeEnd);
+
+	        if (_.options.lazyLoad === 'anticipated') {
+	            var prevSlide = rangeStart - 1,
+	                nextSlide = rangeEnd,
+	                $slides = _.$slider.find('.slick-slide');
+
+	            for (var i = 0; i < _.options.slidesToScroll; i++) {
+	                if (prevSlide < 0) prevSlide = _.slideCount - 1;
+	                loadRange = loadRange.add($slides.eq(prevSlide));
+	                loadRange = loadRange.add($slides.eq(nextSlide));
+	                prevSlide--;
+	                nextSlide++;
+	            }
+	        }
+
+	        loadImages(loadRange);
+
+	        if (_.slideCount <= _.options.slidesToShow) {
+	            cloneRange = _.$slider.find('.slick-slide');
+	            loadImages(cloneRange);
+	        } else
+	        if (_.currentSlide >= _.slideCount - _.options.slidesToShow) {
+	            cloneRange = _.$slider.find('.slick-cloned').slice(0, _.options.slidesToShow);
+	            loadImages(cloneRange);
+	        } else if (_.currentSlide === 0) {
+	            cloneRange = _.$slider.find('.slick-cloned').slice(_.options.slidesToShow * -1);
+	            loadImages(cloneRange);
+	        }
+
+	    };
+
+	    Slick.prototype.loadSlider = function() {
+
+	        var _ = this;
+
+	        _.setPosition();
+
+	        _.$slideTrack.css({
+	            opacity: 1
+	        });
+
+	        _.$slider.removeClass('slick-loading');
+
+	        _.initUI();
+
+	        if (_.options.lazyLoad === 'progressive') {
+	            _.progressiveLazyLoad();
+	        }
+
+	    };
+
+	    Slick.prototype.next = Slick.prototype.slickNext = function() {
+
+	        var _ = this;
+
+	        _.changeSlide({
+	            data: {
+	                message: 'next'
+	            }
+	        });
+
+	    };
+
+	    Slick.prototype.orientationChange = function() {
+
+	        var _ = this;
+
+	        _.checkResponsive();
+	        _.setPosition();
+
+	    };
+
+	    Slick.prototype.pause = Slick.prototype.slickPause = function() {
+
+	        var _ = this;
+
+	        _.autoPlayClear();
+	        _.paused = true;
+
+	    };
+
+	    Slick.prototype.play = Slick.prototype.slickPlay = function() {
+
+	        var _ = this;
+
+	        _.autoPlay();
+	        _.options.autoplay = true;
+	        _.paused = false;
+	        _.focussed = false;
+	        _.interrupted = false;
+
+	    };
+
+	    Slick.prototype.postSlide = function(index) {
+
+	        var _ = this;
+
+	        if( !_.unslicked ) {
+
+	            _.$slider.trigger('afterChange', [_, index]);
+
+	            _.animating = false;
+
+	            if (_.slideCount > _.options.slidesToShow) {
+	                _.setPosition();
+	            }
+
+	            _.swipeLeft = null;
+
+	            if ( _.options.autoplay ) {
+	                _.autoPlay();
+	            }
+
+	            if (_.options.accessibility === true) {
+	                _.initADA();
+
+	                if (_.options.focusOnChange) {
+	                    var $currentSlide = $(_.$slides.get(_.currentSlide));
+	                    $currentSlide.attr('tabindex', 0).focus();
+	                }
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.prev = Slick.prototype.slickPrev = function() {
+
+	        var _ = this;
+
+	        _.changeSlide({
+	            data: {
+	                message: 'previous'
+	            }
+	        });
+
+	    };
+
+	    Slick.prototype.preventDefault = function(event) {
+
+	        event.preventDefault();
+
+	    };
+
+	    Slick.prototype.progressiveLazyLoad = function( tryCount ) {
+
+	        tryCount = tryCount || 1;
+
+	        var _ = this,
+	            $imgsToLoad = $( 'img[data-lazy]', _.$slider ),
+	            image,
+	            imageSource,
+	            imageSrcSet,
+	            imageSizes,
+	            imageToLoad;
+
+	        if ( $imgsToLoad.length ) {
+
+	            image = $imgsToLoad.first();
+	            imageSource = image.attr('data-lazy');
+	            imageSrcSet = image.attr('data-srcset');
+	            imageSizes  = image.attr('data-sizes') || _.$slider.attr('data-sizes');
+	            imageToLoad = document.createElement('img');
+
+	            imageToLoad.onload = function() {
+
+	                if (imageSrcSet) {
+	                    image
+	                        .attr('srcset', imageSrcSet );
+
+	                    if (imageSizes) {
+	                        image
+	                            .attr('sizes', imageSizes );
+	                    }
+	                }
+
+	                image
+	                    .attr( 'src', imageSource )
+	                    .removeAttr('data-lazy data-srcset data-sizes')
+	                    .removeClass('slick-loading');
+
+	                if ( _.options.adaptiveHeight === true ) {
+	                    _.setPosition();
+	                }
+
+	                _.$slider.trigger('lazyLoaded', [ _, image, imageSource ]);
+	                _.progressiveLazyLoad();
+
+	            };
+
+	            imageToLoad.onerror = function() {
+
+	                if ( tryCount < 3 ) {
+
+	                    /**
+	                     * try to load the image 3 times,
+	                     * leave a slight delay so we don't get
+	                     * servers blocking the request.
+	                     */
+	                    setTimeout( function() {
+	                        _.progressiveLazyLoad( tryCount + 1 );
+	                    }, 500 );
+
+	                } else {
+
+	                    image
+	                        .removeAttr( 'data-lazy' )
+	                        .removeClass( 'slick-loading' )
+	                        .addClass( 'slick-lazyload-error' );
+
+	                    _.$slider.trigger('lazyLoadError', [ _, image, imageSource ]);
+
+	                    _.progressiveLazyLoad();
+
+	                }
+
+	            };
+
+	            imageToLoad.src = imageSource;
+
+	        } else {
+
+	            _.$slider.trigger('allImagesLoaded', [ _ ]);
+
+	        }
+
+	    };
+
+	    Slick.prototype.refresh = function( initializing ) {
+
+	        var _ = this, currentSlide, lastVisibleIndex;
+
+	        lastVisibleIndex = _.slideCount - _.options.slidesToShow;
+
+	        // in non-infinite sliders, we don't want to go past the
+	        // last visible index.
+	        if( !_.options.infinite && ( _.currentSlide > lastVisibleIndex )) {
+	            _.currentSlide = lastVisibleIndex;
+	        }
+
+	        // if less slides than to show, go to start.
+	        if ( _.slideCount <= _.options.slidesToShow ) {
+	            _.currentSlide = 0;
+
+	        }
+
+	        currentSlide = _.currentSlide;
+
+	        _.destroy(true);
+
+	        $.extend(_, _.initials, { currentSlide: currentSlide });
+
+	        _.init();
+
+	        if( !initializing ) {
+
+	            _.changeSlide({
+	                data: {
+	                    message: 'index',
+	                    index: currentSlide
+	                }
+	            }, false);
+
+	        }
+
+	    };
+
+	    Slick.prototype.registerBreakpoints = function() {
+
+	        var _ = this, breakpoint, currentBreakpoint, l,
+	            responsiveSettings = _.options.responsive || null;
+
+	        if ( $.type(responsiveSettings) === 'array' && responsiveSettings.length ) {
+
+	            _.respondTo = _.options.respondTo || 'window';
+
+	            for ( breakpoint in responsiveSettings ) {
+
+	                l = _.breakpoints.length-1;
+
+	                if (responsiveSettings.hasOwnProperty(breakpoint)) {
+	                    currentBreakpoint = responsiveSettings[breakpoint].breakpoint;
+
+	                    // loop through the breakpoints and cut out any existing
+	                    // ones with the same breakpoint number, we don't want dupes.
+	                    while( l >= 0 ) {
+	                        if( _.breakpoints[l] && _.breakpoints[l] === currentBreakpoint ) {
+	                            _.breakpoints.splice(l,1);
+	                        }
+	                        l--;
+	                    }
+
+	                    _.breakpoints.push(currentBreakpoint);
+	                    _.breakpointSettings[currentBreakpoint] = responsiveSettings[breakpoint].settings;
+
+	                }
+
+	            }
+
+	            _.breakpoints.sort(function(a, b) {
+	                return ( _.options.mobileFirst ) ? a-b : b-a;
+	            });
+
+	        }
+
+	    };
+
+	    Slick.prototype.reinit = function() {
+
+	        var _ = this;
+
+	        _.$slides =
+	            _.$slideTrack
+	                .children(_.options.slide)
+	                .addClass('slick-slide');
+
+	        _.slideCount = _.$slides.length;
+
+	        if (_.currentSlide >= _.slideCount && _.currentSlide !== 0) {
+	            _.currentSlide = _.currentSlide - _.options.slidesToScroll;
+	        }
+
+	        if (_.slideCount <= _.options.slidesToShow) {
+	            _.currentSlide = 0;
+	        }
+
+	        _.registerBreakpoints();
+
+	        _.setProps();
+	        _.setupInfinite();
+	        _.buildArrows();
+	        _.updateArrows();
+	        _.initArrowEvents();
+	        _.buildDots();
+	        _.updateDots();
+	        _.initDotEvents();
+	        _.cleanUpSlideEvents();
+	        _.initSlideEvents();
+
+	        _.checkResponsive(false, true);
+
+	        if (_.options.focusOnSelect === true) {
+	            $(_.$slideTrack).children().on('click.slick', _.selectHandler);
+	        }
+
+	        _.setSlideClasses(typeof _.currentSlide === 'number' ? _.currentSlide : 0);
+
+	        _.setPosition();
+	        _.focusHandler();
+
+	        _.paused = !_.options.autoplay;
+	        _.autoPlay();
+
+	        _.$slider.trigger('reInit', [_]);
+
+	    };
+
+	    Slick.prototype.resize = function() {
+
+	        var _ = this;
+
+	        if ($(window).width() !== _.windowWidth) {
+	            clearTimeout(_.windowDelay);
+	            _.windowDelay = window.setTimeout(function() {
+	                _.windowWidth = $(window).width();
+	                _.checkResponsive();
+	                if( !_.unslicked ) { _.setPosition(); }
+	            }, 50);
+	        }
+	    };
+
+	    Slick.prototype.removeSlide = Slick.prototype.slickRemove = function(index, removeBefore, removeAll) {
+
+	        var _ = this;
+
+	        if (typeof(index) === 'boolean') {
+	            removeBefore = index;
+	            index = removeBefore === true ? 0 : _.slideCount - 1;
+	        } else {
+	            index = removeBefore === true ? --index : index;
+	        }
+
+	        if (_.slideCount < 1 || index < 0 || index > _.slideCount - 1) {
+	            return false;
+	        }
+
+	        _.unload();
+
+	        if (removeAll === true) {
+	            _.$slideTrack.children().remove();
+	        } else {
+	            _.$slideTrack.children(this.options.slide).eq(index).remove();
+	        }
+
+	        _.$slides = _.$slideTrack.children(this.options.slide);
+
+	        _.$slideTrack.children(this.options.slide).detach();
+
+	        _.$slideTrack.append(_.$slides);
+
+	        _.$slidesCache = _.$slides;
+
+	        _.reinit();
+
+	    };
+
+	    Slick.prototype.setCSS = function(position) {
+
+	        var _ = this,
+	            positionProps = {},
+	            x, y;
+
+	        if (_.options.rtl === true) {
+	            position = -position;
+	        }
+	        x = _.positionProp == 'left' ? Math.ceil(position) + 'px' : '0px';
+	        y = _.positionProp == 'top' ? Math.ceil(position) + 'px' : '0px';
+
+	        positionProps[_.positionProp] = position;
+
+	        if (_.transformsEnabled === false) {
+	            _.$slideTrack.css(positionProps);
+	        } else {
+	            positionProps = {};
+	            if (_.cssTransitions === false) {
+	                positionProps[_.animType] = 'translate(' + x + ', ' + y + ')';
+	                _.$slideTrack.css(positionProps);
+	            } else {
+	                positionProps[_.animType] = 'translate3d(' + x + ', ' + y + ', 0px)';
+	                _.$slideTrack.css(positionProps);
+	            }
+	        }
+
+	    };
+
+	    Slick.prototype.setDimensions = function() {
+
+	        var _ = this;
+
+	        if (_.options.vertical === false) {
+	            if (_.options.centerMode === true) {
+	                _.$list.css({
+	                    padding: ('0px ' + _.options.centerPadding)
+	                });
+	            }
+	        } else {
+	            _.$list.height(_.$slides.first().outerHeight(true) * _.options.slidesToShow);
+	            if (_.options.centerMode === true) {
+	                _.$list.css({
+	                    padding: (_.options.centerPadding + ' 0px')
+	                });
+	            }
+	        }
+
+	        _.listWidth = _.$list.width();
+	        _.listHeight = _.$list.height();
+
+
+	        if (_.options.vertical === false && _.options.variableWidth === false) {
+	            _.slideWidth = Math.ceil(_.listWidth / _.options.slidesToShow);
+	            _.$slideTrack.width(Math.ceil((_.slideWidth * _.$slideTrack.children('.slick-slide').length)));
+
+	        } else if (_.options.variableWidth === true) {
+	            _.$slideTrack.width(5000 * _.slideCount);
+	        } else {
+	            _.slideWidth = Math.ceil(_.listWidth);
+	            _.$slideTrack.height(Math.ceil((_.$slides.first().outerHeight(true) * _.$slideTrack.children('.slick-slide').length)));
+	        }
+
+	        var offset = _.$slides.first().outerWidth(true) - _.$slides.first().width();
+	        if (_.options.variableWidth === false) _.$slideTrack.children('.slick-slide').width(_.slideWidth - offset);
+
+	    };
+
+	    Slick.prototype.setFade = function() {
+
+	        var _ = this,
+	            targetLeft;
+
+	        _.$slides.each(function(index, element) {
+	            targetLeft = (_.slideWidth * index) * -1;
+	            if (_.options.rtl === true) {
+	                $(element).css({
+	                    position: 'relative',
+	                    right: targetLeft,
+	                    top: 0,
+	                    zIndex: _.options.zIndex - 2,
+	                    opacity: 0
+	                });
+	            } else {
+	                $(element).css({
+	                    position: 'relative',
+	                    left: targetLeft,
+	                    top: 0,
+	                    zIndex: _.options.zIndex - 2,
+	                    opacity: 0
+	                });
+	            }
+	        });
+
+	        _.$slides.eq(_.currentSlide).css({
+	            zIndex: _.options.zIndex - 1,
+	            opacity: 1
+	        });
+
+	    };
+
+	    Slick.prototype.setHeight = function() {
+
+	        var _ = this;
+
+	        if (_.options.slidesToShow === 1 && _.options.adaptiveHeight === true && _.options.vertical === false) {
+	            var targetHeight = _.$slides.eq(_.currentSlide).outerHeight(true);
+	            _.$list.css('height', targetHeight);
+	        }
+
+	    };
+
+	    Slick.prototype.setOption =
+	    Slick.prototype.slickSetOption = function() {
+
+	        /**
+	         * accepts arguments in format of:
+	         *
+	         *  - for changing a single option's value:
+	         *     .slick("setOption", option, value, refresh )
+	         *
+	         *  - for changing a set of responsive options:
+	         *     .slick("setOption", 'responsive', [{}, ...], refresh )
+	         *
+	         *  - for updating multiple values at once (not responsive)
+	         *     .slick("setOption", { 'option': value, ... }, refresh )
+	         */
+
+	        var _ = this, l, item, option, value, refresh = false, type;
+
+	        if( $.type( arguments[0] ) === 'object' ) {
+
+	            option =  arguments[0];
+	            refresh = arguments[1];
+	            type = 'multiple';
+
+	        } else if ( $.type( arguments[0] ) === 'string' ) {
+
+	            option =  arguments[0];
+	            value = arguments[1];
+	            refresh = arguments[2];
+
+	            if ( arguments[0] === 'responsive' && $.type( arguments[1] ) === 'array' ) {
+
+	                type = 'responsive';
+
+	            } else if ( typeof arguments[1] !== 'undefined' ) {
+
+	                type = 'single';
+
+	            }
+
+	        }
+
+	        if ( type === 'single' ) {
+
+	            _.options[option] = value;
+
+
+	        } else if ( type === 'multiple' ) {
+
+	            $.each( option , function( opt, val ) {
+
+	                _.options[opt] = val;
+
+	            });
+
+
+	        } else if ( type === 'responsive' ) {
+
+	            for ( item in value ) {
+
+	                if( $.type( _.options.responsive ) !== 'array' ) {
+
+	                    _.options.responsive = [ value[item] ];
+
+	                } else {
+
+	                    l = _.options.responsive.length-1;
+
+	                    // loop through the responsive object and splice out duplicates.
+	                    while( l >= 0 ) {
+
+	                        if( _.options.responsive[l].breakpoint === value[item].breakpoint ) {
+
+	                            _.options.responsive.splice(l,1);
+
+	                        }
+
+	                        l--;
+
+	                    }
+
+	                    _.options.responsive.push( value[item] );
+
+	                }
+
+	            }
+
+	        }
+
+	        if ( refresh ) {
+
+	            _.unload();
+	            _.reinit();
+
+	        }
+
+	    };
+
+	    Slick.prototype.setPosition = function() {
+
+	        var _ = this;
+
+	        _.setDimensions();
+
+	        _.setHeight();
+
+	        if (_.options.fade === false) {
+	            _.setCSS(_.getLeft(_.currentSlide));
+	        } else {
+	            _.setFade();
+	        }
+
+	        _.$slider.trigger('setPosition', [_]);
+
+	    };
+
+	    Slick.prototype.setProps = function() {
+
+	        var _ = this,
+	            bodyStyle = document.body.style;
+
+	        _.positionProp = _.options.vertical === true ? 'top' : 'left';
+
+	        if (_.positionProp === 'top') {
+	            _.$slider.addClass('slick-vertical');
+	        } else {
+	            _.$slider.removeClass('slick-vertical');
+	        }
+
+	        if (bodyStyle.WebkitTransition !== undefined ||
+	            bodyStyle.MozTransition !== undefined ||
+	            bodyStyle.msTransition !== undefined) {
+	            if (_.options.useCSS === true) {
+	                _.cssTransitions = true;
+	            }
+	        }
+
+	        if ( _.options.fade ) {
+	            if ( typeof _.options.zIndex === 'number' ) {
+	                if( _.options.zIndex < 3 ) {
+	                    _.options.zIndex = 3;
+	                }
+	            } else {
+	                _.options.zIndex = _.defaults.zIndex;
+	            }
+	        }
+
+	        if (bodyStyle.OTransform !== undefined) {
+	            _.animType = 'OTransform';
+	            _.transformType = '-o-transform';
+	            _.transitionType = 'OTransition';
+	            if (bodyStyle.perspectiveProperty === undefined && bodyStyle.webkitPerspective === undefined) _.animType = false;
+	        }
+	        if (bodyStyle.MozTransform !== undefined) {
+	            _.animType = 'MozTransform';
+	            _.transformType = '-moz-transform';
+	            _.transitionType = 'MozTransition';
+	            if (bodyStyle.perspectiveProperty === undefined && bodyStyle.MozPerspective === undefined) _.animType = false;
+	        }
+	        if (bodyStyle.webkitTransform !== undefined) {
+	            _.animType = 'webkitTransform';
+	            _.transformType = '-webkit-transform';
+	            _.transitionType = 'webkitTransition';
+	            if (bodyStyle.perspectiveProperty === undefined && bodyStyle.webkitPerspective === undefined) _.animType = false;
+	        }
+	        if (bodyStyle.msTransform !== undefined) {
+	            _.animType = 'msTransform';
+	            _.transformType = '-ms-transform';
+	            _.transitionType = 'msTransition';
+	            if (bodyStyle.msTransform === undefined) _.animType = false;
+	        }
+	        if (bodyStyle.transform !== undefined && _.animType !== false) {
+	            _.animType = 'transform';
+	            _.transformType = 'transform';
+	            _.transitionType = 'transition';
+	        }
+	        _.transformsEnabled = _.options.useTransform && (_.animType !== null && _.animType !== false);
+	    };
+
+
+	    Slick.prototype.setSlideClasses = function(index) {
+
+	        var _ = this,
+	            centerOffset, allSlides, indexOffset, remainder;
+
+	        allSlides = _.$slider
+	            .find('.slick-slide')
+	            .removeClass('slick-active slick-center slick-current')
+	            .attr('aria-hidden', 'true');
+
+	        _.$slides
+	            .eq(index)
+	            .addClass('slick-current');
+
+	        if (_.options.centerMode === true) {
+
+	            var evenCoef = _.options.slidesToShow % 2 === 0 ? 1 : 0;
+
+	            centerOffset = Math.floor(_.options.slidesToShow / 2);
+
+	            if (_.options.infinite === true) {
+
+	                if (index >= centerOffset && index <= (_.slideCount - 1) - centerOffset) {
+	                    _.$slides
+	                        .slice(index - centerOffset + evenCoef, index + centerOffset + 1)
+	                        .addClass('slick-active')
+	                        .attr('aria-hidden', 'false');
+
+	                } else {
+
+	                    indexOffset = _.options.slidesToShow + index;
+	                    allSlides
+	                        .slice(indexOffset - centerOffset + 1 + evenCoef, indexOffset + centerOffset + 2)
+	                        .addClass('slick-active')
+	                        .attr('aria-hidden', 'false');
+
+	                }
+
+	                if (index === 0) {
+
+	                    allSlides
+	                        .eq(allSlides.length - 1 - _.options.slidesToShow)
+	                        .addClass('slick-center');
+
+	                } else if (index === _.slideCount - 1) {
+
+	                    allSlides
+	                        .eq(_.options.slidesToShow)
+	                        .addClass('slick-center');
+
+	                }
+
+	            }
+
+	            _.$slides
+	                .eq(index)
+	                .addClass('slick-center');
+
+	        } else {
+
+	            if (index >= 0 && index <= (_.slideCount - _.options.slidesToShow)) {
+
+	                _.$slides
+	                    .slice(index, index + _.options.slidesToShow)
+	                    .addClass('slick-active')
+	                    .attr('aria-hidden', 'false');
+
+	            } else if (allSlides.length <= _.options.slidesToShow) {
+
+	                allSlides
+	                    .addClass('slick-active')
+	                    .attr('aria-hidden', 'false');
+
+	            } else {
+
+	                remainder = _.slideCount % _.options.slidesToShow;
+	                indexOffset = _.options.infinite === true ? _.options.slidesToShow + index : index;
+
+	                if (_.options.slidesToShow == _.options.slidesToScroll && (_.slideCount - index) < _.options.slidesToShow) {
+
+	                    allSlides
+	                        .slice(indexOffset - (_.options.slidesToShow - remainder), indexOffset + remainder)
+	                        .addClass('slick-active')
+	                        .attr('aria-hidden', 'false');
+
+	                } else {
+
+	                    allSlides
+	                        .slice(indexOffset, indexOffset + _.options.slidesToShow)
+	                        .addClass('slick-active')
+	                        .attr('aria-hidden', 'false');
+
+	                }
+
+	            }
+
+	        }
+
+	        if (_.options.lazyLoad === 'ondemand' || _.options.lazyLoad === 'anticipated') {
+	            _.lazyLoad();
+	        }
+	    };
+
+	    Slick.prototype.setupInfinite = function() {
+
+	        var _ = this,
+	            i, slideIndex, infiniteCount;
+
+	        if (_.options.fade === true) {
+	            _.options.centerMode = false;
+	        }
+
+	        if (_.options.infinite === true && _.options.fade === false) {
+
+	            slideIndex = null;
+
+	            if (_.slideCount > _.options.slidesToShow) {
+
+	                if (_.options.centerMode === true) {
+	                    infiniteCount = _.options.slidesToShow + 1;
+	                } else {
+	                    infiniteCount = _.options.slidesToShow;
+	                }
+
+	                for (i = _.slideCount; i > (_.slideCount -
+	                        infiniteCount); i -= 1) {
+	                    slideIndex = i - 1;
+	                    $(_.$slides[slideIndex]).clone(true).attr('id', '')
+	                        .attr('data-slick-index', slideIndex - _.slideCount)
+	                        .prependTo(_.$slideTrack).addClass('slick-cloned');
+	                }
+	                for (i = 0; i < infiniteCount  + _.slideCount; i += 1) {
+	                    slideIndex = i;
+	                    $(_.$slides[slideIndex]).clone(true).attr('id', '')
+	                        .attr('data-slick-index', slideIndex + _.slideCount)
+	                        .appendTo(_.$slideTrack).addClass('slick-cloned');
+	                }
+	                _.$slideTrack.find('.slick-cloned').find('[id]').each(function() {
+	                    $(this).attr('id', '');
+	                });
+
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.interrupt = function( toggle ) {
+
+	        var _ = this;
+
+	        if( !toggle ) {
+	            _.autoPlay();
+	        }
+	        _.interrupted = toggle;
+
+	    };
+
+	    Slick.prototype.selectHandler = function(event) {
+
+	        var _ = this;
+
+	        var targetElement =
+	            $(event.target).is('.slick-slide') ?
+	                $(event.target) :
+	                $(event.target).parents('.slick-slide');
+
+	        var index = parseInt(targetElement.attr('data-slick-index'));
+
+	        if (!index) index = 0;
+
+	        if (_.slideCount <= _.options.slidesToShow) {
+
+	            _.slideHandler(index, false, true);
+	            return;
+
+	        }
+
+	        _.slideHandler(index);
+
+	    };
+
+	    Slick.prototype.slideHandler = function(index, sync, dontAnimate) {
+
+	        var targetSlide, animSlide, oldSlide, slideLeft, targetLeft = null,
+	            _ = this, navTarget;
+
+	        sync = sync || false;
+
+	        if (_.animating === true && _.options.waitForAnimate === true) {
+	            return;
+	        }
+
+	        if (_.options.fade === true && _.currentSlide === index) {
+	            return;
+	        }
+
+	        if (sync === false) {
+	            _.asNavFor(index);
+	        }
+
+	        targetSlide = index;
+	        targetLeft = _.getLeft(targetSlide);
+	        slideLeft = _.getLeft(_.currentSlide);
+
+	        _.currentLeft = _.swipeLeft === null ? slideLeft : _.swipeLeft;
+
+	        if (_.options.infinite === false && _.options.centerMode === false && (index < 0 || index > _.getDotCount() * _.options.slidesToScroll)) {
+	            if (_.options.fade === false) {
+	                targetSlide = _.currentSlide;
+	                if (dontAnimate !== true && _.slideCount > _.options.slidesToShow) {
+	                    _.animateSlide(slideLeft, function() {
+	                        _.postSlide(targetSlide);
+	                    });
+	                } else {
+	                    _.postSlide(targetSlide);
+	                }
+	            }
+	            return;
+	        } else if (_.options.infinite === false && _.options.centerMode === true && (index < 0 || index > (_.slideCount - _.options.slidesToScroll))) {
+	            if (_.options.fade === false) {
+	                targetSlide = _.currentSlide;
+	                if (dontAnimate !== true && _.slideCount > _.options.slidesToShow) {
+	                    _.animateSlide(slideLeft, function() {
+	                        _.postSlide(targetSlide);
+	                    });
+	                } else {
+	                    _.postSlide(targetSlide);
+	                }
+	            }
+	            return;
+	        }
+
+	        if ( _.options.autoplay ) {
+	            clearInterval(_.autoPlayTimer);
+	        }
+
+	        if (targetSlide < 0) {
+	            if (_.slideCount % _.options.slidesToScroll !== 0) {
+	                animSlide = _.slideCount - (_.slideCount % _.options.slidesToScroll);
+	            } else {
+	                animSlide = _.slideCount + targetSlide;
+	            }
+	        } else if (targetSlide >= _.slideCount) {
+	            if (_.slideCount % _.options.slidesToScroll !== 0) {
+	                animSlide = 0;
+	            } else {
+	                animSlide = targetSlide - _.slideCount;
+	            }
+	        } else {
+	            animSlide = targetSlide;
+	        }
+
+	        _.animating = true;
+
+	        _.$slider.trigger('beforeChange', [_, _.currentSlide, animSlide]);
+
+	        oldSlide = _.currentSlide;
+	        _.currentSlide = animSlide;
+
+	        _.setSlideClasses(_.currentSlide);
+
+	        if ( _.options.asNavFor ) {
+
+	            navTarget = _.getNavTarget();
+	            navTarget = navTarget.slick('getSlick');
+
+	            if ( navTarget.slideCount <= navTarget.options.slidesToShow ) {
+	                navTarget.setSlideClasses(_.currentSlide);
+	            }
+
+	        }
+
+	        _.updateDots();
+	        _.updateArrows();
+
+	        if (_.options.fade === true) {
+	            if (dontAnimate !== true) {
+
+	                _.fadeSlideOut(oldSlide);
+
+	                _.fadeSlide(animSlide, function() {
+	                    _.postSlide(animSlide);
+	                });
+
+	            } else {
+	                _.postSlide(animSlide);
+	            }
+	            _.animateHeight();
+	            return;
+	        }
+
+	        if (dontAnimate !== true && _.slideCount > _.options.slidesToShow) {
+	            _.animateSlide(targetLeft, function() {
+	                _.postSlide(animSlide);
+	            });
+	        } else {
+	            _.postSlide(animSlide);
+	        }
+
+	    };
+
+	    Slick.prototype.startLoad = function() {
+
+	        var _ = this;
+
+	        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
+
+	            _.$prevArrow.hide();
+	            _.$nextArrow.hide();
+
+	        }
+
+	        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
+
+	            _.$dots.hide();
+
+	        }
+
+	        _.$slider.addClass('slick-loading');
+
+	    };
+
+	    Slick.prototype.swipeDirection = function() {
+
+	        var xDist, yDist, r, swipeAngle, _ = this;
+
+	        xDist = _.touchObject.startX - _.touchObject.curX;
+	        yDist = _.touchObject.startY - _.touchObject.curY;
+	        r = Math.atan2(yDist, xDist);
+
+	        swipeAngle = Math.round(r * 180 / Math.PI);
+	        if (swipeAngle < 0) {
+	            swipeAngle = 360 - Math.abs(swipeAngle);
+	        }
+
+	        if ((swipeAngle <= 45) && (swipeAngle >= 0)) {
+	            return (_.options.rtl === false ? 'left' : 'right');
+	        }
+	        if ((swipeAngle <= 360) && (swipeAngle >= 315)) {
+	            return (_.options.rtl === false ? 'left' : 'right');
+	        }
+	        if ((swipeAngle >= 135) && (swipeAngle <= 225)) {
+	            return (_.options.rtl === false ? 'right' : 'left');
+	        }
+	        if (_.options.verticalSwiping === true) {
+	            if ((swipeAngle >= 35) && (swipeAngle <= 135)) {
+	                return 'down';
+	            } else {
+	                return 'up';
+	            }
+	        }
+
+	        return 'vertical';
+
+	    };
+
+	    Slick.prototype.swipeEnd = function(event) {
+
+	        var _ = this,
+	            slideCount,
+	            direction;
+
+	        _.dragging = false;
+	        _.swiping = false;
+
+	        if (_.scrolling) {
+	            _.scrolling = false;
+	            return false;
+	        }
+
+	        _.interrupted = false;
+	        _.shouldClick = ( _.touchObject.swipeLength > 10 ) ? false : true;
+
+	        if ( _.touchObject.curX === undefined ) {
+	            return false;
+	        }
+
+	        if ( _.touchObject.edgeHit === true ) {
+	            _.$slider.trigger('edge', [_, _.swipeDirection() ]);
+	        }
+
+	        if ( _.touchObject.swipeLength >= _.touchObject.minSwipe ) {
+
+	            direction = _.swipeDirection();
+
+	            switch ( direction ) {
+
+	                case 'left':
+	                case 'down':
+
+	                    slideCount =
+	                        _.options.swipeToSlide ?
+	                            _.checkNavigable( _.currentSlide + _.getSlideCount() ) :
+	                            _.currentSlide + _.getSlideCount();
+
+	                    _.currentDirection = 0;
+
+	                    break;
+
+	                case 'right':
+	                case 'up':
+
+	                    slideCount =
+	                        _.options.swipeToSlide ?
+	                            _.checkNavigable( _.currentSlide - _.getSlideCount() ) :
+	                            _.currentSlide - _.getSlideCount();
+
+	                    _.currentDirection = 1;
+
+	                    break;
+
+	                default:
+
+
+	            }
+
+	            if( direction != 'vertical' ) {
+
+	                _.slideHandler( slideCount );
+	                _.touchObject = {};
+	                _.$slider.trigger('swipe', [_, direction ]);
+
+	            }
+
+	        } else {
+
+	            if ( _.touchObject.startX !== _.touchObject.curX ) {
+
+	                _.slideHandler( _.currentSlide );
+	                _.touchObject = {};
+
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.swipeHandler = function(event) {
+
+	        var _ = this;
+
+	        if ((_.options.swipe === false) || ('ontouchend' in document && _.options.swipe === false)) {
+	            return;
+	        } else if (_.options.draggable === false && event.type.indexOf('mouse') !== -1) {
+	            return;
+	        }
+
+	        _.touchObject.fingerCount = event.originalEvent && event.originalEvent.touches !== undefined ?
+	            event.originalEvent.touches.length : 1;
+
+	        _.touchObject.minSwipe = _.listWidth / _.options
+	            .touchThreshold;
+
+	        if (_.options.verticalSwiping === true) {
+	            _.touchObject.minSwipe = _.listHeight / _.options
+	                .touchThreshold;
+	        }
+
+	        switch (event.data.action) {
+
+	            case 'start':
+	                _.swipeStart(event);
+	                break;
+
+	            case 'move':
+	                _.swipeMove(event);
+	                break;
+
+	            case 'end':
+	                _.swipeEnd(event);
+	                break;
+
+	        }
+
+	    };
+
+	    Slick.prototype.swipeMove = function(event) {
+
+	        var _ = this,
+	            edgeWasHit = false,
+	            curLeft, swipeDirection, swipeLength, positionOffset, touches, verticalSwipeLength;
+
+	        touches = event.originalEvent !== undefined ? event.originalEvent.touches : null;
+
+	        if (!_.dragging || _.scrolling || touches && touches.length !== 1) {
+	            return false;
+	        }
+
+	        curLeft = _.getLeft(_.currentSlide);
+
+	        _.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
+	        _.touchObject.curY = touches !== undefined ? touches[0].pageY : event.clientY;
+
+	        _.touchObject.swipeLength = Math.round(Math.sqrt(
+	            Math.pow(_.touchObject.curX - _.touchObject.startX, 2)));
+
+	        verticalSwipeLength = Math.round(Math.sqrt(
+	            Math.pow(_.touchObject.curY - _.touchObject.startY, 2)));
+
+	        if (!_.options.verticalSwiping && !_.swiping && verticalSwipeLength > 4) {
+	            _.scrolling = true;
+	            return false;
+	        }
+
+	        if (_.options.verticalSwiping === true) {
+	            _.touchObject.swipeLength = verticalSwipeLength;
+	        }
+
+	        swipeDirection = _.swipeDirection();
+
+	        if (event.originalEvent !== undefined && _.touchObject.swipeLength > 4) {
+	            _.swiping = true;
+	            event.preventDefault();
+	        }
+
+	        positionOffset = (_.options.rtl === false ? 1 : -1) * (_.touchObject.curX > _.touchObject.startX ? 1 : -1);
+	        if (_.options.verticalSwiping === true) {
+	            positionOffset = _.touchObject.curY > _.touchObject.startY ? 1 : -1;
+	        }
+
+
+	        swipeLength = _.touchObject.swipeLength;
+
+	        _.touchObject.edgeHit = false;
+
+	        if (_.options.infinite === false) {
+	            if ((_.currentSlide === 0 && swipeDirection === 'right') || (_.currentSlide >= _.getDotCount() && swipeDirection === 'left')) {
+	                swipeLength = _.touchObject.swipeLength * _.options.edgeFriction;
+	                _.touchObject.edgeHit = true;
+	            }
+	        }
+
+	        if (_.options.vertical === false) {
+	            _.swipeLeft = curLeft + swipeLength * positionOffset;
+	        } else {
+	            _.swipeLeft = curLeft + (swipeLength * (_.$list.height() / _.listWidth)) * positionOffset;
+	        }
+	        if (_.options.verticalSwiping === true) {
+	            _.swipeLeft = curLeft + swipeLength * positionOffset;
+	        }
+
+	        if (_.options.fade === true || _.options.touchMove === false) {
+	            return false;
+	        }
+
+	        if (_.animating === true) {
+	            _.swipeLeft = null;
+	            return false;
+	        }
+
+	        _.setCSS(_.swipeLeft);
+
+	    };
+
+	    Slick.prototype.swipeStart = function(event) {
+
+	        var _ = this,
+	            touches;
+
+	        _.interrupted = true;
+
+	        if (_.touchObject.fingerCount !== 1 || _.slideCount <= _.options.slidesToShow) {
+	            _.touchObject = {};
+	            return false;
+	        }
+
+	        if (event.originalEvent !== undefined && event.originalEvent.touches !== undefined) {
+	            touches = event.originalEvent.touches[0];
+	        }
+
+	        _.touchObject.startX = _.touchObject.curX = touches !== undefined ? touches.pageX : event.clientX;
+	        _.touchObject.startY = _.touchObject.curY = touches !== undefined ? touches.pageY : event.clientY;
+
+	        _.dragging = true;
+
+	    };
+
+	    Slick.prototype.unfilterSlides = Slick.prototype.slickUnfilter = function() {
+
+	        var _ = this;
+
+	        if (_.$slidesCache !== null) {
+
+	            _.unload();
+
+	            _.$slideTrack.children(this.options.slide).detach();
+
+	            _.$slidesCache.appendTo(_.$slideTrack);
+
+	            _.reinit();
+
+	        }
+
+	    };
+
+	    Slick.prototype.unload = function() {
+
+	        var _ = this;
+
+	        $('.slick-cloned', _.$slider).remove();
+
+	        if (_.$dots) {
+	            _.$dots.remove();
+	        }
+
+	        if (_.$prevArrow && _.htmlExpr.test(_.options.prevArrow)) {
+	            _.$prevArrow.remove();
+	        }
+
+	        if (_.$nextArrow && _.htmlExpr.test(_.options.nextArrow)) {
+	            _.$nextArrow.remove();
+	        }
+
+	        _.$slides
+	            .removeClass('slick-slide slick-active slick-visible slick-current')
+	            .attr('aria-hidden', 'true')
+	            .css('width', '');
+
+	    };
+
+	    Slick.prototype.unslick = function(fromBreakpoint) {
+
+	        var _ = this;
+	        _.$slider.trigger('unslick', [_, fromBreakpoint]);
+	        _.destroy();
+
+	    };
+
+	    Slick.prototype.updateArrows = function() {
+
+	        var _ = this,
+	            centerOffset;
+
+	        centerOffset = Math.floor(_.options.slidesToShow / 2);
+
+	        if ( _.options.arrows === true &&
+	            _.slideCount > _.options.slidesToShow &&
+	            !_.options.infinite ) {
+
+	            _.$prevArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
+	            _.$nextArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
+
+	            if (_.currentSlide === 0) {
+
+	                _.$prevArrow.addClass('slick-disabled').attr('aria-disabled', 'true');
+	                _.$nextArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
+
+	            } else if (_.currentSlide >= _.slideCount - _.options.slidesToShow && _.options.centerMode === false) {
+
+	                _.$nextArrow.addClass('slick-disabled').attr('aria-disabled', 'true');
+	                _.$prevArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
+
+	            } else if (_.currentSlide >= _.slideCount - 1 && _.options.centerMode === true) {
+
+	                _.$nextArrow.addClass('slick-disabled').attr('aria-disabled', 'true');
+	                _.$prevArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
+
+	            }
+
+	        }
+
+	    };
+
+	    Slick.prototype.updateDots = function() {
+
+	        var _ = this;
+
+	        if (_.$dots !== null) {
+
+	            _.$dots
+	                .find('li')
+	                    .removeClass('slick-active')
+	                    .end();
+
+	            _.$dots
+	                .find('li')
+	                .eq(Math.floor(_.currentSlide / _.options.slidesToScroll))
+	                .addClass('slick-active');
+
+	        }
+
+	    };
+
+	    Slick.prototype.visibility = function() {
+
+	        var _ = this;
+
+	        if ( _.options.autoplay ) {
+
+	            if ( document[_.hidden] ) {
+
+	                _.interrupted = true;
+
+	            } else {
+
+	                _.interrupted = false;
+
+	            }
+
+	        }
+
+	    };
+
+	    $.fn.slick = function() {
+	        var _ = this,
+	            opt = arguments[0],
+	            args = Array.prototype.slice.call(arguments, 1),
+	            l = _.length,
+	            i,
+	            ret;
+	        for (i = 0; i < l; i++) {
+	            if (typeof opt == 'object' || typeof opt == 'undefined')
+	                _[i].slick = new Slick(_[i], opt);
+	            else
+	                ret = _[i].slick[opt].apply(_[i].slick, args);
+	            if (typeof ret != 'undefined') return ret;
+	        }
+	        return _;
+	    };
+
+	})(jQuery);
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global, module) {//     Underscore.js 1.9.1
 	//     http://underscorejs.org
-	//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	//     (c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	//     Underscore may be freely distributed under the MIT license.
 
 	(function() {
@@ -9938,29 +13688,32 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // Baseline setup
 	  // --------------
 
-	  // Establish the root object, `window` in the browser, or `exports` on the server.
-	  var root = this;
+	  // Establish the root object, `window` (`self`) in the browser, `global`
+	  // on the server, or `this` in some virtual machines. We use `self`
+	  // instead of `window` for `WebWorker` support.
+	  var root = typeof self == 'object' && self.self === self && self ||
+	            typeof global == 'object' && global.global === global && global ||
+	            this ||
+	            {};
 
 	  // Save the previous value of the `_` variable.
 	  var previousUnderscore = root._;
 
 	  // Save bytes in the minified (but not gzipped) version:
-	  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+	  var ArrayProto = Array.prototype, ObjProto = Object.prototype;
+	  var SymbolProto = typeof Symbol !== 'undefined' ? Symbol.prototype : null;
 
 	  // Create quick reference variables for speed access to core prototypes.
-	  var
-	    push             = ArrayProto.push,
-	    slice            = ArrayProto.slice,
-	    toString         = ObjProto.toString,
-	    hasOwnProperty   = ObjProto.hasOwnProperty;
+	  var push = ArrayProto.push,
+	      slice = ArrayProto.slice,
+	      toString = ObjProto.toString,
+	      hasOwnProperty = ObjProto.hasOwnProperty;
 
 	  // All **ECMAScript 5** native function implementations that we hope to use
 	  // are declared here.
-	  var
-	    nativeIsArray      = Array.isArray,
-	    nativeKeys         = Object.keys,
-	    nativeBind         = FuncProto.bind,
-	    nativeCreate       = Object.create;
+	  var nativeIsArray = Array.isArray,
+	      nativeKeys = Object.keys,
+	      nativeCreate = Object.create;
 
 	  // Naked function reference for surrogate-prototype-swapping.
 	  var Ctor = function(){};
@@ -9973,10 +13726,12 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  };
 
 	  // Export the Underscore object for **Node.js**, with
-	  // backwards-compatibility for the old `require()` API. If we're in
+	  // backwards-compatibility for their old module API. If we're in
 	  // the browser, add `_` as a global object.
-	  if (true) {
-	    if (typeof module !== 'undefined' && module.exports) {
+	  // (`nodeType` is checked to ensure that `module`
+	  // and `exports` are not HTML elements.)
+	  if (typeof exports != 'undefined' && !exports.nodeType) {
+	    if (typeof module != 'undefined' && !module.nodeType && module.exports) {
 	      exports = module.exports = _;
 	    }
 	    exports._ = _;
@@ -9985,7 +13740,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  }
 
 	  // Current version.
-	  _.VERSION = '1.8.3';
+	  _.VERSION = '1.9.1';
 
 	  // Internal function that returns an efficient (for current engines) version
 	  // of the passed-in callback, to be repeatedly applied in other Underscore
@@ -9996,9 +13751,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      case 1: return function(value) {
 	        return func.call(context, value);
 	      };
-	      case 2: return function(value, other) {
-	        return func.call(context, value, other);
-	      };
+	      // The 2-argument case is omitted because we’re not using it.
 	      case 3: return function(value, index, collection) {
 	        return func.call(context, value, index, collection);
 	      };
@@ -10011,34 +13764,51 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    };
 	  };
 
-	  // A mostly-internal function to generate callbacks that can be applied
-	  // to each element in a collection, returning the desired result — either
-	  // identity, an arbitrary callback, a property matcher, or a property accessor.
+	  var builtinIteratee;
+
+	  // An internal function to generate callbacks that can be applied to each
+	  // element in a collection, returning the desired result — either `identity`,
+	  // an arbitrary callback, a property matcher, or a property accessor.
 	  var cb = function(value, context, argCount) {
+	    if (_.iteratee !== builtinIteratee) return _.iteratee(value, context);
 	    if (value == null) return _.identity;
 	    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
-	    if (_.isObject(value)) return _.matcher(value);
+	    if (_.isObject(value) && !_.isArray(value)) return _.matcher(value);
 	    return _.property(value);
 	  };
-	  _.iteratee = function(value, context) {
+
+	  // External wrapper for our callback generator. Users may customize
+	  // `_.iteratee` if they want additional predicate/iteratee shorthand styles.
+	  // This abstraction hides the internal-only argCount argument.
+	  _.iteratee = builtinIteratee = function(value, context) {
 	    return cb(value, context, Infinity);
 	  };
 
-	  // An internal function for creating assigner functions.
-	  var createAssigner = function(keysFunc, undefinedOnly) {
-	    return function(obj) {
-	      var length = arguments.length;
-	      if (length < 2 || obj == null) return obj;
-	      for (var index = 1; index < length; index++) {
-	        var source = arguments[index],
-	            keys = keysFunc(source),
-	            l = keys.length;
-	        for (var i = 0; i < l; i++) {
-	          var key = keys[i];
-	          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
-	        }
+	  // Some functions take a variable number of arguments, or a few expected
+	  // arguments at the beginning and then a variable number of values to operate
+	  // on. This helper accumulates all remaining arguments past the function’s
+	  // argument length (or an explicit `startIndex`), into an array that becomes
+	  // the last argument. Similar to ES6’s "rest parameter".
+	  var restArguments = function(func, startIndex) {
+	    startIndex = startIndex == null ? func.length - 1 : +startIndex;
+	    return function() {
+	      var length = Math.max(arguments.length - startIndex, 0),
+	          rest = Array(length),
+	          index = 0;
+	      for (; index < length; index++) {
+	        rest[index] = arguments[index + startIndex];
 	      }
-	      return obj;
+	      switch (startIndex) {
+	        case 0: return func.call(this, rest);
+	        case 1: return func.call(this, arguments[0], rest);
+	        case 2: return func.call(this, arguments[0], arguments[1], rest);
+	      }
+	      var args = Array(startIndex + 1);
+	      for (index = 0; index < startIndex; index++) {
+	        args[index] = arguments[index];
+	      }
+	      args[startIndex] = rest;
+	      return func.apply(this, args);
 	    };
 	  };
 
@@ -10052,18 +13822,31 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return result;
 	  };
 
-	  var property = function(key) {
+	  var shallowProperty = function(key) {
 	    return function(obj) {
 	      return obj == null ? void 0 : obj[key];
 	    };
 	  };
 
+	  var has = function(obj, path) {
+	    return obj != null && hasOwnProperty.call(obj, path);
+	  }
+
+	  var deepGet = function(obj, path) {
+	    var length = path.length;
+	    for (var i = 0; i < length; i++) {
+	      if (obj == null) return void 0;
+	      obj = obj[path[i]];
+	    }
+	    return length ? obj : void 0;
+	  };
+
 	  // Helper for collection methods to determine whether a collection
-	  // should be iterated as an array or as an object
+	  // should be iterated as an array or as an object.
 	  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
 	  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
 	  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-	  var getLength = property('length');
+	  var getLength = shallowProperty('length');
 	  var isArrayLike = function(collection) {
 	    var length = getLength(collection);
 	    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
@@ -10105,30 +13888,29 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  };
 
 	  // Create a reducing function iterating left or right.
-	  function createReduce(dir) {
-	    // Optimized iterator function as using arguments.length
-	    // in the main function will deoptimize the, see #1991.
-	    function iterator(obj, iteratee, memo, keys, index, length) {
+	  var createReduce = function(dir) {
+	    // Wrap code that reassigns argument variables in a separate function than
+	    // the one that accesses `arguments.length` to avoid a perf hit. (#1991)
+	    var reducer = function(obj, iteratee, memo, initial) {
+	      var keys = !isArrayLike(obj) && _.keys(obj),
+	          length = (keys || obj).length,
+	          index = dir > 0 ? 0 : length - 1;
+	      if (!initial) {
+	        memo = obj[keys ? keys[index] : index];
+	        index += dir;
+	      }
 	      for (; index >= 0 && index < length; index += dir) {
 	        var currentKey = keys ? keys[index] : index;
 	        memo = iteratee(memo, obj[currentKey], currentKey, obj);
 	      }
 	      return memo;
-	    }
+	    };
 
 	    return function(obj, iteratee, memo, context) {
-	      iteratee = optimizeCb(iteratee, context, 4);
-	      var keys = !isArrayLike(obj) && _.keys(obj),
-	          length = (keys || obj).length,
-	          index = dir > 0 ? 0 : length - 1;
-	      // Determine the initial value if none is provided.
-	      if (arguments.length < 3) {
-	        memo = obj[keys ? keys[index] : index];
-	        index += dir;
-	      }
-	      return iterator(obj, iteratee, memo, keys, index, length);
+	      var initial = arguments.length >= 3;
+	      return reducer(obj, optimizeCb(iteratee, context, 4), memo, initial);
 	    };
-	  }
+	  };
 
 	  // **Reduce** builds up a single result from a list of values, aka `inject`,
 	  // or `foldl`.
@@ -10139,12 +13921,8 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Return the first value which passes a truth test. Aliased as `detect`.
 	  _.find = _.detect = function(obj, predicate, context) {
-	    var key;
-	    if (isArrayLike(obj)) {
-	      key = _.findIndex(obj, predicate, context);
-	    } else {
-	      key = _.findKey(obj, predicate, context);
-	    }
+	    var keyFinder = isArrayLike(obj) ? _.findIndex : _.findKey;
+	    var key = keyFinder(obj, predicate, context);
 	    if (key !== void 0 && key !== -1) return obj[key];
 	  };
 
@@ -10199,14 +13977,26 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  };
 
 	  // Invoke a method (with arguments) on every item in a collection.
-	  _.invoke = function(obj, method) {
-	    var args = slice.call(arguments, 2);
-	    var isFunc = _.isFunction(method);
-	    return _.map(obj, function(value) {
-	      var func = isFunc ? method : value[method];
-	      return func == null ? func : func.apply(value, args);
+	  _.invoke = restArguments(function(obj, path, args) {
+	    var contextPath, func;
+	    if (_.isFunction(path)) {
+	      func = path;
+	    } else if (_.isArray(path)) {
+	      contextPath = path.slice(0, -1);
+	      path = path[path.length - 1];
+	    }
+	    return _.map(obj, function(context) {
+	      var method = func;
+	      if (!method) {
+	        if (contextPath && contextPath.length) {
+	          context = deepGet(context, contextPath);
+	        }
+	        if (context == null) return void 0;
+	        method = context[path];
+	      }
+	      return method == null ? method : method.apply(context, args);
 	    });
-	  };
+	  });
 
 	  // Convenience version of a common use case of `map`: fetching a property.
 	  _.pluck = function(obj, key) {
@@ -10229,20 +14019,20 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  _.max = function(obj, iteratee, context) {
 	    var result = -Infinity, lastComputed = -Infinity,
 	        value, computed;
-	    if (iteratee == null && obj != null) {
+	    if (iteratee == null || typeof iteratee == 'number' && typeof obj[0] != 'object' && obj != null) {
 	      obj = isArrayLike(obj) ? obj : _.values(obj);
 	      for (var i = 0, length = obj.length; i < length; i++) {
 	        value = obj[i];
-	        if (value > result) {
+	        if (value != null && value > result) {
 	          result = value;
 	        }
 	      }
 	    } else {
 	      iteratee = cb(iteratee, context);
-	      _.each(obj, function(value, index, list) {
-	        computed = iteratee(value, index, list);
+	      _.each(obj, function(v, index, list) {
+	        computed = iteratee(v, index, list);
 	        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
-	          result = value;
+	          result = v;
 	          lastComputed = computed;
 	        }
 	      });
@@ -10254,20 +14044,20 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  _.min = function(obj, iteratee, context) {
 	    var result = Infinity, lastComputed = Infinity,
 	        value, computed;
-	    if (iteratee == null && obj != null) {
+	    if (iteratee == null || typeof iteratee == 'number' && typeof obj[0] != 'object' && obj != null) {
 	      obj = isArrayLike(obj) ? obj : _.values(obj);
 	      for (var i = 0, length = obj.length; i < length; i++) {
 	        value = obj[i];
-	        if (value < result) {
+	        if (value != null && value < result) {
 	          result = value;
 	        }
 	      }
 	    } else {
 	      iteratee = cb(iteratee, context);
-	      _.each(obj, function(value, index, list) {
-	        computed = iteratee(value, index, list);
+	      _.each(obj, function(v, index, list) {
+	        computed = iteratee(v, index, list);
 	        if (computed < lastComputed || computed === Infinity && result === Infinity) {
-	          result = value;
+	          result = v;
 	          lastComputed = computed;
 	        }
 	      });
@@ -10275,21 +14065,13 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return result;
 	  };
 
-	  // Shuffle a collection, using the modern version of the
-	  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
+	  // Shuffle a collection.
 	  _.shuffle = function(obj) {
-	    var set = isArrayLike(obj) ? obj : _.values(obj);
-	    var length = set.length;
-	    var shuffled = Array(length);
-	    for (var index = 0, rand; index < length; index++) {
-	      rand = _.random(0, index);
-	      if (rand !== index) shuffled[index] = shuffled[rand];
-	      shuffled[rand] = set[index];
-	    }
-	    return shuffled;
+	    return _.sample(obj, Infinity);
 	  };
 
-	  // Sample **n** random values from a collection.
+	  // Sample **n** random values from a collection using the modern version of the
+	  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
 	  // If **n** is not specified, returns a single random element.
 	  // The internal `guard` argument allows it to work with `map`.
 	  _.sample = function(obj, n, guard) {
@@ -10297,17 +14079,28 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      if (!isArrayLike(obj)) obj = _.values(obj);
 	      return obj[_.random(obj.length - 1)];
 	    }
-	    return _.shuffle(obj).slice(0, Math.max(0, n));
+	    var sample = isArrayLike(obj) ? _.clone(obj) : _.values(obj);
+	    var length = getLength(sample);
+	    n = Math.max(Math.min(n, length), 0);
+	    var last = length - 1;
+	    for (var index = 0; index < n; index++) {
+	      var rand = _.random(index, last);
+	      var temp = sample[index];
+	      sample[index] = sample[rand];
+	      sample[rand] = temp;
+	    }
+	    return sample.slice(0, n);
 	  };
 
 	  // Sort the object's values by a criterion produced by an iteratee.
 	  _.sortBy = function(obj, iteratee, context) {
+	    var index = 0;
 	    iteratee = cb(iteratee, context);
-	    return _.pluck(_.map(obj, function(value, index, list) {
+	    return _.pluck(_.map(obj, function(value, key, list) {
 	      return {
 	        value: value,
-	        index: index,
-	        criteria: iteratee(value, index, list)
+	        index: index++,
+	        criteria: iteratee(value, key, list)
 	      };
 	    }).sort(function(left, right) {
 	      var a = left.criteria;
@@ -10321,9 +14114,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  };
 
 	  // An internal function used for aggregate "group by" operations.
-	  var group = function(behavior) {
+	  var group = function(behavior, partition) {
 	    return function(obj, iteratee, context) {
-	      var result = {};
+	      var result = partition ? [[], []] : {};
 	      iteratee = cb(iteratee, context);
 	      _.each(obj, function(value, index) {
 	        var key = iteratee(value, index, obj);
@@ -10336,7 +14129,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // Groups the object's values by a criterion. Pass either a string attribute
 	  // to group by, or a function that returns the criterion.
 	  _.groupBy = group(function(result, value, key) {
-	    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
+	    if (has(result, key)) result[key].push(value); else result[key] = [value];
 	  });
 
 	  // Indexes the object's values by a criterion, similar to `groupBy`, but for
@@ -10349,13 +14142,18 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // either a string attribute to count by, or a function that returns the
 	  // criterion.
 	  _.countBy = group(function(result, value, key) {
-	    if (_.has(result, key)) result[key]++; else result[key] = 1;
+	    if (has(result, key)) result[key]++; else result[key] = 1;
 	  });
 
+	  var reStrSymbol = /[^\ud800-\udfff]|[\ud800-\udbff][\udc00-\udfff]|[\ud800-\udfff]/g;
 	  // Safely create a real, live array from anything iterable.
 	  _.toArray = function(obj) {
 	    if (!obj) return [];
 	    if (_.isArray(obj)) return slice.call(obj);
+	    if (_.isString(obj)) {
+	      // Keep surrogate pair characters together
+	      return obj.match(reStrSymbol);
+	    }
 	    if (isArrayLike(obj)) return _.map(obj, _.identity);
 	    return _.values(obj);
 	  };
@@ -10368,14 +14166,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Split a collection into two arrays: one whose elements all satisfy the given
 	  // predicate, and one whose elements all do not satisfy the predicate.
-	  _.partition = function(obj, predicate, context) {
-	    predicate = cb(predicate, context);
-	    var pass = [], fail = [];
-	    _.each(obj, function(value, key, obj) {
-	      (predicate(value, key, obj) ? pass : fail).push(value);
-	    });
-	    return [pass, fail];
-	  };
+	  _.partition = group(function(result, value, pass) {
+	    result[pass ? 0 : 1].push(value);
+	  }, true);
 
 	  // Array Functions
 	  // ---------------
@@ -10384,7 +14177,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // values in the array. Aliased as `head` and `take`. The **guard** check
 	  // allows it to work with `_.map`.
 	  _.first = _.head = _.take = function(array, n, guard) {
-	    if (array == null) return void 0;
+	    if (array == null || array.length < 1) return n == null ? void 0 : [];
 	    if (n == null || guard) return array[0];
 	    return _.initial(array, array.length - n);
 	  };
@@ -10399,7 +14192,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // Get the last element of an array. Passing **n** will return the last N
 	  // values in the array.
 	  _.last = function(array, n, guard) {
-	    if (array == null) return void 0;
+	    if (array == null || array.length < 1) return n == null ? void 0 : [];
 	    if (n == null || guard) return array[array.length - 1];
 	    return _.rest(array, Math.max(0, array.length - n));
 	  };
@@ -10413,21 +14206,23 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Trim out all falsy values from an array.
 	  _.compact = function(array) {
-	    return _.filter(array, _.identity);
+	    return _.filter(array, Boolean);
 	  };
 
 	  // Internal implementation of a recursive `flatten` function.
-	  var flatten = function(input, shallow, strict, startIndex) {
-	    var output = [], idx = 0;
-	    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
+	  var flatten = function(input, shallow, strict, output) {
+	    output = output || [];
+	    var idx = output.length;
+	    for (var i = 0, length = getLength(input); i < length; i++) {
 	      var value = input[i];
 	      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
-	        //flatten current level of array or arguments object
-	        if (!shallow) value = flatten(value, shallow, strict);
-	        var j = 0, len = value.length;
-	        output.length += len;
-	        while (j < len) {
-	          output[idx++] = value[j++];
+	        // Flatten current level of array or arguments object.
+	        if (shallow) {
+	          var j = 0, len = value.length;
+	          while (j < len) output[idx++] = value[j++];
+	        } else {
+	          flatten(value, shallow, strict, output);
+	          idx = output.length;
 	        }
 	      } else if (!strict) {
 	        output[idx++] = value;
@@ -10442,12 +14237,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  };
 
 	  // Return a version of the array that does not contain the specified value(s).
-	  _.without = function(array) {
-	    return _.difference(array, slice.call(arguments, 1));
-	  };
+	  _.without = restArguments(function(array, otherArrays) {
+	    return _.difference(array, otherArrays);
+	  });
 
 	  // Produce a duplicate-free version of the array. If the array has already
 	  // been sorted, you have the option of using a faster algorithm.
+	  // The faster algorithm will not work with an iteratee if the iteratee
+	  // is not a one-to-one function, so providing an iteratee will disable
+	  // the faster algorithm.
 	  // Aliased as `unique`.
 	  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
 	    if (!_.isBoolean(isSorted)) {
@@ -10461,7 +14259,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    for (var i = 0, length = getLength(array); i < length; i++) {
 	      var value = array[i],
 	          computed = iteratee ? iteratee(value, i, array) : value;
-	      if (isSorted) {
+	      if (isSorted && !iteratee) {
 	        if (!i || seen !== computed) result.push(value);
 	        seen = computed;
 	      } else if (iteratee) {
@@ -10478,9 +14276,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Produce an array that contains the union: each distinct element from all of
 	  // the passed-in arrays.
-	  _.union = function() {
-	    return _.uniq(flatten(arguments, true, true));
-	  };
+	  _.union = restArguments(function(arrays) {
+	    return _.uniq(flatten(arrays, true, true));
+	  });
 
 	  // Produce an array that contains every item shared between all the
 	  // passed-in arrays.
@@ -10490,7 +14288,8 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    for (var i = 0, length = getLength(array); i < length; i++) {
 	      var item = array[i];
 	      if (_.contains(result, item)) continue;
-	      for (var j = 1; j < argsLength; j++) {
+	      var j;
+	      for (j = 1; j < argsLength; j++) {
 	        if (!_.contains(arguments[j], item)) break;
 	      }
 	      if (j === argsLength) result.push(item);
@@ -10500,21 +14299,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Take the difference between one array and a number of other arrays.
 	  // Only the elements present in just the first array will remain.
-	  _.difference = function(array) {
-	    var rest = flatten(arguments, true, true, 1);
+	  _.difference = restArguments(function(array, rest) {
+	    rest = flatten(rest, true, true);
 	    return _.filter(array, function(value){
 	      return !_.contains(rest, value);
 	    });
-	  };
-
-	  // Zip together multiple lists into a single array -- elements that share
-	  // an index go together.
-	  _.zip = function() {
-	    return _.unzip(arguments);
-	  };
+	  });
 
 	  // Complement of _.zip. Unzip accepts an array of arrays and groups
-	  // each array's elements on shared indices
+	  // each array's elements on shared indices.
 	  _.unzip = function(array) {
 	    var length = array && _.max(array, getLength).length || 0;
 	    var result = Array(length);
@@ -10525,9 +14318,13 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return result;
 	  };
 
+	  // Zip together multiple lists into a single array -- elements that share
+	  // an index go together.
+	  _.zip = restArguments(_.unzip);
+
 	  // Converts lists into objects. Pass either a single array of `[key, value]`
 	  // pairs, or two parallel arrays of the same length -- one of keys, and one of
-	  // the corresponding values.
+	  // the corresponding values. Passing by pairs is the reverse of _.pairs.
 	  _.object = function(list, values) {
 	    var result = {};
 	    for (var i = 0, length = getLength(list); i < length; i++) {
@@ -10540,8 +14337,8 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return result;
 	  };
 
-	  // Generator function to create the findIndex and findLastIndex functions
-	  function createPredicateIndexFinder(dir) {
+	  // Generator function to create the findIndex and findLastIndex functions.
+	  var createPredicateIndexFinder = function(dir) {
 	    return function(array, predicate, context) {
 	      predicate = cb(predicate, context);
 	      var length = getLength(array);
@@ -10551,9 +14348,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      }
 	      return -1;
 	    };
-	  }
+	  };
 
-	  // Returns the first index on an array-like that passes a predicate test
+	  // Returns the first index on an array-like that passes a predicate test.
 	  _.findIndex = createPredicateIndexFinder(1);
 	  _.findLastIndex = createPredicateIndexFinder(-1);
 
@@ -10570,15 +14367,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return low;
 	  };
 
-	  // Generator function to create the indexOf and lastIndexOf functions
-	  function createIndexFinder(dir, predicateFind, sortedIndex) {
+	  // Generator function to create the indexOf and lastIndexOf functions.
+	  var createIndexFinder = function(dir, predicateFind, sortedIndex) {
 	    return function(array, item, idx) {
 	      var i = 0, length = getLength(array);
 	      if (typeof idx == 'number') {
 	        if (dir > 0) {
-	            i = idx >= 0 ? idx : Math.max(idx + length, i);
+	          i = idx >= 0 ? idx : Math.max(idx + length, i);
 	        } else {
-	            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
+	          length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
 	        }
 	      } else if (sortedIndex && idx && length) {
 	        idx = sortedIndex(array, item);
@@ -10593,7 +14390,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      }
 	      return -1;
 	    };
-	  }
+	  };
 
 	  // Return the position of the first occurrence of an item in an array,
 	  // or -1 if the item is not included in the array.
@@ -10610,7 +14407,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      stop = start || 0;
 	      start = 0;
 	    }
-	    step = step || 1;
+	    if (!step) {
+	      step = stop < start ? -1 : 1;
+	    }
 
 	    var length = Math.max(Math.ceil((stop - start) / step), 0);
 	    var range = Array(length);
@@ -10622,11 +14421,23 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return range;
 	  };
 
+	  // Chunk a single array into multiple arrays, each containing `count` or fewer
+	  // items.
+	  _.chunk = function(array, count) {
+	    if (count == null || count < 1) return [];
+	    var result = [];
+	    var i = 0, length = array.length;
+	    while (i < length) {
+	      result.push(slice.call(array, i, i += count));
+	    }
+	    return result;
+	  };
+
 	  // Function (ahem) Functions
 	  // ------------------
 
 	  // Determines whether to execute a function as a constructor
-	  // or a normal function with the provided arguments
+	  // or a normal function with the provided arguments.
 	  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
 	    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
 	    var self = baseCreate(sourceFunc.prototype);
@@ -10638,52 +14449,53 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // Create a function bound to a given object (assigning `this`, and arguments,
 	  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
 	  // available.
-	  _.bind = function(func, context) {
-	    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+	  _.bind = restArguments(function(func, context, args) {
 	    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
-	    var args = slice.call(arguments, 2);
-	    var bound = function() {
-	      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
-	    };
+	    var bound = restArguments(function(callArgs) {
+	      return executeBound(func, bound, context, this, args.concat(callArgs));
+	    });
 	    return bound;
-	  };
+	  });
 
 	  // Partially apply a function by creating a version that has had some of its
 	  // arguments pre-filled, without changing its dynamic `this` context. _ acts
-	  // as a placeholder, allowing any combination of arguments to be pre-filled.
-	  _.partial = function(func) {
-	    var boundArgs = slice.call(arguments, 1);
+	  // as a placeholder by default, allowing any combination of arguments to be
+	  // pre-filled. Set `_.partial.placeholder` for a custom placeholder argument.
+	  _.partial = restArguments(function(func, boundArgs) {
+	    var placeholder = _.partial.placeholder;
 	    var bound = function() {
 	      var position = 0, length = boundArgs.length;
 	      var args = Array(length);
 	      for (var i = 0; i < length; i++) {
-	        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
+	        args[i] = boundArgs[i] === placeholder ? arguments[position++] : boundArgs[i];
 	      }
 	      while (position < arguments.length) args.push(arguments[position++]);
 	      return executeBound(func, bound, this, this, args);
 	    };
 	    return bound;
-	  };
+	  });
+
+	  _.partial.placeholder = _;
 
 	  // Bind a number of an object's methods to that object. Remaining arguments
 	  // are the method names to be bound. Useful for ensuring that all callbacks
 	  // defined on an object belong to it.
-	  _.bindAll = function(obj) {
-	    var i, length = arguments.length, key;
-	    if (length <= 1) throw new Error('bindAll must be passed function names');
-	    for (i = 1; i < length; i++) {
-	      key = arguments[i];
+	  _.bindAll = restArguments(function(obj, keys) {
+	    keys = flatten(keys, false, false);
+	    var index = keys.length;
+	    if (index < 1) throw new Error('bindAll must be passed function names');
+	    while (index--) {
+	      var key = keys[index];
 	      obj[key] = _.bind(obj[key], obj);
 	    }
-	    return obj;
-	  };
+	  });
 
 	  // Memoize an expensive function by storing its results.
 	  _.memoize = function(func, hasher) {
 	    var memoize = function(key) {
 	      var cache = memoize.cache;
 	      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
-	      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
+	      if (!has(cache, address)) cache[address] = func.apply(this, arguments);
 	      return cache[address];
 	    };
 	    memoize.cache = {};
@@ -10692,12 +14504,11 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Delays a function for the given number of milliseconds, and then calls
 	  // it with the arguments supplied.
-	  _.delay = function(func, wait) {
-	    var args = slice.call(arguments, 2);
-	    return setTimeout(function(){
+	  _.delay = restArguments(function(func, wait, args) {
+	    return setTimeout(function() {
 	      return func.apply(null, args);
 	    }, wait);
-	  };
+	  });
 
 	  // Defers a function, scheduling it to run after the current call stack has
 	  // cleared.
@@ -10709,17 +14520,18 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // but if you'd like to disable the execution on the leading edge, pass
 	  // `{leading: false}`. To disable execution on the trailing edge, ditto.
 	  _.throttle = function(func, wait, options) {
-	    var context, args, result;
-	    var timeout = null;
+	    var timeout, context, args, result;
 	    var previous = 0;
 	    if (!options) options = {};
+
 	    var later = function() {
 	      previous = options.leading === false ? 0 : _.now();
 	      timeout = null;
 	      result = func.apply(context, args);
 	      if (!timeout) context = args = null;
 	    };
-	    return function() {
+
+	    var throttled = function() {
 	      var now = _.now();
 	      if (!previous && options.leading === false) previous = now;
 	      var remaining = wait - (now - previous);
@@ -10738,6 +14550,14 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      }
 	      return result;
 	    };
+
+	    throttled.cancel = function() {
+	      clearTimeout(timeout);
+	      previous = 0;
+	      timeout = context = args = null;
+	    };
+
+	    return throttled;
 	  };
 
 	  // Returns a function, that, as long as it continues to be invoked, will not
@@ -10745,35 +14565,32 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // N milliseconds. If `immediate` is passed, trigger the function on the
 	  // leading edge, instead of the trailing.
 	  _.debounce = function(func, wait, immediate) {
-	    var timeout, args, context, timestamp, result;
+	    var timeout, result;
 
-	    var later = function() {
-	      var last = _.now() - timestamp;
-
-	      if (last < wait && last >= 0) {
-	        timeout = setTimeout(later, wait - last);
-	      } else {
-	        timeout = null;
-	        if (!immediate) {
-	          result = func.apply(context, args);
-	          if (!timeout) context = args = null;
-	        }
-	      }
+	    var later = function(context, args) {
+	      timeout = null;
+	      if (args) result = func.apply(context, args);
 	    };
 
-	    return function() {
-	      context = this;
-	      args = arguments;
-	      timestamp = _.now();
-	      var callNow = immediate && !timeout;
-	      if (!timeout) timeout = setTimeout(later, wait);
-	      if (callNow) {
-	        result = func.apply(context, args);
-	        context = args = null;
+	    var debounced = restArguments(function(args) {
+	      if (timeout) clearTimeout(timeout);
+	      if (immediate) {
+	        var callNow = !timeout;
+	        timeout = setTimeout(later, wait);
+	        if (callNow) result = func.apply(this, args);
+	      } else {
+	        timeout = _.delay(later, wait, this, args);
 	      }
 
 	      return result;
+	    });
+
+	    debounced.cancel = function() {
+	      clearTimeout(timeout);
+	      timeout = null;
 	    };
+
+	    return debounced;
 	  };
 
 	  // Returns the first function passed as an argument to the second,
@@ -10828,22 +14645,24 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // often you call it. Useful for lazy initialization.
 	  _.once = _.partial(_.before, 2);
 
+	  _.restArguments = restArguments;
+
 	  // Object Functions
 	  // ----------------
 
 	  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
 	  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
 	  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
-	                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+	    'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
 
-	  function collectNonEnumProps(obj, keys) {
+	  var collectNonEnumProps = function(obj, keys) {
 	    var nonEnumIdx = nonEnumerableProps.length;
 	    var constructor = obj.constructor;
-	    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+	    var proto = _.isFunction(constructor) && constructor.prototype || ObjProto;
 
 	    // Constructor is a special case.
 	    var prop = 'constructor';
-	    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
+	    if (has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
 
 	    while (nonEnumIdx--) {
 	      prop = nonEnumerableProps[nonEnumIdx];
@@ -10851,15 +14670,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        keys.push(prop);
 	      }
 	    }
-	  }
+	  };
 
 	  // Retrieve the names of an object's own properties.
-	  // Delegates to **ECMAScript 5**'s native `Object.keys`
+	  // Delegates to **ECMAScript 5**'s native `Object.keys`.
 	  _.keys = function(obj) {
 	    if (!_.isObject(obj)) return [];
 	    if (nativeKeys) return nativeKeys(obj);
 	    var keys = [];
-	    for (var key in obj) if (_.has(obj, key)) keys.push(key);
+	    for (var key in obj) if (has(obj, key)) keys.push(key);
 	    // Ahem, IE < 9.
 	    if (hasEnumBug) collectNonEnumProps(obj, keys);
 	    return keys;
@@ -10886,22 +14705,22 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return values;
 	  };
 
-	  // Returns the results of applying the iteratee to each element of the object
-	  // In contrast to _.map it returns an object
+	  // Returns the results of applying the iteratee to each element of the object.
+	  // In contrast to _.map it returns an object.
 	  _.mapObject = function(obj, iteratee, context) {
 	    iteratee = cb(iteratee, context);
-	    var keys =  _.keys(obj),
-	          length = keys.length,
-	          results = {},
-	          currentKey;
-	      for (var index = 0; index < length; index++) {
-	        currentKey = keys[index];
-	        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
-	      }
-	      return results;
+	    var keys = _.keys(obj),
+	        length = keys.length,
+	        results = {};
+	    for (var index = 0; index < length; index++) {
+	      var currentKey = keys[index];
+	      results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
+	    }
+	    return results;
 	  };
 
 	  // Convert an object into a list of `[key, value]` pairs.
+	  // The opposite of _.object.
 	  _.pairs = function(obj) {
 	    var keys = _.keys(obj);
 	    var length = keys.length;
@@ -10923,7 +14742,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  };
 
 	  // Return a sorted list of the function names available on the object.
-	  // Aliased as `methods`
+	  // Aliased as `methods`.
 	  _.functions = _.methods = function(obj) {
 	    var names = [];
 	    for (var key in obj) {
@@ -10932,14 +14751,33 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return names.sort();
 	  };
 
+	  // An internal function for creating assigner functions.
+	  var createAssigner = function(keysFunc, defaults) {
+	    return function(obj) {
+	      var length = arguments.length;
+	      if (defaults) obj = Object(obj);
+	      if (length < 2 || obj == null) return obj;
+	      for (var index = 1; index < length; index++) {
+	        var source = arguments[index],
+	            keys = keysFunc(source),
+	            l = keys.length;
+	        for (var i = 0; i < l; i++) {
+	          var key = keys[i];
+	          if (!defaults || obj[key] === void 0) obj[key] = source[key];
+	        }
+	      }
+	      return obj;
+	    };
+	  };
+
 	  // Extend a given object with all the properties in passed-in object(s).
 	  _.extend = createAssigner(_.allKeys);
 
-	  // Assigns a given object with all the own properties in the passed-in object(s)
+	  // Assigns a given object with all the own properties in the passed-in object(s).
 	  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
 	  _.extendOwn = _.assign = createAssigner(_.keys);
 
-	  // Returns the first key on an object that passes a predicate test
+	  // Returns the first key on an object that passes a predicate test.
 	  _.findKey = function(obj, predicate, context) {
 	    predicate = cb(predicate, context);
 	    var keys = _.keys(obj), key;
@@ -10949,16 +14787,21 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    }
 	  };
 
+	  // Internal pick helper function to determine if `obj` has key `key`.
+	  var keyInObj = function(value, key, obj) {
+	    return key in obj;
+	  };
+
 	  // Return a copy of the object only containing the whitelisted properties.
-	  _.pick = function(object, oiteratee, context) {
-	    var result = {}, obj = object, iteratee, keys;
+	  _.pick = restArguments(function(obj, keys) {
+	    var result = {}, iteratee = keys[0];
 	    if (obj == null) return result;
-	    if (_.isFunction(oiteratee)) {
+	    if (_.isFunction(iteratee)) {
+	      if (keys.length > 1) iteratee = optimizeCb(iteratee, keys[1]);
 	      keys = _.allKeys(obj);
-	      iteratee = optimizeCb(oiteratee, context);
 	    } else {
-	      keys = flatten(arguments, false, false, 1);
-	      iteratee = function(value, key, obj) { return key in obj; };
+	      iteratee = keyInObj;
+	      keys = flatten(keys, false, false);
 	      obj = Object(obj);
 	    }
 	    for (var i = 0, length = keys.length; i < length; i++) {
@@ -10967,20 +14810,22 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      if (iteratee(value, key, obj)) result[key] = value;
 	    }
 	    return result;
-	  };
+	  });
 
-	   // Return a copy of the object without the blacklisted properties.
-	  _.omit = function(obj, iteratee, context) {
+	  // Return a copy of the object without the blacklisted properties.
+	  _.omit = restArguments(function(obj, keys) {
+	    var iteratee = keys[0], context;
 	    if (_.isFunction(iteratee)) {
 	      iteratee = _.negate(iteratee);
+	      if (keys.length > 1) context = keys[1];
 	    } else {
-	      var keys = _.map(flatten(arguments, false, false, 1), String);
+	      keys = _.map(flatten(keys, false, false), String);
 	      iteratee = function(value, key) {
 	        return !_.contains(keys, key);
 	      };
 	    }
 	    return _.pick(obj, iteratee, context);
-	  };
+	  });
 
 	  // Fill in a given object with default properties.
 	  _.defaults = createAssigner(_.allKeys, true);
@@ -11022,12 +14867,23 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 
 	  // Internal recursive comparison function for `isEqual`.
-	  var eq = function(a, b, aStack, bStack) {
+	  var eq, deepEq;
+	  eq = function(a, b, aStack, bStack) {
 	    // Identical objects are equal. `0 === -0`, but they aren't identical.
 	    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
 	    if (a === b) return a !== 0 || 1 / a === 1 / b;
-	    // A strict comparison is necessary because `null == undefined`.
-	    if (a == null || b == null) return a === b;
+	    // `null` or `undefined` only equal to itself (strict comparison).
+	    if (a == null || b == null) return false;
+	    // `NaN`s are equivalent, but non-reflexive.
+	    if (a !== a) return b !== b;
+	    // Exhaust primitive checks
+	    var type = typeof a;
+	    if (type !== 'function' && type !== 'object' && typeof b != 'object') return false;
+	    return deepEq(a, b, aStack, bStack);
+	  };
+
+	  // Internal recursive comparison function for `isEqual`.
+	  deepEq = function(a, b, aStack, bStack) {
 	    // Unwrap any wrapped objects.
 	    if (a instanceof _) a = a._wrapped;
 	    if (b instanceof _) b = b._wrapped;
@@ -11044,7 +14900,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        return '' + a === '' + b;
 	      case '[object Number]':
 	        // `NaN`s are equivalent, but non-reflexive.
-	        // Object(NaN) is equivalent to NaN
+	        // Object(NaN) is equivalent to NaN.
 	        if (+a !== +a) return +b !== +b;
 	        // An `egal` comparison is performed for other numeric values.
 	        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
@@ -11054,6 +14910,8 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        // millisecond representations. Note that invalid dates with millisecond representations
 	        // of `NaN` are not equivalent.
 	        return +a === +b;
+	      case '[object Symbol]':
+	        return SymbolProto.valueOf.call(a) === SymbolProto.valueOf.call(b);
 	    }
 
 	    var areArrays = className === '[object Array]';
@@ -11105,7 +14963,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      while (length--) {
 	        // Deep compare each member
 	        key = keys[length];
-	        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
+	        if (!(has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
 	      }
 	    }
 	    // Remove the first object from the stack of traversed objects.
@@ -11144,8 +15002,8 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return type === 'function' || type === 'object' && !!obj;
 	  };
 
-	  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
-	  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
+	  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError, isMap, isWeakMap, isSet, isWeakSet.
+	  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet'], function(name) {
 	    _['is' + name] = function(obj) {
 	      return toString.call(obj) === '[object ' + name + ']';
 	    };
@@ -11155,13 +15013,14 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // there isn't any inspectable "Arguments" type.
 	  if (!_.isArguments(arguments)) {
 	    _.isArguments = function(obj) {
-	      return _.has(obj, 'callee');
+	      return has(obj, 'callee');
 	    };
 	  }
 
 	  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
-	  // IE 11 (#1621), and in Safari 8 (#1929).
-	  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
+	  // IE 11 (#1621), Safari 8 (#1929), and PhantomJS (#2236).
+	  var nodelist = root.document && root.document.childNodes;
+	  if (typeof /./ != 'function' && typeof Int8Array != 'object' && typeof nodelist != 'function') {
 	    _.isFunction = function(obj) {
 	      return typeof obj == 'function' || false;
 	    };
@@ -11169,12 +15028,12 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Is a given object a finite number?
 	  _.isFinite = function(obj) {
-	    return isFinite(obj) && !isNaN(parseFloat(obj));
+	    return !_.isSymbol(obj) && isFinite(obj) && !isNaN(parseFloat(obj));
 	  };
 
-	  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+	  // Is the given value `NaN`?
 	  _.isNaN = function(obj) {
-	    return _.isNumber(obj) && obj !== +obj;
+	    return _.isNumber(obj) && isNaN(obj);
 	  };
 
 	  // Is a given value a boolean?
@@ -11194,8 +15053,19 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  // Shortcut function for checking if an object has a given property directly
 	  // on itself (in other words, not on a prototype).
-	  _.has = function(obj, key) {
-	    return obj != null && hasOwnProperty.call(obj, key);
+	  _.has = function(obj, path) {
+	    if (!_.isArray(path)) {
+	      return has(obj, path);
+	    }
+	    var length = path.length;
+	    for (var i = 0; i < length; i++) {
+	      var key = path[i];
+	      if (obj == null || !hasOwnProperty.call(obj, key)) {
+	        return false;
+	      }
+	      obj = obj[key];
+	    }
+	    return !!length;
 	  };
 
 	  // Utility Functions
@@ -11222,12 +15092,24 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	  _.noop = function(){};
 
-	  _.property = property;
+	  // Creates a function that, when passed an object, will traverse that object’s
+	  // properties down the given `path`, specified as an array of keys or indexes.
+	  _.property = function(path) {
+	    if (!_.isArray(path)) {
+	      return shallowProperty(path);
+	    }
+	    return function(obj) {
+	      return deepGet(obj, path);
+	    };
+	  };
 
 	  // Generates a function for a given object that returns a given property.
 	  _.propertyOf = function(obj) {
-	    return obj == null ? function(){} : function(key) {
-	      return obj[key];
+	    if (obj == null) {
+	      return function(){};
+	    }
+	    return function(path) {
+	      return !_.isArray(path) ? obj[path] : deepGet(obj, path);
 	    };
 	  };
 
@@ -11262,7 +15144,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    return new Date().getTime();
 	  };
 
-	   // List of HTML entities for escaping.
+	  // List of HTML entities for escaping.
 	  var escapeMap = {
 	    '&': '&amp;',
 	    '<': '&lt;',
@@ -11278,7 +15160,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    var escaper = function(match) {
 	      return map[match];
 	    };
-	    // Regexes for identifying a key that needs to be escaped
+	    // Regexes for identifying a key that needs to be escaped.
 	    var source = '(?:' + _.keys(map).join('|') + ')';
 	    var testRegexp = RegExp(source);
 	    var replaceRegexp = RegExp(source, 'g');
@@ -11290,14 +15172,24 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  _.escape = createEscaper(escapeMap);
 	  _.unescape = createEscaper(unescapeMap);
 
-	  // If the value of the named `property` is a function then invoke it with the
-	  // `object` as context; otherwise, return it.
-	  _.result = function(object, property, fallback) {
-	    var value = object == null ? void 0 : object[property];
-	    if (value === void 0) {
-	      value = fallback;
+	  // Traverses the children of `obj` along `path`. If a child is a function, it
+	  // is invoked with its parent as context. Returns the value of the final
+	  // child, or `fallback` if any child is undefined.
+	  _.result = function(obj, path, fallback) {
+	    if (!_.isArray(path)) path = [path];
+	    var length = path.length;
+	    if (!length) {
+	      return _.isFunction(fallback) ? fallback.call(obj) : fallback;
 	    }
-	    return _.isFunction(value) ? value.call(object) : value;
+	    for (var i = 0; i < length; i++) {
+	      var prop = obj == null ? void 0 : obj[path[i]];
+	      if (prop === void 0) {
+	        prop = fallback;
+	        i = length; // Ensure we don't continue iterating.
+	      }
+	      obj = _.isFunction(prop) ? prop.call(obj) : prop;
+	    }
+	    return obj;
 	  };
 
 	  // Generate a unique integer id (unique within the entire client session).
@@ -11311,9 +15203,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // By default, Underscore uses ERB-style template delimiters, change the
 	  // following template settings to use alternative delimiters.
 	  _.templateSettings = {
-	    evaluate    : /<%([\s\S]+?)%>/g,
-	    interpolate : /<%=([\s\S]+?)%>/g,
-	    escape      : /<%-([\s\S]+?)%>/g
+	    evaluate: /<%([\s\S]+?)%>/g,
+	    interpolate: /<%=([\s\S]+?)%>/g,
+	    escape: /<%-([\s\S]+?)%>/g
 	  };
 
 	  // When customizing `templateSettings`, if you don't want to define an
@@ -11324,15 +15216,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // Certain characters need to be escaped so that they can be put into a
 	  // string literal.
 	  var escapes = {
-	    "'":      "'",
-	    '\\':     '\\',
-	    '\r':     'r',
-	    '\n':     'n',
+	    "'": "'",
+	    '\\': '\\',
+	    '\r': 'r',
+	    '\n': 'n',
 	    '\u2028': 'u2028',
 	    '\u2029': 'u2029'
 	  };
 
-	  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
+	  var escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g;
 
 	  var escapeChar = function(match) {
 	    return '\\' + escapes[match];
@@ -11357,7 +15249,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    var index = 0;
 	    var source = "__p+='";
 	    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
-	      source += text.slice(index, offset).replace(escaper, escapeChar);
+	      source += text.slice(index, offset).replace(escapeRegExp, escapeChar);
 	      index = offset + match.length;
 
 	      if (escape) {
@@ -11368,7 +15260,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        source += "';\n" + evaluate + "\n__p+='";
 	      }
 
-	      // Adobe VMs need the match returned to produce the correct offest.
+	      // Adobe VMs need the match returned to produce the correct offset.
 	      return match;
 	    });
 	    source += "';\n";
@@ -11380,8 +15272,9 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      "print=function(){__p+=__j.call(arguments,'');};\n" +
 	      source + 'return __p;\n';
 
+	    var render;
 	    try {
-	      var render = new Function(settings.variable || 'obj', '_', source);
+	      render = new Function(settings.variable || 'obj', '_', source);
 	    } catch (e) {
 	      e.source = source;
 	      throw e;
@@ -11412,7 +15305,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  // underscore functions. Wrapped objects may be chained.
 
 	  // Helper function to continue chaining intermediate results.
-	  var result = function(instance, obj) {
+	  var chainResult = function(instance, obj) {
 	    return instance._chain ? _(obj).chain() : obj;
 	  };
 
@@ -11423,9 +15316,10 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      _.prototype[name] = function() {
 	        var args = [this._wrapped];
 	        push.apply(args, arguments);
-	        return result(this, func.apply(_, args));
+	        return chainResult(this, func.apply(_, args));
 	      };
 	    });
+	    return _;
 	  };
 
 	  // Add all of the Underscore functions to the wrapper object.
@@ -11438,7 +15332,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      var obj = this._wrapped;
 	      method.apply(obj, arguments);
 	      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
-	      return result(this, obj);
+	      return chainResult(this, obj);
 	    };
 	  });
 
@@ -11446,7 +15340,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  _.each(['concat', 'join', 'slice'], function(name) {
 	    var method = ArrayProto[name];
 	    _.prototype[name] = function() {
-	      return result(this, method.apply(this._wrapped, arguments));
+	      return chainResult(this, method.apply(this._wrapped, arguments));
 	    };
 	  });
 
@@ -11460,7 +15354,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
 
 	  _.prototype.toString = function() {
-	    return '' + this._wrapped;
+	    return String(this._wrapped);
 	  };
 
 	  // AMD registration happens at the end for compatibility with AMD loaders
@@ -11475,20 +15369,25 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	      return _;
 	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  }
-	}.call(this));
+	}());
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(8)(module)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+	module.exports = function(module) {
+		if(!module.webpackPolyfill) {
+			module.deprecate = function() {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
+	}
 
 
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
-
-/***/ }
+/***/ })
 /******/ ])});;
