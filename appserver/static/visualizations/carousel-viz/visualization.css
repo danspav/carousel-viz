@@ -429,7 +429,7 @@ div.value{
 div.value span{white-space:nowrap;}
 div.caption{
 	font-size: 12px; font-weight:bold;height: 20%;	white-space:nowrap;
-	margin-top: 5px;
+	
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
