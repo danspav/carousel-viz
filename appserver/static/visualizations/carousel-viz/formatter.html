@@ -9,6 +9,25 @@
         <splunk-text-input name="{{VIZ_NAMESPACE}}.slidesToScroll" value="1"></splunk-text-input>
     </splunk-control-group>
 	
+	 <!-- direction -->
+	 <splunk-control-group label="Direction">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.direction" value="left">
+			<option value="left">Left to Right</option>
+			<option value="right">Right to Left</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	<!-- vdirection -->
+	 <splunk-control-group label="Orientation">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.orientation" value="horizontal">
+			<option value="horizontal">Horizontal</option>
+			<option value="vertical">Vertical</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	
+	
+	
 	 <!-- Autoplay? -->
 	 <splunk-control-group label="Autoplay">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.autoplay" value="true">
@@ -17,7 +36,7 @@
 		</splunk-radio-input>
 	</splunk-control-group>
 	
-	 <!-- Autoplay? -->
+	 <!-- Rotation -->
 	 <splunk-control-group label="Rotation">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.rotation" value="infinite">
 			<option value="infinite">Infinite</option>
