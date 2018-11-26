@@ -365,7 +365,7 @@
 .small{height:  100px; width: 200px; padding-right: 10px;}
 .normal{height: 150px; width: 300px; padding-right: 15px;}	
 .large{height:  200px; width: 400px; padding-right: 20px;}
-.xlarge{height: 250px; width: 500px; padding-right: 25px;}
+.xlarge{height: 230px; width: 500px; padding-right: 25px;}
 
 
 
@@ -414,7 +414,6 @@ div.value{
 	font-family: Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
 	height: 80%;
 	width: 100%;
-	white-space:nowrap;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -429,7 +428,9 @@ div.value{
 }
 div.value span{white-space:nowrap;text-overflow: ellipsis;}
 div.caption{
-	font-size: 12px; font-weight:bold;height: 20%;	white-space:nowrap;
+	font-weight:bold;
+	height: 20%;
+	min-height: 12px;
 	text-overflow: ellipsis;
 	display: -webkit-box;
 	display: -ms-flexbox;
