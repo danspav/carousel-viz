@@ -424,6 +424,7 @@ div.value{
 	-webkit-box-pack: center;
 	-ms-flex-pack: center;
 	justify-content: center;
+	overflow:hidden;
 }
 div.value span{white-space:nowrap;text-overflow: ellipsis;}
 div.caption{
