@@ -40,7 +40,8 @@ define([
 			if (data.fields.length < 1) {
 				//throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
 				data.fields = [{0:"value"}];
-				data.rows = ["&emdash;"]
+				data.rows = [["&emdash;"]]
+				data.meta={"done":true}
 			}
 
 			return data;
