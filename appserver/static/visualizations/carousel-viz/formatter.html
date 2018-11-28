@@ -5,7 +5,7 @@
         <splunk-text-input name="{{VIZ_NAMESPACE}}.slidesToShow" value="3"></splunk-text-input>
     </splunk-control-group>
 	
-	<splunk-control-group label="Scroll at a time">
+	<splunk-control-group label="Scroll at a time" help="Don't make this bigger than the Slides to Show value">
         <splunk-text-input name="{{VIZ_NAMESPACE}}.slidesToScroll" value="1"></splunk-text-input>
     </splunk-control-group>
 	
@@ -48,8 +48,6 @@
 
 <!-- ---------------------  Format Form ---------------------------->
 <form class="splunk-formatter-section" section-label="Direction">
-
-
 	 <!-- Direction -->
 	 <splunk-control-group label="Direction">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.direction" value="left">
@@ -162,19 +160,3 @@
 	
 </form>
 
-<form  class="splunk-formatter-section" section-label="DEBUG">
-<!-- Color picker with splunkSemantic colors -->
-<splunk-color-picker type="splunkSemantic">
-</splunk-color-picker>
-  
-<!-- Custom color picker with only black and white. Default value is set to black -->
-<splunk-color-picker type="custom" value="#000000">
-    <splunk-color>#ffffff</splunk-color>
-    <splunk-color>#000000</splunk-color>
-</splunk-color-picker>
- 
-<!-- A splunkCategorical color picker that also includes black. Default value is set to black -->
-<splunk-color-picker value="#000000">
-    <splunk-color>#000000</splunk-color>
-</splunk-color-picker>
-</form>
