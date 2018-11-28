@@ -35,33 +35,8 @@
 			<option value="false">False</option>
 		</splunk-radio-input>
 	</splunk-control-group>
-	
-	 <!-- Rotation -->
-	 <splunk-control-group label="Rotation">
-		<splunk-radio-input name="{{VIZ_NAMESPACE}}.rotation" value="infinite">
-			<option value="infinite">Infinite</option>
-			<option value="bounce">Bounce</option>
-		</splunk-radio-input>
-	</splunk-control-group>
-	
-	
-	<!-- Autoplay? -->
-	 <splunk-control-group label="Show Dots">
-		<splunk-radio-input name="{{VIZ_NAMESPACE}}.showDots" value="false">
-			<option value="true">True</option>
-			<option value="false">False</option>
-		</splunk-radio-input>
-	</splunk-control-group>
-	
-	
-	<!-- Autoplay? -->
-	 <splunk-control-group label="showArrows">
-		<splunk-radio-input name="{{VIZ_NAMESPACE}}.showArrows" value="false">
-			<option value="true">True</option>
-			<option value="false">False</option>
-		</splunk-radio-input>
-	</splunk-control-group>
-	
+
+
 	<!-- Animation Time -->
 	<splunk-control-group label="Autoplay Speed">
 		<splunk-select name="{{VIZ_NAMESPACE}}.autoplaySpeed" value="normal">
@@ -72,9 +47,27 @@
 			<option value="vfast">Very Fast</option>
 		</splunk-select>
 	</splunk-control-group>
+
 	
-   
-	<!-- Animation Time -->
+	 <!-- Rotation -->
+	 <splunk-control-group label="Rotation">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.rotation" value="infinite">
+			<option value="infinite">Infinite</option>
+			<option value="bounce">Bounce</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+	
+	<!-- Show Dots? -->
+	 <splunk-control-group label="Show Dots">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.showDots" value="false">
+			<option value="true">True</option>
+			<option value="false">False</option>
+		</splunk-radio-input>
+	</splunk-control-group>
+	
+  
+	<!-- Size -->
 	<splunk-control-group label="Size">
 		<splunk-select name="{{VIZ_NAMESPACE}}.size" value="normal">
 			<option value="xsmall">Extra Small</option>
