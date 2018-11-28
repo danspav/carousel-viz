@@ -67,16 +67,7 @@
 	</splunk-control-group>
 	
   
-	<!-- Size -->
-	<splunk-control-group label="Size">
-		<splunk-select name="{{VIZ_NAMESPACE}}.size" value="normal">
-			<option value="xsmall">Extra Small</option>
-			<option value="small">Small</option>
-			<option value="normal">Normal</option>
-			<option value="large">Large</option>
-			<option value="xlarge">Extra Large</option>
-		</splunk-select>
-	</splunk-control-group>
+
 	
 </form>
 
@@ -108,7 +99,24 @@
         <splunk-text-input name="{{VIZ_NAMESPACE}}.defaultCaption" value=""></splunk-text-input>
     </splunk-control-group>
 	
+		<!-- Size -->
+	<splunk-control-group label="Size">
+		<splunk-select name="{{VIZ_NAMESPACE}}.size" value="normal">
+			<option value="xsmall">Extra Small</option>
+			<option value="small">Small</option>
+			<option value="normal">Normal</option>
+			<option value="large">Large</option>
+			<option value="xlarge">Extra Large</option>
+		</splunk-select>
+	</splunk-control-group>
 	
+		<!-- Show Dots? -->
+	 <splunk-control-group label="Show Dots">
+		<splunk-radio-input name="{{VIZ_NAMESPACE}}.showDots" value="false">
+			<option value="true">True</option>
+			<option value="false">False</option>
+		</splunk-radio-input>
+	</splunk-control-group>
 	
 	</form>
 
