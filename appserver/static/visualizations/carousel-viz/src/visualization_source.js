@@ -39,9 +39,11 @@ define([
 			if (data.rows.length < 1) {
 				return false;
 			}
-			// We need a minimum of 3 fields returned
+			// Be kind - if there are no results, fake it. My pet peeve is having the single value viz not show anything when there are no results, forcing me to add somehing like "|append [makeresults| eval total=""] head 1" at the end of my searches
 			if (data.fields.length < 1) {
-				throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
+				//throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
+				data.fields = [{0:"value"}];
+				data.rows = ["&emdash;"]
 			}
 
 			return data;
