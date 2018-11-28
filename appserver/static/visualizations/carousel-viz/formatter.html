@@ -62,7 +62,7 @@
 	<!-- Orientation -->
 	 <splunk-control-group label="Orientation">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.orientation" value="horizontal">
-			<option value="horizontal">Horizontal</option>
+			<option value="horizontal">&nbsp;Horizontal&nbsp;&nbsp;</option>
 			<option value="vertical">Vertical</option>
 		</splunk-radio-input>
 	</splunk-control-group>
@@ -72,7 +72,7 @@
 	 <!-- Rotation -->
 	 <splunk-control-group label="Rotation">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.rotation" value="infinite">
-			<option value="infinite">Infinite</option>
+			<option value="infinite">&nbsp;&nbsp;Infinite&nbsp;&nbsp;&nbsp;</option>
 			<option value="bounce">Bounce</option>
 		</splunk-radio-input>
 	</splunk-control-group>
@@ -162,4 +162,19 @@
 	
 </form>
 
-
+<form  class="splunk-formatter-section" section-label="DEBUG">
+<!-- Color picker with splunkSemantic colors -->
+<splunk-color-picker type="splunkSemantic">
+</splunk-color-picker>
+  
+<!-- Custom color picker with only black and white. Default value is set to black -->
+<splunk-color-picker type="custom" value="#000000">
+    <splunk-color>#ffffff</splunk-color>
+    <splunk-color>#000000</splunk-color>
+</splunk-color-picker>
+ 
+<!-- A splunkCategorical color picker that also includes black. Default value is set to black -->
+<splunk-color-picker value="#000000">
+    <splunk-color>#000000</splunk-color>
+</splunk-color-picker>
+</form>
