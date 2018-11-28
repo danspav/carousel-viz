@@ -34,21 +34,23 @@
 
 	
 	
-	
-	<!-- Show Dots? -->
-	 <splunk-control-group label="Show Dots">
-		<splunk-radio-input name="{{VIZ_NAMESPACE}}.showDots" value="false">
-			<option value="true">True</option>
-			<option value="false">False</option>
-		</splunk-radio-input>
+			<!-- Size -->
+	<splunk-control-group label="Size">
+		<splunk-select name="{{VIZ_NAMESPACE}}.size" value="normal">
+			<option value="xsmall">Extra Small</option>
+			<option value="small">Small</option>
+			<option value="normal">Normal</option>
+			<option value="large">Large</option>
+			<option value="xlarge">Extra Large</option>
+		</splunk-select>
 	</splunk-control-group>
 </form>
 
 <!-- ---------------------  Format Form ---------------------------->
-<form class="splunk-formatter-section" section-label="Shape & Direction">
+<form class="splunk-formatter-section" section-label="Direction">
 
 
-	 <!-- direction -->
+	 <!-- Direction -->
 	 <splunk-control-group label="Direction">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.direction" value="left">
 			<option value="left">Left to Right</option>
@@ -56,7 +58,8 @@
 		</splunk-radio-input>
 	</splunk-control-group>
 	
-	<!-- vdirection -->
+	
+	<!-- Orientation -->
 	 <splunk-control-group label="Orientation">
 		<splunk-radio-input name="{{VIZ_NAMESPACE}}.orientation" value="horizontal">
 			<option value="horizontal">Horizontal</option>
@@ -75,17 +78,7 @@
 	</splunk-control-group>
 
 	
-	
-			<!-- Size -->
-	<splunk-control-group label="Size">
-		<splunk-select name="{{VIZ_NAMESPACE}}.size" value="normal">
-			<option value="xsmall">Extra Small</option>
-			<option value="small">Small</option>
-			<option value="normal">Normal</option>
-			<option value="large">Large</option>
-			<option value="xlarge">Extra Large</option>
-		</splunk-select>
-	</splunk-control-group>
+
 	
 </form>
 
@@ -170,15 +163,3 @@
 </form>
 
 
-<!-- ---------------------  Tokens Form ---------------------------->
-<form class="splunk-formatter-section" section-label="Tokens" help="Tokens for current term, and optional ID field.">
-	<!-- Term Token -->
-	<splunk-control-group label="Value Token">
-		<splunk-text-input name="{{VIZ_NAMESPACE}}.token_value" value="cv_value"></splunk-text-input>
-	</splunk-control-group>
-	
-	<!-- ID Token -->
-	<splunk-control-group label="Caption Token">
-        <splunk-text-input name="{{VIZ_NAMESPACE}}.token_capiton" value="cv_caption"></splunk-text-input>
-	</splunk-control-group>
-</form>
