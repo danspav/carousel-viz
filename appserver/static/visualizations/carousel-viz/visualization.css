@@ -368,7 +368,7 @@
 .xlarge{height: 230px; width: 500px; padding-right: 25px;}
 
 
-
+div.carousel-viz-container{margin: 15px 15px 15px 15px;}
 
 div.singlevaluebox{
 	font-family:Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
