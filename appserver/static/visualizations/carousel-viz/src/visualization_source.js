@@ -90,7 +90,7 @@ define([
 			this.oCarousel.resize();		
 			
 		}
-    });
+    
 	
 	
 	/**
@@ -115,6 +115,6 @@ define([
 		}, browserEvent);
 	}
 
-		
+		});
 	
 });
