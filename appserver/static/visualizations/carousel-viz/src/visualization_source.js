@@ -74,7 +74,7 @@ define([
 			textfill = require("textfill");
 			slick = require("slick");
 			oCarousel.start();
-
+			this.oCarousel = oCarousel;
         },
 
         // Search data params
@@ -86,6 +86,35 @@ define([
         },
 
         // Override to respond to re-sizing events
-        reflow: function() {}
+        reflow: function() {
+			this.oCarousel.resize();		
+			
+		}
     });
+	
+	
+	/**
+	 * To be called from the visualization's click handler, after computing the
+	 * correct category name and value from the target of the click.
+	 *
+	 * @param categoryName - the field name for the category
+	 * @param categoryFieldValue - the value for the category
+	 * @param browserEvent - the original browser event that caused the drilldown
+	 *
+	 * example usage:
+	 *
+	 * this.drilldownToTimeRange('State', 'Oregon', e);
+	 */
+	drilldownToCategory: function(categoryName, categoryFieldValue, browserEvent) {
+		var data = {};
+		data[categoryName] = categoryFieldValue;
+
+		this.drilldown({
+			action: SplunkVisualizationBase.FIELD_VALUE_DRILLDOWN,
+			data: data
+		}, browserEvent);
+	}
+
+		
+	
 });
