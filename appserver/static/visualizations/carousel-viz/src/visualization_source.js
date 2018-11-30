@@ -88,8 +88,7 @@ define([
         // Override to respond to re-sizing events
         reflow: function() {
 			this.oCarousel.resize();		
-			
-		}
+		},
     
 	
 		drilldownToCategory: function(categoryName, categoryFieldValue, browserEvent) {
