@@ -386,6 +386,7 @@ div.singlevaluebox{
 	border-radius: 5px 5px 5px 5px;
 	direction:ltr;
 	height: -webkit-fill-available;
+	min-height: 75px;
 }
 div.yellowBlock{background-color:#F7BC38;	
 	color: white;
