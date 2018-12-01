@@ -87,7 +87,7 @@ define([
 
         // Override to respond to re-sizing events
         reflow: function() {
-			this.oCarousel.resize(this.el.height);		
+			this.oCarousel.resize(this.$el.height);		
 		},
     
 	
