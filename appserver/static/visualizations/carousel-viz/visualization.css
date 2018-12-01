@@ -359,24 +359,16 @@
 	
 	
 	
-/* Visualization CSS 
+/* Visualization CSS */
 
-.xsmall{min-height:  75px; width: 100px; padding-right: 5px;}
-.small{min-height:  100px; width: 200px; padding-right: 10px;}
-.normal{min-height: 150px; width: 300px; padding-right: 15px;}	
-.large{min-height:  200px; width: 400px; padding-right: 20px;}
-.xlarge{min-height: 230px; width: 500px; padding-right: 25px;}
-
-*/
-.xsmall{width: 100px; padding-right: 5px;}
-.small{width: 200px; padding-right: 10px;}
-.normal{width: 300px; padding-right: 15px;}	
-.large{width: 400px; padding-right: 20px;}
-.xlarge{width: 500px; padding-right: 25px;}
+.xsmall{height:  75px; width: 100px; padding-right: 5px;}
+.small{height:  100px; width: 200px; padding-right: 10px;}
+.normal{height: 150px; width: 300px; padding-right: 15px;}	
+.large{height:  200px; width: 400px; padding-right: 20px;}
+.xlarge{height: 230px; width: 500px; padding-right: 25px;}
 
 
 
-div.carousel-viz-container{margin: 15px 15px 15px 15px;}
 
 div.singlevaluebox{
 	font-family:Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
@@ -384,9 +376,7 @@ div.singlevaluebox{
 	margin-bottom: 5px;
 	padding: 13px 5px 0px 5px;
 	border-radius: 5px 5px 5px 5px;
-	direction:ltr;
-	height: -webkit-fill-available;
-	min-height: 75px;
+	
 }
 div.yellowBlock{background-color:#F7BC38;	
 	color: white;
@@ -422,8 +412,7 @@ div.redNoBackground {
 
 div.value{
 	font-family: Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
-	height:inherit;
-	margin-top: -10%;
+	height: 80%;
 	width: 100%;
 	display: -webkit-box;
 	display: -ms-flexbox;
