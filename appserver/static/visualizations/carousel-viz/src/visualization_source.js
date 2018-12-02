@@ -76,6 +76,7 @@ define([
 			slick = require("slick");
 			oCarousel.start();
 			this.oCarousel = oCarousel;
+			this.oCarousel.resize(this.$el.height());
         },
 
         // Search data params
