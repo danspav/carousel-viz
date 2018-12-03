@@ -366,7 +366,7 @@
 .medium{height: 150px; width: 300px; padding-right: 15px;}	
 .large{height:  200px; width: 400px; padding-right: 20px;}
 .xlarge{height: 230px; width: 500px; padding-right: 25px;}
-.automatic{height:-webkit-fill-available;}}
+.automatic{}
 
 div.carousel-viz-container{}
 
