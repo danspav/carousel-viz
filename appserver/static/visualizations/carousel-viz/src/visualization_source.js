@@ -74,9 +74,9 @@ define([
 			this.$el.html(oCarousel.getHTML());
 			textfill = require("textfill");
 			slick = require("slick");
-			oCarousel.start();
 			this.oCarousel = oCarousel;
 			this.oCarousel.resize(this.$el.height());
+			this.oCarousel.start();
         },
 
         // Search data params
