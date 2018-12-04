@@ -12,7 +12,6 @@ default.visualizations.custom.carousel-viz.carousel-viz.token_value = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.token_caption = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.size = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.colorMode = <string>
-default.visualizations.custom.carousel-viz.carousel-viz.rotation = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.showDots = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.orientation= <string>
 
