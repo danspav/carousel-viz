@@ -373,7 +373,7 @@ div.carousel-viz-container{height:-webkit-fill-available;}
 div.singlevaluebox{
 	font-family:Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
 	text-align:center;
-	padding: 2px 5px 2px 5px;
+	padding: 0px 5px 0px 5px;
 	border-radius: 5px 5px 5px 5px;
 	
 }
