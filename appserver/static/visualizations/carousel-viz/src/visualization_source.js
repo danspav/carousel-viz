@@ -81,7 +81,7 @@ define([
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
 				var objDiv = $("div#" + oCarousel.id + " div.singlevaluebox").find("div.value span.val");
 				var catFieldValue = objDiv.text();
-				var catName = objDiv.getAttribute('valField');
+				var catName = objDiv.getAttribute('valueField');
 				drilldownToCategory(catName, catFieldValue, event);
 			});
         },
