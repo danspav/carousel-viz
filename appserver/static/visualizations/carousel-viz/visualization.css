@@ -441,7 +441,7 @@ div.caption{
 	-webkit-box-pack: center;
 	-ms-flex-pack: center;
 	justify-content: center;
-		margin: -5px 0px 0px 0px;
+	margin: -5px 0px 0px 0px;
 	overflow: hidden;
 }
 div.caption span{white-space:nowrap;text-overflow: ellipsis;}
