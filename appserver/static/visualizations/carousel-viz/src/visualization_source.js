@@ -79,7 +79,7 @@ define([
 			this.oCarousel.start();
 			//Set up the drilldown ability
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
-				var objDiv = $(this).find("div.value span.val");
+				var objDiv = $(this).find("div.value span.val")[0];
 				var catFieldValue = objDiv.text();
 				var catName = objDiv.getAttribute('valueField');
 				drilldownToCategory(catName, catFieldValue, event);
