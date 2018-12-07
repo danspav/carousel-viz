@@ -83,6 +83,7 @@ define([
 				var catFieldValue = objDiv.text();
 				var catName = objDiv.getAttribute('valField');
 				drilldownToCategory(catName, catFieldValue, event);
+			});
         },
 
         // Search data params
