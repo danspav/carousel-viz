@@ -77,6 +77,12 @@ define([
 			this.oCarousel = oCarousel;
 			this.oCarousel.resize(this.$el.height());
 			this.oCarousel.start();
+			//Set up the drilldown ability
+			window.jQuery("div#" + objCarousel.id + " div.singlevaluebox").click(function(){
+				var objDiv = $("div#" + objCarousel.id + " div.singlevaluebox").find("div.value span.val");
+				var catFieldValue = objDiv.text();
+				var catName = objDiv.getAttribute('valField');
+				drilldownToCategory(catName, catFieldValue, event);
         },
 
         // Search data params
