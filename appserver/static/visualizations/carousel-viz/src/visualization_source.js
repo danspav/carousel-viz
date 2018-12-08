@@ -81,7 +81,7 @@ define([
 			var vizObj = this
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
 				var objDiv = $(this).find("div.value span.val")[0];
-				var catFieldValue = $(objDiv).text();
+				var catFieldValue = $(objDiv).attr('rawValue');
 				var catName = $(objDiv).attr('valueField');
 				vizObj.drilldownToCategory(catName, catFieldValue, event);
 			});
