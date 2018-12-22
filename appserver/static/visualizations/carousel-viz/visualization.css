@@ -114,11 +114,11 @@
 .slick-vertical .slick-slide
 {
     display: block;
-
-    height: auto;
-
-    border: 1px solid transparent;
+    height: 60px;
+    margin: 0px 20px 15px 20px!important;
+    padding: 0px 0px 0px 0px!important;
 }
+
 .slick-arrow.slick-hidden {
     display: none;
 }
