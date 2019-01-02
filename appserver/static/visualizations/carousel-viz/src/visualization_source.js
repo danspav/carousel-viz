@@ -76,8 +76,8 @@ define([
 			slick = require("slick");
 			this.oCarousel = oCarousel;
 			this.oCarousel.start();
-		//	this.$el.slickNext();
-		//	this.$el.slickPrevious();
+			this.$el.slick('slickNext');
+			this.$el.slick('slickPrev');
 			//setTimeout(function(){oCarousel.resize(oCarousel.height );},1000);
 			//Set up the drilldown ability
 			var vizObj = this
