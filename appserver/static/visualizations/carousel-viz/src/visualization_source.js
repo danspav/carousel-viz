@@ -76,9 +76,9 @@ define([
 			slick = require("slick");
 			this.oCarousel = oCarousel;
 			this.oCarousel.start();
-			this.oCarousel.resize();
-			this.oCarousel.resize();
-			this.oCarousel.resize();
+			this.oCarousel.resize(oCarousel.height );
+			this.oCarousel.resize(oCarousel.height );
+			this.oCarousel.resize(oCarousel.height );
 			//Set up the drilldown ability
 			var vizObj = this
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
