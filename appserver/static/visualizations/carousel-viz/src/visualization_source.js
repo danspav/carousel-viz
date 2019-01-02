@@ -75,8 +75,8 @@ define([
 			textfill = require("textfill");
 			slick = require("slick");
 			this.oCarousel = oCarousel;
-			this.oCarousel.resize(this.$el.height());
 			this.oCarousel.start();
+			this.oCarousel.resize(this.$el.height());
 			//Set up the drilldown ability
 			var vizObj = this
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
