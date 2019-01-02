@@ -77,6 +77,8 @@ define([
 			this.oCarousel = oCarousel;
 			this.oCarousel.start();
 			this.oCarousel.resize();
+			this.oCarousel.resize();
+			this.oCarousel.resize();
 			//Set up the drilldown ability
 			var vizObj = this
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
