@@ -1,4 +1,4 @@
-<nav search_view="search" color="#65A637">
+<nav search_view="search" color="#3c444d">
   <view name="carousel_visualization"  default="true" />
   <view name="example_one_static" />
   <view name="example_two_animated" />
