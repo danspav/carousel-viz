@@ -215,6 +215,9 @@
         </p>
 <p>Support is not guaranteed and will be provided on a best effort basis.</p>
     
+<h1>Slick</h1>    
+<p>This visualization uses <a href="http://kenwheeler.github.io/slick/">Slick</a> by Ken Wheeler.</p>
+
     
   </html>
     </panel>
