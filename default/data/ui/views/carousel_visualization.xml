@@ -203,6 +203,7 @@
 
 <h1>Issues and Limitations</h1>
 <ul>
+<li>Internet Explorer 11 and Microsoft Edge - Vertical orientation with fixed-sized slides can cause display issues. To workaround this, set the size to Automatic.</li>
 	<li>Vertical orientation only scrolls in one direction. Setting left-to-right or right-to-left does not affect the direction.</li>
 	<li>'Show dots' option is ignored for vertical orientation.</li>
 </ul>
