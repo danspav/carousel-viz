@@ -4,4 +4,6 @@
   <view name="example_two_animated" />
   <view name="example_three_drill_down" />
   <view name="example_four_dark_theme" />
+  <view name="settings" />
+  
 </nav>

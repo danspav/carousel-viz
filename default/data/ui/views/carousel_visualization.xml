@@ -201,7 +201,11 @@
 </ul>
 
 
-<h1>Possible Issues </h1>
+<h1>Issues and Limitations</h1>
+<ul>
+	<li>Vertical orientation only scrolls in one direction. Setting left-to-right or right-to-left does not affect the direction.</li>
+	<li>'Show dots' option is ignored for vertical orientation.</li>
+</ul>
 <p>If you have a bug report or feature request, please contact <a href="email:daniel@spavin.net" title="Email: daniel@spavin.net">daniel@spavin.net</a>
         </p>
 
