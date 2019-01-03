@@ -58,9 +58,9 @@
             <td valign="top">
                <p><h2>Slides to Show</h2>The number of slides to show at the same time.<br /></p>
 			   <br /><p><h2>Scroll at a Time</h2>The number of slides to scroll each time the scroll is triggered. This can't be more than the total number of slides. If you make it more that the 'Slides to Show' then some slides will be skipped.<br /></p>
-			   <br /><p><h2>Autoplay</h2>Set to true if you want the slides to rotate. False will mean only the first 'Slides to Show' slides will be visible, all others will be hidden.<br /></p>
-			   <br /><p><h2>Autoplay Speed</h2>How fast to rotate the slides. The options are: Very Slow, Slow, Normal, Fast, Very Fast<br /></p>
-			  <br /> <p><h2>Size</h2>The size of each slide is set here. Options are: Extra Small, Small, Medium Large, Extra Large, and Automatic.<br />When you select Automatic, the size will be determined automatically by the height that you have set on the dashboard.</p>
+			   <br /><p><h2>Autoplay</h2>Set autoplay to true to enable automatic scrolling of slides. Setting autoplay to False will mean only what is initialy visible will be displayed - all other slides will be hidden.<br /></p>
+			   <br /><p><h2>Autoplay Speed</h2>Autoplay speed determines how fast the slides will scroll. <br /><br />The options are: Very Slow, Slow, Normal, Fast, Very Fast<br /></p>
+			  <br /> <p><h2>Size</h2>The size of each slide is set here. Options are: Extra Small, Small, Medium Large, Extra Large, and Automatic.<br /><br />When you select Automatic, the size will be determined automatically by the height that you have set on the dashboard.</p>
             </td>
           </tr>
           </table>
@@ -76,7 +76,7 @@
               
               <p><h2>Direction</h2>Left to Right, or Right to Left scrolling direction. Note that this does not change the text to right-to-left reading order. This option is ignored if you select Vertical orientation.<br /></p>
               <br />
-              <p><h2>Orientation</h2>This setting will align the visualization either horizontally or vertically. <br />
+              <p><h2>Orientation</h2>The orientation will determine whether the visualization will scroll horizontally or vertically. <br />
               <br /></p>
             </td>
           </tr>
@@ -91,7 +91,7 @@
             </td>
             <td valign="top">
               
-              <p><h2>Change Case</h2>ALL CAPS: Enforce ALL-CAPS for all text in the Value fields<br />No Change: Leave text as-is.
+              <p><h2>Change Case</h2>ALL CAPS: Enforce ALL-CAPS for all text in the Value fields<br /><br />No Change: Leave text as-is.
               <br /></p><br />
               <p><h2>Color Mode</h2>Background - fills in the background of the slides depending on the range field<br />Foreground - colors the text and border based on the range field.</p>
 			  <table width="260" cellpadding="2" cellspacing="0" border="1" style="border: 1px solid #cccccc; border-collapse:collapse;">
