@@ -53,13 +53,13 @@
       <table cellpadding="10">
         <tr>
             <td valign="top">
-              <img src="/static/app/departures-board-viz/images/options-general.png"/>
+              <img src="/static/app/carousel-viz/images/options-general.png"/>
             </td>
             <td valign="top">
                <p><h2>Slides to Show</h2>The number of slides to show at the same time.<br /></p>
 			   <br /><p><h2>Scroll at a Time</h2>The number of slides to scroll each time the scroll is triggered. This can't be more than the total number of slides. If you make it more that the 'Slides to Show' then some slides will be skipped.<br /></p>
-			   <br /><p><h2>Autoplay</h2>Set to true if you want the slides to rotate. False will mean only the first 'Slides to Show' slides will be visible, all others will be hidden.<br /></p>
-			   <br /><p><h2>Autoplay Speed</h2>How fast to rotate the slides. The options are: Very Slow, Slow, Normal, Fast, Very Fast<br /></p>
+			   <br /><p><h2>Autoplay</h2>Set to true if you want the slides to scroll. False will mean only the first 'Slides to Show' slides will be visible, all others will be hidden.<br /></p>
+			   <br /><p><h2>Autoplay Speed</h2>How fast to scroll the slides. The options are: Very Slow, Slow, Normal, Fast, Very Fast<br /></p>
 			  <br /> <p><h2>Size</h2>The size of each slide is set here. Options are: Extra Small, Small, Medium Large, Extra Large, and Automatic.<br />When you select Automatic, the size will be determined automatically by the height that you have set on the dashboard.</p>
             </td>
           </tr>
@@ -70,11 +70,11 @@
       <html>  <table cellpadding="10">
       <tr>
             <td valign="top">
-              <img src="/static/app/departures-board-viz/images/options-direction.png"/>
+              <img src="/static/app/carousel-viz/images/options-direction.png"/>
             </td>
             <td valign="top">
               
-              <p><h2>Direction</h2>Left to Right, or Right to Left scrolling direction. Note that this does not change the text to right-to-left reading order. This option is ignored if you select Vertical orientation.<br /></p>
+              <p><h2>Direction</h2>Left to Right, or Right to Left scrolling direction.<br/><br/> Note that this does not change the text to right-to-left reading order.<br/><br/> This option is ignored if you select Vertical orientation.<br /></p>
               <br />
               <p><h2>Orientation</h2>This setting will align the visualization either horizontally or vertically. <br />
               <br /></p>
@@ -87,7 +87,7 @@
       <html>  <table cellpadding="10">
       <tr>
             <td valign="top">
-              <img src="/static/app/departures-board-viz/images/options-format.png"/>
+              <img src="/static/app/carousel-viz/images/options-format.png"/>
             </td>
             <td valign="top">
               
@@ -97,7 +97,7 @@
 			  <table width="260" cellpadding="2" cellspacing="0" border="1" style="border: 1px solid #cccccc; border-collapse:collapse;">
               <tr><td align="center"><strong>Color</strong></td><td align="center"><strong>Value for 'range' field</strong></td></tr>
               <tr><td align="center" style="background-color: #65a637">Green</td><td align="center">green<br />ok<br />low</td></tr>
-              <tr><td align="center" style="background-color: #f7bc38">Amber</td><td align="center">amber<br />warning<br />amber<br />orange<br />elevated</td></tr>
+              <tr><td align="center" style="background-color: #f7bc38">Amber</td><td align="center">amber<br />warning<br />orange<br />elevated</td></tr>
               <tr><td align="center" style="background-color: #D93F3C">Red</td><td align="center">red<br />critical<br />severe</td></tr>
             </table>
               <br />
@@ -114,7 +114,7 @@
       <html>  <table cellpadding="10">
       <tr>
             <td valign="top">
-              <img src="/static/app/departures-board-viz/images/options-numberformat.png"/>
+              <img src="/static/app/carousel-viz/images/options-numberformat.png"/>
             </td>
             <td valign="top">
               <p><h2>Precision</h2>Set the number of decimal places to display for numerical values. This is not applicable to text values.
@@ -122,7 +122,7 @@
               <br />
               <p><h2>Use Thousands Separators</h2>For numerical values, optionally add a comma after every group of 3 digits. E.g. will convert 123456789 to 123,456,789.
               <br /></p><br />
-              <p><h2>Default Unit</h2>If no value is set fo the unit field in the search, this value will be used. If left blank, no caption will display. 
+              <p><h2>Default Unit</h2>If no value is set fo the unit field in the search, this value will be used. If left blank, no unit will display. 
               <br /></p><br />
 			  <p><h2>Unit Position</h2>Where to place the unit (either from the search or the default unit). E.g. '$' is displayed before the value, where as '%' is displayed after.
               <br /></p>              
