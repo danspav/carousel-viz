@@ -66,6 +66,7 @@ define([
 
 			var carousel_viz = require('carousel-viz');
 			
+			
 			// Now load the visualisation
 			var oCarousel= new carousel_viz.carousel_viz();
 			oCarousel.height = this.$el.height();
@@ -80,7 +81,8 @@ define([
 			window.jQuery('#' + this.oCarousel.id).slick('slickPrev');
 			//setTimeout(function(){oCarousel.resize(oCarousel.height );},1000);
 			//Set up the drilldown ability
-			var vizObj = this
+			var vizObj = this;
+			
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
 				var objDiv = $(this).find("div.value span")[0];
 				var catFieldValue = $(objDiv).attr('rawValue');
