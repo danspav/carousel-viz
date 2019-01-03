@@ -80,13 +80,13 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        // The returned object will be passed to updateView as 'data'
 	        formatData: function(data) {
 
-	           // Check for an empty data object
-				if (data.rows.length < 1) {
-					return false;
-				}
-				// We need a minimum of 3 fields returned
+
+				// Be kind - if there are no results, fake it. My pet peeve is having the single value viz not show anything when there are no results, forcing me to add somehing like "|append [makeresults| eval total=""] head 1" at the end of my searches
 				if (data.fields.length < 1) {
-					throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
+					//throw new SplunkVisualizationBase.VisualizationError("Missing values. Please include the following fields in your search query: value,optionally:  unit, caption. E.g. ...| table value, unit, caption");
+					data.fields = [{'name':"value"}];
+					data.rows = [["&emdash;"]]
+					data.meta={"done":true}
 				}
 
 				return data;
@@ -110,16 +110,30 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 				this.$el.empty();
 
 				var carousel_viz = __webpack_require__(4);
-			
+				
+				
 				// Now load the visualisation
 				var oCarousel= new carousel_viz.carousel_viz();
+				oCarousel.height = this.$el.height();
 				oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 				oCarousel.setData(data)
 				this.$el.html(oCarousel.getHTML());
 				textfill = __webpack_require__(5);
 				slick = __webpack_require__(6);
-				oCarousel.start();
-
+				this.oCarousel = oCarousel;
+				this.oCarousel.start();
+				window.jQuery('#' + this.oCarousel.id).slick('slickNext');
+				window.jQuery('#' + this.oCarousel.id).slick('slickPrev');
+				//setTimeout(function(){oCarousel.resize(oCarousel.height );},1000);
+				//Set up the drilldown ability
+				var vizObj = this;
+				
+				window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
+					var objDiv = $(this).find("div.value span")[0];
+					var catFieldValue = $(objDiv).attr('rawValue');
+					var catName = $(objDiv).attr('valueField');
+					vizObj.drilldownToCategory(catName, catFieldValue, event);
+				});
 	        },
 
 	        // Search data params
@@ -131,8 +145,23 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	        },
 
 	        // Override to respond to re-sizing events
-	        reflow: function() {}
-	    });
+	        reflow: function() {
+				this.oCarousel.resize(this.$el.height());		
+			},
+	    
+		
+			drilldownToCategory: function(categoryName, categoryFieldValue, browserEvent) {
+				var data = {};
+				data[categoryName] = categoryFieldValue;
+
+				this.drilldown({
+					action: SplunkVisualizationBase.FIELD_VALUE_DRILLDOWN,
+					data: data
+				}, browserEvent);
+			}
+
+		});
+		
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
@@ -9979,24 +10008,28 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 			this.autoplay = true; 
 			this.autoplaySpeed = 3000;
 			this.colorMode = true;
-			this.value = "";
-			this.caption="";
+			this.value = "&nbsp;";
+			this.caption="&nbsp;";
 			this.unit = "";
 			this.numDecimalPlaces="0"
 			this.thousandsSeparator = false;
 			this.unitPosition = "after";
-			this.isInfinite = true;
-			this.size = "normal";
-			this.showArrows = false;
-			this.autoWidth = true;
+			this.size = "automatic";
+			this.orientation = "horizontal";
+			this.direction="left"
+			this.rtl=false;
 			// Value Options
+			this.valueField = "value";
 			this.forceAllCaps = false;
 			this.numDecimalPlaces = 0;
 			this.showDots = false;
-			
+			this.isSplunkDarkMode = false;
 			this.id = this.createUUID();
-			this.validAutoplaySpeeds={"vslow":10000,"slow":7500,"normal":3000,"fast":2000,"vfast":1000};
-			this.validSizes={"xsmall":75,"small":100,"normal":250,"large":300,"xlarge":500};
+			this.validAutoplaySpeeds={"vslow":10000,"slow":7500,"medium":3000,"fast":2000,"vfast":1000};
+			this.validSizes={"automatic":250, "xsmall":75,"small":100,"medium":250,"large":300,"xlarge":500};
+			this.maxFontSizes = {xsmall:70,small:95,medium:145,large:195,xlarge:240};
+			this.height = 250;
+			this.isDrillDownConfigured = false;
 		}
 
 		
@@ -10016,23 +10049,21 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 			this.thousandsSeparator = vizUtils.escapeHtml(config[namespace + "thousandsSeparator"]) || false;
 			this.unitPosition = vizUtils.escapeHtml(config[namespace + "unitPosition"]) || "after";
 			this.defaultCaption = vizUtils.escapeHtml(config[namespace + 'defaultCaption']) || ""; 
-			this.size = vizUtils.escapeHtml(config[namespace + 'size']) || "normal"; 
+			this.size = vizUtils.escapeHtml(config[namespace + 'size']) || "automatic"; 
 			this.unit = vizUtils.escapeHtml(config[namespace + 'unit']) || ""; 
-			this.caption = vizUtils.escapeHtml(config[namespace + 'caption']) || ""; 
-			this.isInfinite = vizUtils.escapeHtml(config[namespace + 'rotation']) || "infinite"; 
+			this.caption = vizUtils.escapeHtml(config[namespace + 'caption']) || "&nbsp;"; 
 			this.showDots = vizUtils.escapeHtml(config[namespace + 'showDots']) || false; 
-			this.showDots = vizUtils.escapeHtml(config[namespace + 'showArrows']) || false; 
-
-			this.autoWidth = vizUtils.escapeHtml(config[namespace + 'autoWidth']) || false; 
+			this.orientation = vizUtils.escapeHtml(config[namespace + 'orientation']) || "horizontal"; 
+			this.direction = vizUtils.escapeHtml(config[namespace + 'direction']) || "left"; 
+			this.rtl = (this.direction=="right" && this.orientation=="horizontal");
 			
 			if (this.autoplaySpeed < 1000){ this.autoplaySpeed=1000;}
 			//Enforce Boolean values to be boolean
 			this.forceAllCaps = (this.forceAllCaps=="true");
-			this.isInfinite = (this.isInfinite=="infinite");
 			this.autoplay=(this.auotplay || this.autoplay=="true");
 			this.showDots = (this.showDots=="true");
-			this.showArrows = (this.showArrows=="true");
-			this.autoWidth = (this.autoWidth=="true");
+			this.orientation = (this.orientation=="horizontal") ? "horizontal" : "vertical";
+			this.direction = (this.direction=="left") ? "left" : "right";
 			this.colorMode = this.colorMode=="foreground" ? "foreground" : "background";
 			if(this.numDecimalPlaces >4) { this.numDecimalPlaces=4;}
 			if(this.numDecimalPlaces <0) { this.numDecimalPlaces=0;}
@@ -10043,8 +10074,16 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 			if(this.unitPosition!="after"){ this.unitPosition="before";}
 			if(!this.validAutoplaySpeeds[this.autoplaySpeed]) { this.autoplaySpeed=3000;} else{ this.autoplaySpeed=this.validAutoplaySpeeds[this.autoplaySpeed];}
-			if(!this.validSizes[this.size]) { this.size="normal";}
+			if(!this.validSizes[this.size]) { this.size="automatic";}
 			this.thousandsSeparator = (this.thousandsSeparator=="true")
+			
+			this.isSplunkDarkMode = (vizUtils.getCurrentTheme()=="dark");
+			
+			// Do we display a hand icon? If drilldown is set, then yes
+			this.isDrillDownConfigured = config['display.visualizations.custom.drilldown']!='none';
+			
+			
+			
 		}
 		
 		// Create a unique ID for the CSS selector
@@ -10067,14 +10106,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 				var rangeFieldName = "";
 				var current_item;
 				var vizUtils = __webpack_require__(3);
+				
 				const { carousel_viz, carousel_viz_slide} = __webpack_require__(4);
 				try{
 					//------------------------------  Get data row field indexes ----------------------------------------------------------------------
 					for (i=0; i<data.fields.length; i++){
 						fields[data.fields[i].name.toLowerCase()]  = i;
 					}
-					// we don't need to call it value - just use the first field
-					if(typeof fields["value"] === 'undefined'){ fields['value'] = 0;}
+					// we don't need to name it "value" - just use the first field
+					if(typeof fields["value"] === 'undefined'){ fields['value'] = 0; this.valueField = data.fields[0].name;}
 					for (i=0; i<data.rows.length; i++){
 						data_item = data.rows[i];
 						if(typeof data_item[fields["style"]] === 'undefined'){
@@ -10096,7 +10136,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 						oSlide.colorMode          = this.colorMode;
 						oSlide.thousandsSeparator = this.thousandsSeparator;
 						oSlide.unitPosition	      = this.unitPosition;
-											
+						oSlide.valueField 		  = this.valueField;					
 						this.slides.push(oSlide);
 					}	
 				} catch(err) {
@@ -10107,9 +10147,17 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 		
 		getHTML(){
 			var html = "";
+			var dir = "";
+			if (this.rtl && this.orientation=="horizontal") { dir=" dir=\"rtl\"";} else{dir=" dir=\"ltr\"";} // Bug: can only do rtl if horizontal: https://github.com/kenwheeler/slick/issues/818
+			if (this.isSplunkDarkMode){
+				html += "<style>.slick-dots li button:before, .slick-dots li.slick-active button:before{color:white!important;}</style>";
+			}
+			var cssClasses = "";
+			if(this.isDrillDownConfigured) { cssClasses+= " drilldown";}
+			
 			var value = this.value
 			var i =0;
-			 html ='<div id="'  + this.id + '" class="center">';
+			 html +='<div id="'  + this.id + '" class="carousel-viz-container' + cssClasses + '"' + dir + '>';
 			 for(i=0;i<this.slides.length;i++){
 				 html += this.slides[i].getHTML();
 			 }
@@ -10118,69 +10166,83 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 		}
 		
 		start(){
-					var objCarousel = this;
-					window.jQuery("div#" + this.id + " div.value").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:240,widthOnly:true});
-					window.jQuery("div#" + this.id + " div.caption").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:18,minFontPixels:8});
+			var objCarousel = this;
 					
-					window.jQuery('#' + this.id).slick({
-					  centerMode: false,
-					  dots: this.showDots,
-					  arrows: this.showArrows,
-					  infinite: this.isInfinite,
-					  variableWidth: this.autoWidth,
-					  centerPadding: '60px',
-					  slidesToShow: objCarousel.slidesToShow,
-					  slidesToScroll: objCarousel.slidesToScroll,				  
-					  autoplay: objCarousel.autoplay,
-					  autoplaySpeed: objCarousel.autoplaySpeed,
-					  adaptiveHeight: true,
-					  pauseOnFocus: true,
-					  focusOnSelect: true,
-			  		  cssEase: 'linear',
-					});
-		    		
-					// On edge hit
-					window.jQuery("div#" + this.id ).on('reSize', function(event, slick){
-						$("div.value").textfill({allowOverflow:false,changeLineHeight:false,maxFontPixels:1000,widthOnly:false});
-						$("div.caption").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:18,minFontPixels:8});
-					});
-					
-					/*
-					window.jQuery( window ).resize(function() {
-						$("div.value").textfill({allowOverflow:false,changeLineHeight:false,maxFontPixels:1000,widthOnly:false});
-						$("div.caption").textfill({allowOverflow:false,changeLineHeight:true,maxFontPixels:18,minFontPixels:8});
-					});
-					*/
-					
-					
+			var isVertical = (this.orientation=="vertical");
+				window.jQuery('#' + this.id).slick({
+					rtl: (!isVertical  && this.rtl),
+					centerMode: false,
+					dots: this.showDots,
+					vertical: isVertical,
+					verticalSwiping: isVertical,
+					arrows: false,
+					infinite: true, 			// Bug causes odd number of horizontal slides to stop when infinite is false. 
+					variableWidth: false,		// Causes duplicates when animating horizontally. Causes gaps when horizontal.
+					centerPadding: '60px',
+					slidesToShow: objCarousel.slidesToShow,
+					slidesToScroll: objCarousel.slidesToScroll,
+					autoplay: objCarousel.autoplay,
+					autoplaySpeed: objCarousel.autoplaySpeed,
+					adaptiveHeight: isVertical,	// Only used for Vertical Display?
+					pauseOnFocus: true,
+					focusOnSelect: true,
+					cssEase: 'ease'
+				});
 
-				/*
+				//objCarousel.height = height;
+				var maxFontSize = (.7* objCarousel.height ) -15; // take 80% of the CSS height for the value div to allow for padding.
+				window.jQuery("div#" + objCarousel.id + " div.value").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxFontSize,minFontPixels: 12, widthOnly: true });
+				window.jQuery("div#" + objCarousel.id + " div.caption").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: 18, minFontPixels: 8,widthOnly: false });
 				
-				 responsive: [
-						{
-						  breakpoint: 768,
-						  settings: {
-							arrows: false,
-							centerMode: true,
-							centerPadding: '40px',
-							slidesToShow: objCarousel.slidesToShow
-						  }
-						},
-						{
-						  breakpoint: 480,
-						  settings: {
-							arrows: false,
-							centerMode: true,
-							centerPadding: '40px',
-							slidesToShow: 1
-						  }
-						}
-					  ]
-					  
-					  */
-
-					
+				
+			
 			}
+		
+		//Called when the visualization is resized
+		resize(height){
+			var objCarousel=this;
+			var isVertical = (this.orientation=="vertical");
+			var verticalSlideHeight = 0;
+			var newHeight; 
+			var slideHeight;
+			objCarousel.height = height;
+			
+			var maxFontSize = (.7 * objCarousel.height ) - 15; // take 70% of the CSS height for the value div to allow for padding.
+			var maxCaptionSize = 18;
+			//If we have automatic sizing, update the size of the slides. 
+			if(isVertical && objCarousel.size=="automatic"){
+				// Make the container fit the number of slides to an integer height - including all margins, padding, and borders
+				newHeight = Math.floor(height / objCarousel.slidesToShow) * objCarousel.slidesToShow;
+				
+				//each container has a 1px border - account for that with no margin/padding
+				slideHeight = (newHeight / objCarousel.slidesToShow);// - (17 * objCarousel.slidesToShow); // 2px for border, 15px for margin
+				
+				//Now account for the 15px margin + border:
+				slideHeight -= 17;
+				
+				
+				window.jQuery("div#" + this.id).height(newHeight);
+				window.jQuery("div#" + this.id + " div.singlevaluebox").height(slideHeight);
+				$(".slick-vertical .slick-slide").css("height", slideHeight);
+			
+				maxFontSize = (.7 * slideHeight ) - 15; 
+				maxCaptionSize = ((.2* slideHeight)) < 8 ? 8 : (.2* slideHeight);
+				
+			}else if (isVertical && objCarousel.size=="automatic"){
+				maxFontSize = (.7 * objCarousel.height ) - 25;
+
+				
+			}else if(objCarousel.size=="automatic"){
+				window.jQuery("div#" + this.id).height(0.9*height - 30);
+				window.jQuery("div#" + this.id +" div.singlevaluebox").height(.9*height-15);
+			}
+					
+			setTimeout(function(){ 
+				window.jQuery("div#" + objCarousel.id + " div.value").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxFontSize,minFontPixels: 12, widthOnly: false });
+				window.jQuery("div#" + objCarousel.id + " div.caption").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxCaptionSize, minFontPixels: 6,widthOnly: false });
+			},1000);
+		}
+		
 		
 		}
 		
@@ -10193,6 +10255,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 			constructor(){
 				this.value = "";	
+				this.valueField = "value";
 				this.caption = "";	
 				this.unit = "";
 				this.range = "";
@@ -10201,12 +10264,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 				this.colorMode = "foreground";
 				this.thousandsSeparator = false;
 				this.unitPosition = "right";
+				this.rtl = false
 				this.size = "normal";
 			}
 			
 			/* Returns the CSS class for the current slide based on Range/Style and colorMode status */
 			getStyle(){
 				var style = this.size;
+				if(!this.range){this.range="";}
+				if (this.size=="automatic"){ style="automatic";}
 				switch(this.range.toLowerCase()){
 					case "low":
 					case "green":
@@ -10243,16 +10309,16 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 		numberWithCommas(x){
 			var parts = x.toString().split(".");
 			parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-			return parts.join(".");siz
+			return parts.join(".");
 		}
 		
 
 			//Format the value - eg UPPERCASE, 1,000  23.22
 			getValue(){
-				var formattedValue = this.value;
+				var formattedValue =this.value;
 				
-				if(! isNaN(formattedValue)){
-					formattedValue = Number(Math.round(parseInt(formattedValue,10)+'e'+this.numDecimalPlaces)+'e-'+this.numDecimalPlaces).toFixed(this.numDecimalPlaces);;
+				if(! isNaN(formattedValue) && formattedValue!=""){
+					formattedValue = parseFloat(formattedValue).toFixed(this.numDecimalPlaces);
 					if(this.thousandsSeparator){ formattedValue = this.numberWithCommas(formattedValue);}
 				}
 				
@@ -10265,16 +10331,19 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 			
 			/* A simple HTML block representing the Slide's HTML content. */
 			getHTML(){
-				var html = "<div class=\"parent " + this.size + "\"><div style=\"margin: 0px 15px 0px 15px;\">";
-				html += '<div class="singlevaluebox ' + this.getStyle() + '">';
+				var vizUtils = __webpack_require__(3);
+				var captionText = this.caption;
+				if (captionText==""){captionText="&nbsp;";}
+				var html = "";
+				html += '<div class="singlevaluebox ' + this.getStyle() + '" dir="ltr">'; // dir=ltr makes sure the unit position is obeyed
 				
 				if(this.unitPosition=="before"){
-					html += '<div class="value"><span>' + this.unit + "&thinsp;" +  this.getValue() +  '</span></div>';
+					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '">' + this.unit + '&thinsp;'+  this.getValue() +  '</span></div>';
 				}else{
-					html += '<div class="value"><span>' + this.getValue() + "&thinsp;" + this.unit +  '</span></div>';
+					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '">' + this.getValue() + '&thinsp;' + this.unit +  '</span></div>';
 				}
 				html += '<div class="caption"><span>' + this.caption + '</span></div>';
-				html += '</div></div></div>';
+				html += '</div>';
 				return html;
 			}
 			
