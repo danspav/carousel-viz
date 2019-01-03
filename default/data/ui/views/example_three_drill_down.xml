@@ -211,7 +211,7 @@
       </html>
     </panel>
     <panel id="twothirds_2">
-      <title>Application Server Average CPU Use - $test$</title>
+      <title>Application Server Average CPU Use</title>
       <viz type="carousel-viz.carousel-viz">
         <search>
           <query>|makeresults count=5 
