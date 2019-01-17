@@ -101,7 +101,7 @@ define([
 								"caption": {"key": vizObj.oCarousel.tokenCaption, "value":caption},
 								"unit" : {"key": vizObj.oCarousel.tokenUnit, "value":unitValue}
 					};
-				setTokens(aTokens);
+				vizObj.setTokens(aTokens);
 				vizObj.drilldownToCategory(formattedValue, rawValue, event);
 			});
         },
