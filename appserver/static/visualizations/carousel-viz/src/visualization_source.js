@@ -96,10 +96,10 @@ define([
 				var objCaptionSpan = $(this).find("div.caption span")[0];
 				var caption = $(objCaptionSpan).text();
 				// Set the tokens
-				var aTokens={	"rawValue": {"key": this.objCarousel.tokenRawValue, "value": rawValue},
-								"formattedValue": {"key": this.objCarousel.tokenFormattedValue, "value": formattedValue},		
-								"caption": {"key": this.objCarousel.tokenCaption, "value":caption},
-								"unit" : {"key": this.objCarousel.tokenUnit, "value":unitValue}
+				var aTokens={	"rawValue": {"key": vizObj.oCarousel.tokenRawValue, "value": rawValue},
+								"formattedValue": {"key": vizObj.oCarousel.tokenFormattedValue, "value": formattedValue},		
+								"caption": {"key": vizObj.oCarousel.tokenCaption, "value":caption},
+								"unit" : {"key": vizObj.oCarousel.tokenUnit, "value":unitValue}
 					};
 				setTokens(aTokens);
 				vizObj.drilldownToCategory(formattedValue, rawValue, event);
