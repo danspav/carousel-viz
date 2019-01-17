@@ -88,13 +88,45 @@ define([
 			var vizObj = this;
 			
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
-				var objDiv = $(this).find("div.value span")[0];
-				var catFieldValue = $(objDiv).attr('rawValue');
-				var catName = $(objDiv).attr('valueField');
-				vizObj.drilldownToCategory(catName, catFieldValue, event);
+				var objValueSpan = $(this).find("div.value span")[0];
+				var rawValue = $(objValueSpan).attr('rawValue');
+				var unitValue = $(objValueSpan).attr('data-unit');
+				var formattedValue = $(objValueSpan).attr('valueField');
+				
+				var objCaptionSpan = $(this).find("div.caption span")[0];
+				var caption = $(objCaptionSpan).text();
+				// Set the tokens
+				var aTokens={	"rawValue": {"key": this.tokenRawValue, "value": rawValue},
+								"formattedValue": {"key": this.tokenFormattedValue, "value": formattedValue},		
+								"caption": {"key": this.tokenCaption, "value":caption},
+								"unit" : {"key": this.tokenUnit, "value":unitValue}
+					};
+				this.setTokens(aTokens);
+				vizObj.drilldownToCategory(formattedValue, rawValue, event);
 			});
         },
 
+		
+		setTokens: function(aTokens){
+			for (var tok in aTokens) {
+				this._setToken(aTokens[tok]['key'],aTokens[tok]['value']);
+			}
+		},
+		
+		_setToken : function(name, value) {
+			var defaultTokenModel = mvc.Components.get('default');
+			if (defaultTokenModel) {
+				defaultTokenModel.set(name, value);
+			}
+			var submittedTokenModel = mvc.Components.get('submitted');
+			if (submittedTokenModel) {
+				submittedTokenModel.set(name, value);
+			}
+		},
+		
+		
+		
+		
         // Search data params
         getInitialDataParams: function() {
             return ({

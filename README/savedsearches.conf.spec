@@ -15,6 +15,7 @@ default.visualizations.custom.carousel-viz.carousel-viz.orientation= <string>
 default.visualizations.custom.carousel-viz.carousel-viz.direction = <string>
 
 #1.0.1 Tokens
-default.visualizations.custom.carousel-viz.carousel-viz.tokenValue = <string>
+default.visualizations.custom.carousel-viz.carousel-viz.tokenRawValue = <string>
+default.visualizations.custom.carousel-viz.carousel-viz.tokenFormattedValue = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.tokenCaption = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.tokenUnit = <string>
