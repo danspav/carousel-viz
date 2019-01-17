@@ -8,12 +8,13 @@ default.visualizations.custom.carousel-viz.carousel-viz.numDecimalPlaces = <numb
 default.visualizations.custom.carousel-viz.carousel-viz.thousandsSeparator = <boolean>
 default.visualizations.custom.carousel-viz.carousel-viz.unit = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.unitPosition = <string>
-default.visualizations.custom.carousel-viz.carousel-viz.token_value = <string>
-default.visualizations.custom.carousel-viz.carousel-viz.token_caption = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.size = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.colorMode = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.showDots = <string>
 default.visualizations.custom.carousel-viz.carousel-viz.orientation= <string>
-
 default.visualizations.custom.carousel-viz.carousel-viz.direction = <string>
-default.visualizations.custom.carousel-viz.carousel-viz.autWidth = <string>
+
+#1.0.1 Tokens
+default.visualizations.custom.carousel-viz.carousel-viz.tokenValue = <string>
+default.visualizations.custom.carousel-viz.carousel-viz.tokenCaption = <string>
+default.visualizations.custom.carousel-viz.carousel-viz.tokenUnit = <string>

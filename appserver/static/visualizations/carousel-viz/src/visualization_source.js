@@ -8,7 +8,9 @@ define([
             'api/SplunkVisualizationUtils',
 			'carousel-viz',
 			'textfill',
-			'slick'
+			'slick',
+			'splunkjs/mvc'
+			
             // Add required assets to this list
         ],
         function(
@@ -18,7 +20,8 @@ define([
             vizUtils,
 			carousel_viz,
 			textfill,
-			slick
+			slick,
+			mvc
         ) {
   
     // Extend from SplunkVisualizationBase
@@ -69,6 +72,7 @@ define([
 			
 			// Now load the visualisation
 			var oCarousel= new carousel_viz.carousel_viz();
+			oCarousel.mvc = mvc;
 			oCarousel.height = this.$el.height();
 			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 			oCarousel.setData(data)
@@ -101,7 +105,7 @@ define([
 
         // Override to respond to re-sizing events
         reflow: function() {
-			this.oCarousel.resize(this.$el.height());		
+			if(this.oCarousel) { this.oCarousel.resize(this.$el.height());}
 		},
     
 	
