@@ -101,7 +101,7 @@ define([
 								"caption": {"key": this.tokenCaption, "value":caption},
 								"unit" : {"key": this.tokenUnit, "value":unitValue}
 					};
-				this.setTokens(aTokens);
+				setTokens(aTokens);
 				vizObj.drilldownToCategory(formattedValue, rawValue, event);
 			});
         },
