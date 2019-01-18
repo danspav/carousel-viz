@@ -55,7 +55,7 @@
     </panel>
     <panel>
       <viz type="carousel-viz.carousel-viz">
-        <title>Carousel Viz - v1.0.0</title>
+        <title>Carousel Viz - v1.1.0</title>
         <search>
           <query>| makeresults count=12 
 | eval value=random()%10000 
@@ -97,7 +97,7 @@
     </panel>
     <panel>
       <viz type="carousel-viz.carousel-viz">
-        <title>Carousel Viz - v1.0.0</title>
+        <title>Carousel Viz - v1.1.0</title>
         <search>
           <query>|makeresults count=4
 | streamstats count as id
