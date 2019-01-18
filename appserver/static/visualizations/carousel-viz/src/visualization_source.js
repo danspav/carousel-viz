@@ -89,9 +89,10 @@ define([
 			
 			window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
 				var objValueSpan = $(this).find("div.value span")[0];
-				var rawValue = $(objValueSpan).attr('rawValue');
+				var formattedValue = $(objValueSpan).attr('data-formatted-value');
+				var rawValue =  $(objValueSpan).attr('data-raw-value');
 				var unitValue = $(objValueSpan).attr('data-unit');
-				var formattedValue = $(objValueSpan).attr('valueField');
+				var fieldName = $(objValueSpan).attr('data-field-name');
 				
 				var objCaptionSpan = $(this).find("div.caption span")[0];
 				var caption = $(objCaptionSpan).text();
@@ -102,7 +103,7 @@ define([
 								"unit" : {"key": vizObj.oCarousel.tokenUnit, "value":unitValue}
 					};
 				vizObj.setTokens(aTokens);
-				vizObj.drilldownToCategory(formattedValue, rawValue, event);
+				vizObj.drilldownToCategory(fieldName, rawValue, event);
 			});
         },
 
