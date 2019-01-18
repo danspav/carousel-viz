@@ -55,8 +55,8 @@
         <h1>Single Metric Example</h1>
         <p>In this example, when you click on a slide, the following tokens are generated:</p>
 		
-		<table width="300" style="border-collapse:collapse; border: 1px solid black;">
-		<tr><td><strong>Field</strong></td><td><strong>Token</strong></td><td><strong>Example</strong></td></tr>
+		<table width="400" style="border-collapse:collapse; border: 1px solid black;">
+		<tr><td width="150"><strong>Field</strong></td><td width="100"><strong>Token</strong></td><td width="150"><strong>Example</strong></td></tr>
 		<tr><td><strong>Caption</strong></td><td><strong>$$cv_caption$$</strong></td><td><strong>$cv_caption$</strong></td></tr>
 		<tr><td><strong>Formatted Value</strong></td><td><strong>$$cv_formatted_value$$</strong></td><td><strong>$cv_formatted_value$</strong></td></tr>
 		<tr><td><strong>Raw Value</strong></td><td><strong>$$cv_raw_value$$</strong></td><td><strong>$cv_raw_value$</strong></td></tr>
