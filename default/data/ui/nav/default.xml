@@ -3,7 +3,8 @@
   <view name="example_one_static" />
   <view name="example_two_animated" />
   <view name="example_three_drill_down" />
-  <view name="example_four_dark_theme" />
+  <view name="example_four_tokens" />
+  <view name="example_five_dark_theme" />
   <view name="settings" />
   
 </nav>

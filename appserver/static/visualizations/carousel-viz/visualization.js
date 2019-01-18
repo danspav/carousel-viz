@@ -1,4 +1,4 @@
-define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__) { return /******/ (function(modules) { // webpackBootstrap
+define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__) { return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 
@@ -48,13 +48,15 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	 * Visualization source
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-	            __webpack_require__(1),
-	            __webpack_require__(7),
 	            __webpack_require__(2),
+	            __webpack_require__(8),
 	            __webpack_require__(3),
-				__webpack_require__(4),
+	            __webpack_require__(4),
 				__webpack_require__(5),
-				__webpack_require__(6)
+				__webpack_require__(6),
+				__webpack_require__(7),
+				__webpack_require__(1)
+				
 	            // Add required assets to this list
 	        ], __WEBPACK_AMD_DEFINE_RESULT__ = function(
 	            $,
@@ -63,7 +65,8 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	            vizUtils,
 				carousel_viz,
 				textfill,
-				slick
+				slick,
+				mvc
 	        ) {
 	  
 	    // Extend from SplunkVisualizationBase
@@ -109,17 +112,18 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 				// Clear the div
 				this.$el.empty();
 
-				var carousel_viz = __webpack_require__(4);
+				var carousel_viz = __webpack_require__(5);
 				
 				
 				// Now load the visualisation
 				var oCarousel= new carousel_viz.carousel_viz();
+				oCarousel.mvc = mvc;
 				oCarousel.height = this.$el.height();
 				oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 				oCarousel.setData(data)
 				this.$el.html(oCarousel.getHTML());
-				textfill = __webpack_require__(5);
-				slick = __webpack_require__(6);
+				textfill = __webpack_require__(6);
+				slick = __webpack_require__(7);
 				this.oCarousel = oCarousel;
 				this.oCarousel.start();
 				window.jQuery('#' + this.oCarousel.id).slick('slickNext');
@@ -129,13 +133,45 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 				var vizObj = this;
 				
 				window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
-					var objDiv = $(this).find("div.value span")[0];
-					var catFieldValue = $(objDiv).attr('rawValue');
-					var catName = $(objDiv).attr('valueField');
-					vizObj.drilldownToCategory(catName, catFieldValue, event);
+					var objValueSpan = $(this).find("div.value span")[0];
+					var rawValue = $(objValueSpan).attr('rawValue');
+					var unitValue = $(objValueSpan).attr('data-unit');
+					var formattedValue = $(objValueSpan).attr('valueField');
+					
+					var objCaptionSpan = $(this).find("div.caption span")[0];
+					var caption = $(objCaptionSpan).text();
+					// Set the tokens
+					var aTokens={	"rawValue": {"key": vizObj.oCarousel.tokenRawValue, "value": rawValue},
+									"formattedValue": {"key": vizObj.oCarousel.tokenFormattedValue, "value": formattedValue},		
+									"caption": {"key": vizObj.oCarousel.tokenCaption, "value":caption},
+									"unit" : {"key": vizObj.oCarousel.tokenUnit, "value":unitValue}
+						};
+					vizObj.setTokens(aTokens);
+					vizObj.drilldownToCategory(formattedValue, rawValue, event);
 				});
 	        },
 
+			
+			setTokens: function(aTokens){
+				for (var tok in aTokens) {
+					this._setToken(aTokens[tok]['key'],aTokens[tok]['value']);
+				}
+			},
+			
+			_setToken : function(name, value) {
+				var defaultTokenModel = mvc.Components.get('default');
+				if (defaultTokenModel) {
+					defaultTokenModel.set(name, value);
+				}
+				var submittedTokenModel = mvc.Components.get('submitted');
+				if (submittedTokenModel) {
+					submittedTokenModel.set(name, value);
+				}
+			},
+			
+			
+			
+			
 	        // Search data params
 	        getInitialDataParams: function() {
 	            return ({
@@ -146,7 +182,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	        // Override to respond to re-sizing events
 	        reflow: function() {
-				this.oCarousel.resize(this.$el.height());		
+				if(this.oCarousel) { this.oCarousel.resize(this.$el.height());}
 			},
 	    
 		
@@ -166,6 +202,12 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -9985,12 +10027,6 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports) {
 
@@ -9998,26 +10034,40 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	class carousel_viz{
-		constructor(){
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var carousel_viz = function () {
+		function carousel_viz() {
+			_classCallCheck(this, carousel_viz);
+
 			this.slides = [];
 			this.slidesToShow = 3;
 			this.slidesToScroll = 1;
-			this.autoplay = true; 
+			this.autoplay = true;
 			this.autoplaySpeed = 3000;
 			this.colorMode = true;
 			this.value = "&nbsp;";
-			this.caption="&nbsp;";
+			this.caption = "&nbsp;";
 			this.unit = "";
-			this.numDecimalPlaces="0"
+			this.numDecimalPlaces = "0";
 			this.thousandsSeparator = false;
 			this.unitPosition = "after";
 			this.size = "automatic";
 			this.orientation = "horizontal";
-			this.direction="left"
-			this.rtl=false;
+			this.direction = "left";
+			this.rtl = false;
 			// Value Options
 			this.valueField = "value";
 			this.forceAllCaps = false;
@@ -10025,255 +10075,337 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 			this.showDots = false;
 			this.isSplunkDarkMode = false;
 			this.id = this.createUUID();
-			this.validAutoplaySpeeds={"vslow":10000,"slow":7500,"medium":3000,"fast":2000,"vfast":1000};
-			this.validSizes={"automatic":250, "xsmall":75,"small":100,"medium":250,"large":300,"xlarge":500};
-			this.maxFontSizes = {xsmall:70,small:95,medium:145,large:195,xlarge:240};
+			this.validAutoplaySpeeds = { "vslow": 10000, "slow": 7500, "medium": 3000, "fast": 2000, "vfast": 1000 };
+			this.validSizes = { "automatic": 250, "xsmall": 75, "small": 100, "medium": 250, "large": 300, "xlarge": 500 };
+			this.maxFontSizes = { xsmall: 70, small: 95, medium: 145, large: 195, xlarge: 240 };
 			this.height = 250;
 			this.isDrillDownConfigured = false;
+			this.tokenRawValue = "cv_raw_value";
+			this.tokenFormattedValue = "cv_formatted_value";
+			this.tokenCaption = "cv_caption";
+			this.tokenUnit = "cv_unit";
 		}
 
-		
-		
-			
-		setConfig(config, namespace){
-			var vizUtils = __webpack_require__(3);
-			// Get Config parameters:
-			this.slidesToShow = parseInt(config[namespace + 'slidesToShow']) || 3;
-			this.autoplay = vizUtils.escapeHtml(config[namespace + "autoplay"]) || true;
-			this.slidesToScroll = parseInt(config[namespace + 'slidesToScroll']) || 1;
-			
-			this.forceAllCaps = vizUtils.escapeHtml(config[namespace + "forceAllCaps"]) || false;
-			this.autoplaySpeed = vizUtils.escapeHtml(config[namespace + 'autoplaySpeed']) || "normal";
-			this.numDecimalPlaces = parseInt(config[namespace + 'numDecimalPlaces']) || 0;
-			this.colorMode = vizUtils.escapeHtml(config[namespace + "colorMode"]) || "foreground";
-			this.thousandsSeparator = vizUtils.escapeHtml(config[namespace + "thousandsSeparator"]) || false;
-			this.unitPosition = vizUtils.escapeHtml(config[namespace + "unitPosition"]) || "after";
-			this.defaultCaption = vizUtils.escapeHtml(config[namespace + 'defaultCaption']) || ""; 
-			this.size = vizUtils.escapeHtml(config[namespace + 'size']) || "automatic"; 
-			this.unit = vizUtils.escapeHtml(config[namespace + 'unit']) || ""; 
-			this.caption = vizUtils.escapeHtml(config[namespace + 'caption']) || "&nbsp;"; 
-			this.showDots = vizUtils.escapeHtml(config[namespace + 'showDots']) || false; 
-			this.orientation = vizUtils.escapeHtml(config[namespace + 'orientation']) || "horizontal"; 
-			this.direction = vizUtils.escapeHtml(config[namespace + 'direction']) || "left"; 
-			this.rtl = (this.direction=="right" && this.orientation=="horizontal");
-			
-			if (this.autoplaySpeed < 1000){ this.autoplaySpeed=1000;}
-			//Enforce Boolean values to be boolean
-			this.forceAllCaps = (this.forceAllCaps=="true");
-			this.autoplay=(this.auotplay || this.autoplay=="true");
-			this.showDots = (this.showDots=="true");
-			this.orientation = (this.orientation=="horizontal") ? "horizontal" : "vertical";
-			this.direction = (this.direction=="left") ? "left" : "right";
-			this.colorMode = this.colorMode=="foreground" ? "foreground" : "background";
-			if(this.numDecimalPlaces >4) { this.numDecimalPlaces=4;}
-			if(this.numDecimalPlaces <0) { this.numDecimalPlaces=0;}
-			if(this.slidesToShow >10) { this.slidesToShow=10;}
-			if(this.slidesToShow <1) { this.slidesToShow=1;}
-			if (this.slidesToScroll >  this.slidesToShow) { this.slidesToScroll = this.slidesToShow;}
-			if (this.slidesToScroll <  1) { this.slidesToScroll = 1;}
+		_createClass(carousel_viz, [{
+			key: "setConfig",
+			value: function setConfig(config, namespace) {
+				var vizUtils = __webpack_require__(4);
+				// Get Config parameters:
+				this.slidesToShow = parseInt(config[namespace + 'slidesToShow']) || 3;
+				this.autoplay = vizUtils.escapeHtml(config[namespace + "autoplay"]) || true;
+				this.slidesToScroll = parseInt(config[namespace + 'slidesToScroll']) || 1;
 
-			if(this.unitPosition!="after"){ this.unitPosition="before";}
-			if(!this.validAutoplaySpeeds[this.autoplaySpeed]) { this.autoplaySpeed=3000;} else{ this.autoplaySpeed=this.validAutoplaySpeeds[this.autoplaySpeed];}
-			if(!this.validSizes[this.size]) { this.size="automatic";}
-			this.thousandsSeparator = (this.thousandsSeparator=="true")
-			
-			this.isSplunkDarkMode = (vizUtils.getCurrentTheme()=="dark");
-			
-			// Do we display a hand icon? If drilldown is set, then yes
-			this.isDrillDownConfigured = config['display.visualizations.custom.drilldown']!='none';
-			
-			
-			
-		}
-		
-		// Create a unique ID for the CSS selector
-		createUUID() {
-			var s = [];
-			var hexDigits = "0123456789abcdef";
-			for (var i = 0; i < 10; i++) {
-				s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+				this.forceAllCaps = vizUtils.escapeHtml(config[namespace + "forceAllCaps"]) || false;
+				this.autoplaySpeed = vizUtils.escapeHtml(config[namespace + 'autoplaySpeed']) || "normal";
+				this.numDecimalPlaces = parseInt(config[namespace + 'numDecimalPlaces']) || 0;
+				this.colorMode = vizUtils.escapeHtml(config[namespace + "colorMode"]) || "foreground";
+				this.thousandsSeparator = vizUtils.escapeHtml(config[namespace + "thousandsSeparator"]) || false;
+				this.unitPosition = vizUtils.escapeHtml(config[namespace + "unitPosition"]) || "after";
+				this.defaultCaption = vizUtils.escapeHtml(config[namespace + 'defaultCaption']) || "";
+				this.size = vizUtils.escapeHtml(config[namespace + 'size']) || "automatic";
+				this.unit = vizUtils.escapeHtml(config[namespace + 'unit']) || "";
+				this.caption = vizUtils.escapeHtml(config[namespace + 'caption']) || "&nbsp;";
+				this.showDots = vizUtils.escapeHtml(config[namespace + 'showDots']) || false;
+				this.orientation = vizUtils.escapeHtml(config[namespace + 'orientation']) || "horizontal";
+				this.direction = vizUtils.escapeHtml(config[namespace + 'direction']) || "left";
+
+				this.tokenRawValue = vizUtils.escapeHtml(config[namespace + 'tokenRawValue`']) || "cv_raw_value";
+				this.tokenFormattedValue = vizUtils.escapeHtml(config[namespace + 'tokenFormattedValue']) || "cv_formatted_value";
+				this.tokenCaption = vizUtils.escapeHtml(config[namespace + 'tokenCaption']) || "cv_caption";
+				this.tokenUnit = vizUtils.escapeHtml(config[namespace + 'tokenUnit']) || "cv_unit";
+
+				this.rtl = this.direction == "right" && this.orientation == "horizontal";
+
+				if (this.autoplaySpeed < 1000) {
+					this.autoplaySpeed = 1000;
+				}
+				//Enforce Boolean values to be boolean
+				this.forceAllCaps = this.forceAllCaps == "true";
+				this.autoplay = this.auotplay || this.autoplay == "true";
+				this.showDots = this.showDots == "true";
+				this.orientation = this.orientation == "horizontal" ? "horizontal" : "vertical";
+				this.direction = this.direction == "left" ? "left" : "right";
+				this.colorMode = this.colorMode == "foreground" ? "foreground" : "background";
+				if (this.numDecimalPlaces > 4) {
+					this.numDecimalPlaces = 4;
+				}
+				if (this.numDecimalPlaces < 0) {
+					this.numDecimalPlaces = 0;
+				}
+				if (this.slidesToShow > 10) {
+					this.slidesToShow = 10;
+				}
+				if (this.slidesToShow < 1) {
+					this.slidesToShow = 1;
+				}
+				if (this.slidesToScroll > this.slidesToShow) {
+					this.slidesToScroll = this.slidesToShow;
+				}
+				if (this.slidesToScroll < 1) {
+					this.slidesToScroll = 1;
+				}
+
+				if (this.unitPosition != "after") {
+					this.unitPosition = "before";
+				}
+				if (!this.validAutoplaySpeeds[this.autoplaySpeed]) {
+					this.autoplaySpeed = 3000;
+				} else {
+					this.autoplaySpeed = this.validAutoplaySpeeds[this.autoplaySpeed];
+				}
+				if (!this.validSizes[this.size]) {
+					this.size = "automatic";
+				}
+				this.thousandsSeparator = this.thousandsSeparator == "true";
+
+				if (typeof vizUtils.getCurrentTheme === "function") {
+					// safe to use the function
+					this.isSplunkDarkMode = vizUtils.getCurrentTheme() == "dark";
+				} else {
+					//version 6.x, 7.0
+					this.isSplunkDarkMode = false;
+				}
+
+				// Do we display a hand icon? If drilldown is set, then yes
+				this.isDrillDownConfigured = config['display.visualizations.custom.drilldown'] != 'none';
 			}
-			var uuid = s.join("");
-			return "cv_" + uuid;
-		}
-		
-		
-		setData(data){
+
+			// Create a unique ID for the CSS selector
+
+		}, {
+			key: "createUUID",
+			value: function createUUID() {
+				var s = [];
+				var hexDigits = "0123456789abcdef";
+				for (var i = 0; i < 10; i++) {
+					s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+				}
+				var uuid = s.join("");
+				return "cv_" + uuid;
+			}
+		}, {
+			key: "setData",
+			value: function setData(data) {
 				var i = 0;
 				var fields = [];
 				var oSlide;
 				var data_item;
 				var rangeFieldName = "";
 				var current_item;
-				var vizUtils = __webpack_require__(3);
-				
-				const { carousel_viz, carousel_viz_slide} = __webpack_require__(4);
-				try{
+				var vizUtils = __webpack_require__(4);
+
+				var _require = __webpack_require__(5),
+				    carousel_viz = _require.carousel_viz,
+				    carousel_viz_slide = _require.carousel_viz_slide;
+
+				try {
 					//------------------------------  Get data row field indexes ----------------------------------------------------------------------
-					for (i=0; i<data.fields.length; i++){
-						fields[data.fields[i].name.toLowerCase()]  = i;
+					for (i = 0; i < data.fields.length; i++) {
+						fields[data.fields[i].name.toLowerCase()] = i;
 					}
 					// we don't need to name it "value" - just use the first field
-					if(typeof fields["value"] === 'undefined'){ fields['value'] = 0; this.valueField = data.fields[0].name;}
-					for (i=0; i<data.rows.length; i++){
+					if (typeof fields["value"] === 'undefined') {
+						fields['value'] = 0;this.valueField = data.fields[0].name;
+					}
+					for (i = 0; i < data.rows.length; i++) {
 						data_item = data.rows[i];
-						if(typeof data_item[fields["style"]] === 'undefined'){
+						if (typeof data_item[fields["style"]] === 'undefined') {
 							rangeFieldName = "range";
-						}else{
+						} else {
 							rangeFieldName = "style";
 						}
 						//------------------------------  Create or Locate item Objects ----------------------------------------------------------------------
 						oSlide = new carousel_viz_slide();
-						oSlide.value              = vizUtils.escapeHtml(data_item[fields["value"]])
-						oSlide.unit               = vizUtils.escapeHtml(data_item[fields["unit"]])
-						if (oSlide.unit=="") { oSlide.unit = this.unit;}
-						if (typeof fields["caption"] ==='undefined' || data_item[fields["caption"]]==""){ oSlide.caption = this.defaultCaption;} else {oSlide.caption=vizUtils.escapeHtml(data_item[fields["caption"]]);}
-						if (typeof fields["range"] ==='undefined' || data_item[fields["range"]]==""){ oSlide.range = "default";}else{oSlide.range=vizUtils.escapeHtml(data_item[fields[rangeFieldName]]);}
-						
-						oSlide.size				  = this.size;
-						oSlide.forceAllCaps       = this.forceAllCaps;
-						oSlide.numDecimalPlaces   = this.numDecimalPlaces;
-						oSlide.colorMode          = this.colorMode;
+						oSlide.value = vizUtils.escapeHtml(data_item[fields["value"]]);
+						oSlide.unit = vizUtils.escapeHtml(data_item[fields["unit"]]);
+						if (oSlide.unit == "") {
+							oSlide.unit = this.unit;
+						}
+						if (typeof fields["caption"] === 'undefined' || data_item[fields["caption"]] == "") {
+							oSlide.caption = this.defaultCaption;
+						} else {
+							oSlide.caption = vizUtils.escapeHtml(data_item[fields["caption"]]);
+						}
+						if (typeof fields["range"] === 'undefined' || data_item[fields["range"]] == "") {
+							oSlide.range = "default";
+						} else {
+							oSlide.range = vizUtils.escapeHtml(data_item[fields[rangeFieldName]]);
+						}
+
+						oSlide.size = this.size;
+						oSlide.forceAllCaps = this.forceAllCaps;
+						oSlide.numDecimalPlaces = this.numDecimalPlaces;
+						oSlide.colorMode = this.colorMode;
 						oSlide.thousandsSeparator = this.thousandsSeparator;
-						oSlide.unitPosition	      = this.unitPosition;
-						oSlide.valueField 		  = this.valueField;					
+						oSlide.unitPosition = this.unitPosition;
+						oSlide.valueField = this.valueField;
 						this.slides.push(oSlide);
-					}	
-				} catch(err) {
+					}
+				} catch (err) {
 					console.log("Error setting data. " + err);
 				}
 			}
-		
-		
-		getHTML(){
-			var html = "";
-			var dir = "";
-			if (this.rtl && this.orientation=="horizontal") { dir=" dir=\"rtl\"";} else{dir=" dir=\"ltr\"";} // Bug: can only do rtl if horizontal: https://github.com/kenwheeler/slick/issues/818
-			if (this.isSplunkDarkMode){
-				html += "<style>.slick-dots li button:before, .slick-dots li.slick-active button:before{color:white!important;}</style>";
+		}, {
+			key: "getHTML",
+			value: function getHTML() {
+				var html = "";
+				var dir = "";
+				if (this.rtl && this.orientation == "horizontal") {
+					dir = " dir=\"rtl\"";
+				} else {
+					dir = " dir=\"ltr\"";
+				} // Bug: can only do rtl if horizontal: https://github.com/kenwheeler/slick/issues/818
+				if (this.isSplunkDarkMode) {
+					html += "<style>.slick-dots li button:before, .slick-dots li.slick-active button:before{color:white!important;}</style>";
+				}
+				var cssClasses = "";
+				if (this.isDrillDownConfigured) {
+					cssClasses += " drilldown";
+				}
+
+				var value = this.value;
+				var i = 0;
+				html += '<div id="' + this.id + '" class="carousel-viz-container' + cssClasses + '"' + dir + '>';
+				for (i = 0; i < this.slides.length; i++) {
+					html += this.slides[i].getHTML();
+				}
+				html += '</div>';
+				return html;
 			}
-			var cssClasses = "";
-			if(this.isDrillDownConfigured) { cssClasses+= " drilldown";}
-			
-			var value = this.value
-			var i =0;
-			 html +='<div id="'  + this.id + '" class="carousel-viz-container' + cssClasses + '"' + dir + '>';
-			 for(i=0;i<this.slides.length;i++){
-				 html += this.slides[i].getHTML();
-			 }
-			 html += '</div>';
-			 return html;
-		}
-		
-		start(){
-			var objCarousel = this;
-					
-			var isVertical = (this.orientation=="vertical");
+		}, {
+			key: "start",
+			value: function start() {
+				var objCarousel = this;
+
+				var isVertical = this.orientation == "vertical";
+				if (this.isVertical) {
+					this.showDots = false;
+				}
 				window.jQuery('#' + this.id).slick({
-					rtl: (!isVertical  && this.rtl),
+					rtl: !isVertical && this.rtl,
 					centerMode: false,
 					dots: this.showDots,
 					vertical: isVertical,
 					verticalSwiping: isVertical,
 					arrows: false,
-					infinite: true, 			// Bug causes odd number of horizontal slides to stop when infinite is false. 
-					variableWidth: false,		// Causes duplicates when animating horizontally. Causes gaps when horizontal.
+					infinite: true, // Bug causes odd number of horizontal slides to stop when infinite is false. 
+					variableWidth: false, // Causes duplicates when animating horizontally. Causes gaps when horizontal.
 					centerPadding: '60px',
 					slidesToShow: objCarousel.slidesToShow,
 					slidesToScroll: objCarousel.slidesToScroll,
 					autoplay: objCarousel.autoplay,
 					autoplaySpeed: objCarousel.autoplaySpeed,
-					adaptiveHeight: isVertical,	// Only used for Vertical Display?
+					adaptiveHeight: isVertical, // Only used for Vertical Display?
 					pauseOnFocus: true,
 					focusOnSelect: true,
 					cssEase: 'ease'
 				});
 
 				//objCarousel.height = height;
-				var maxFontSize = (.7* objCarousel.height ) -15; // take 80% of the CSS height for the value div to allow for padding.
-				window.jQuery("div#" + objCarousel.id + " div.value").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxFontSize,minFontPixels: 12, widthOnly: true });
-				window.jQuery("div#" + objCarousel.id + " div.caption").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: 18, minFontPixels: 8,widthOnly: false });
-				
-				
-			
+				var maxFontSize = 75;
+				if (this.size == "automatic") {
+					var maxFontSize = .7 * objCarousel.height - 15; // take 80% of the CSS height for the value div to allow for padding.
+				} else {
+					if (this.maxFontSizes[this.size]) {
+						maxFontSize = this.maxFontSizes[this.size];
+					}
+				}
+				window.jQuery("div#" + objCarousel.id + " div.value").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxFontSize, minFontPixels: 12, widthOnly: true });
+				window.jQuery("div#" + objCarousel.id + " div.caption").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: 18, minFontPixels: 8, widthOnly: false });
 			}
-		
-		//Called when the visualization is resized
-		resize(height){
-			var objCarousel=this;
-			var isVertical = (this.orientation=="vertical");
-			var verticalSlideHeight = 0;
-			var newHeight; 
-			var slideHeight;
-			objCarousel.height = height;
-			
-			var maxFontSize = (.7 * objCarousel.height ) - 15; // take 70% of the CSS height for the value div to allow for padding.
-			var maxCaptionSize = 18;
-			//If we have automatic sizing, update the size of the slides. 
-			if(isVertical && objCarousel.size=="automatic"){
-				// Make the container fit the number of slides to an integer height - including all margins, padding, and borders
-				newHeight = Math.floor(height / objCarousel.slidesToShow) * objCarousel.slidesToShow;
-				
-				//each container has a 1px border - account for that with no margin/padding
-				slideHeight = (newHeight / objCarousel.slidesToShow);// - (17 * objCarousel.slidesToShow); // 2px for border, 15px for margin
-				
-				//Now account for the 15px margin + border:
-				slideHeight -= 17;
-				
-				
-				window.jQuery("div#" + this.id).height(newHeight);
-				window.jQuery("div#" + this.id + " div.singlevaluebox").height(slideHeight);
-				$(".slick-vertical .slick-slide").css("height", slideHeight);
-			
-				maxFontSize = (.7 * slideHeight ) - 15; 
-				maxCaptionSize = ((.2* slideHeight)) < 8 ? 8 : (.2* slideHeight);
-				
-			}else if (isVertical && objCarousel.size=="automatic"){
-				maxFontSize = (.7 * objCarousel.height ) - 25;
 
-				
-			}else if(objCarousel.size=="automatic"){
-				window.jQuery("div#" + this.id).height(0.9*height - 30);
-				window.jQuery("div#" + this.id +" div.singlevaluebox").height(.9*height-15);
-			}
-					
-			setTimeout(function(){ 
-				window.jQuery("div#" + objCarousel.id + " div.value").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxFontSize,minFontPixels: 12, widthOnly: false });
-				window.jQuery("div#" + objCarousel.id + " div.caption").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxCaptionSize, minFontPixels: 6,widthOnly: false });
-			},1000);
-		}
-		
-		
-		}
-		
-		
-		/* Slide class
-			This class defines a slide in the carousel.
-			There will be multiple instances, each showing a different row of the results.
-		*/
-		class carousel_viz_slide{
+			//Called when the visualization is resized
 
-			constructor(){
-				this.value = "";	
-				this.valueField = "value";
-				this.caption = "";	
-				this.unit = "";
-				this.range = "";
-				this.forceAllCaps = false;
-				this.numDecimalPlaces = 0;
-				this.colorMode = "foreground";
-				this.thousandsSeparator = false;
-				this.unitPosition = "right";
-				this.rtl = false
-				this.size = "normal";
+		}, {
+			key: "resize",
+			value: function resize(height) {
+				var objCarousel = this;
+				var isVertical = this.orientation == "vertical";
+				var verticalSlideHeight = 0;
+				var newHeight;
+				var slideHeight;
+				objCarousel.height = height;
+
+				var maxFontSize = .7 * objCarousel.height - 15; // take 70% of the CSS height for the value div to allow for padding.
+				var maxCaptionSize = 18;
+				//If we have automatic sizing, update the size of the slides. 
+				if (isVertical && objCarousel.size == "automatic") {
+					// Make the container fit the number of slides to an integer height - including all margins, padding, and borders
+					newHeight = Math.floor(height / objCarousel.slidesToShow) * objCarousel.slidesToShow;
+
+					//each container has a 1px border - account for that with no margin/padding
+					slideHeight = newHeight / objCarousel.slidesToShow; // - (17 * objCarousel.slidesToShow); // 2px for border, 15px for margin
+
+					//Now account for the 15px margin + border:
+					slideHeight -= 17;
+
+					window.jQuery("div#" + this.id).height(newHeight);
+					window.jQuery("div#" + this.id + " div.singlevaluebox").height(slideHeight);
+					$(".slick-vertical .slick-slide").css("height", slideHeight);
+
+					maxFontSize = .7 * slideHeight - 15;
+					maxCaptionSize = .2 * slideHeight < 8 ? 8 : .2 * slideHeight;
+				} else if (isVertical && objCarousel.size == "automatic") {
+					maxFontSize = .7 * objCarousel.height - 25;
+				} else if (objCarousel.size == "automatic") {
+					window.jQuery("div#" + this.id).height(0.9 * height - 30);
+					window.jQuery("div#" + this.id + " div.singlevaluebox").height(.9 * height - 15);
+				}
+
+				if (objCarousel.size != "automatic") {
+					if (this.maxFontSizes[this.size]) {
+						maxFontSize = this.maxFontSizes[this.size];
+					}
+				}
+
+				setTimeout(function () {
+					window.jQuery("div#" + objCarousel.id + " div.value").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxFontSize, minFontPixels: 12, widthOnly: false });
+					window.jQuery("div#" + objCarousel.id + " div.caption").textfill({ allowOverflow: false, changeLineHeight: false, maxFontPixels: maxCaptionSize, minFontPixels: 6, widthOnly: false });
+				}, 1000);
 			}
-			
-			/* Returns the CSS class for the current slide based on Range/Style and colorMode status */
-			getStyle(){
+		}]);
+
+		return carousel_viz;
+	}();
+
+	/* Slide class
+		This class defines a slide in the carousel.
+		There will be multiple instances, each showing a different row of the results.
+	*/
+
+
+	var carousel_viz_slide = function () {
+		function carousel_viz_slide() {
+			_classCallCheck(this, carousel_viz_slide);
+
+			this.value = "";
+			this.valueField = "value";
+			this.caption = "";
+			this.unit = "";
+			this.range = "";
+			this.forceAllCaps = false;
+			this.numDecimalPlaces = 0;
+			this.colorMode = "foreground";
+			this.thousandsSeparator = false;
+			this.unitPosition = "right";
+			this.rtl = false;
+			this.size = "normal";
+		}
+
+		/* Returns the CSS class for the current slide based on Range/Style and colorMode status */
+
+
+		_createClass(carousel_viz_slide, [{
+			key: "getStyle",
+			value: function getStyle() {
 				var style = this.size;
-				if(!this.range){this.range="";}
-				if (this.size=="automatic"){ style="automatic";}
-				switch(this.range.toLowerCase()){
+				if (!this.range) {
+					this.range = "";
+				}
+				if (this.size == "automatic") {
+					style = "automatic";
+				}
+				switch (this.range.toLowerCase()) {
 					case "low":
 					case "green":
 					case "ok":
@@ -10289,77 +10421,83 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 					case "severe":
 					case "critical":
 					case "red":
-						style +=" red";
+						style += " red";
 						break;
 					default:
-						style +=" default";
+						style += " default";
 						break;
 				}
-			
-				if (this.colorMode=="background"){
+
+				if (this.colorMode == "background") {
 					style += 'Block';
-				}else{
+				} else {
 					style += 'NoBackground';
 				}
-				
+
 				return style;
 			}
-
-			
-		numberWithCommas(x){
-			var parts = x.toString().split(".");
-			parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-			return parts.join(".");
-		}
-		
+		}, {
+			key: "numberWithCommas",
+			value: function numberWithCommas(x) {
+				var parts = x.toString().split(".");
+				parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				return parts.join(".");
+			}
 
 			//Format the value - eg UPPERCASE, 1,000  23.22
-			getValue(){
-				var formattedValue =this.value;
-				
-				if(! isNaN(formattedValue) && formattedValue!=""){
+
+		}, {
+			key: "getValue",
+			value: function getValue() {
+				var formattedValue = this.value;
+
+				if (!isNaN(formattedValue) && formattedValue != "") {
 					formattedValue = parseFloat(formattedValue).toFixed(this.numDecimalPlaces);
-					if(this.thousandsSeparator){ formattedValue = this.numberWithCommas(formattedValue);}
+					if (this.thousandsSeparator) {
+						formattedValue = this.numberWithCommas(formattedValue);
+					}
 				}
-				
-				if (this.forceAllCaps){
+
+				if (this.forceAllCaps) {
 					formattedValue = formattedValue.toUpperCase();
 				}
-				
+
 				return formattedValue;
 			}
-			
+
 			/* A simple HTML block representing the Slide's HTML content. */
-			getHTML(){
-				var vizUtils = __webpack_require__(3);
+
+		}, {
+			key: "getHTML",
+			value: function getHTML() {
+				var vizUtils = __webpack_require__(4);
 				var captionText = this.caption;
-				if (captionText==""){captionText="&nbsp;";}
+				if (captionText == "") {
+					captionText = "&nbsp;";
+				}
 				var html = "";
 				html += '<div class="singlevaluebox ' + this.getStyle() + '" dir="ltr">'; // dir=ltr makes sure the unit position is obeyed
-				
-				if(this.unitPosition=="before"){
-					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '">' + this.unit + '&thinsp;'+  this.getValue() +  '</span></div>';
-				}else{
-					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '">' + this.getValue() + '&thinsp;' + this.unit +  '</span></div>';
+				var unitHTML = "";
+				if (this.unitPosition == "before") {
+					unitHTML = this.unit != "" ? this.unit + '&thinsp;' : "";
+					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '" data-unit="' + vizUtils.escapeHtml(this.unit) + '">' + unitHTML + this.getValue() + '</span></div>';
+				} else {
+					unitHTML = this.unit != "" ? '&thinsp;' + this.unit : "";
+					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '" data-unit="' + vizUtils.escapeHtml(this.unit) + '">' + this.getValue() + unitHTML + '</span></div>';
 				}
 				html += '<div class="caption"><span>' + this.caption + '</span></div>';
 				html += '</div>';
 				return html;
 			}
-			
-			
+		}]);
 
-			
-			
-		}
-		
-		
-		
-	module.exports = { carousel_viz, carousel_viz_slide}
+		return carousel_viz_slide;
+	}();
 
+	module.exports = { carousel_viz: carousel_viz, carousel_viz_slide: carousel_viz_slide };
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 	/**
@@ -10708,7 +10846,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 	/*
@@ -13744,7 +13882,7 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global, module) {//     Underscore.js 1.9.1
@@ -15440,10 +15578,10 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	  }
 	}());
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(8)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(9)(module)))
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 	module.exports = function(module) {
