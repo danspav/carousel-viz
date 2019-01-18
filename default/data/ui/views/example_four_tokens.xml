@@ -56,11 +56,61 @@
         <p>In this example, when you click on a slide, the following tokens are generated:</p>
 		
 		<table width="100%" style="border-collapse:collapse; border: 1px solid black;">
-		<tr><td width="33%"><strong>Field</strong></td><td width="33%"><strong>Token</strong></td><td width="33%"><strong>Example</strong></td></tr>
-		<tr><td><strong>Caption</strong></td><td><strong>$$cv_caption$$</strong></td><td><strong>$cv_caption$</strong></td></tr>
-		<tr><td><strong>Formatted Value</strong></td><td><strong>$$cv_formatted_value$$</strong></td><td><strong>$cv_formatted_value$</strong></td></tr>
-		<tr><td><strong>Raw Value</strong></td><td><strong>$$cv_raw_value$$</strong></td><td><strong>$cv_raw_value$</strong></td></tr>
-		<tr><td><strong>Unit</strong></td><td><strong>$$cv_unit$$</strong></td><td><strong>$cv_unit$</strong></td></tr>
+		<tr>
+            <td width="33%">
+              <strong>Field</strong>
+            </td>
+            <td width="33%">
+              <strong>Token</strong>
+            </td>
+            <td width="33%">
+              <strong>Example</strong>
+            </td>
+          </tr>
+		<tr>
+            <td>
+              <strong>Caption</strong>
+            </td>
+            <td>
+              <strong>$$cv_caption$$</strong>
+            </td>
+            <td>
+              <strong>$cv_caption$</strong>
+            </td>
+          </tr>
+		<tr>
+            <td>
+              <strong>Formatted Value</strong>
+            </td>
+            <td>
+              <strong>$$cv_formatted_value$$</strong>
+            </td>
+            <td>
+              <strong>$cv_formatted_value$</strong>
+            </td>
+          </tr>
+		<tr>
+            <td>
+              <strong>Raw Value</strong>
+            </td>
+            <td>
+              <strong>$$cv_raw_value$$</strong>
+            </td>
+            <td>
+              <strong>$cv_raw_value$</strong>
+            </td>
+          </tr>
+		<tr>
+            <td>
+              <strong>Unit</strong>
+            </td>
+            <td>
+              <strong>$$cv_unit$$</strong>
+            </td>
+            <td>
+              <strong>$cv_unit$</strong>
+            </td>
+          </tr>
 		</table>
         <p>Settings:</p>
         <ul>
@@ -96,8 +146,8 @@
         <option name="carousel-viz.carousel-viz.autoplaySpeed">normal</option>
         <option name="carousel-viz.carousel-viz.colorMode">foreground</option>
         <option name="carousel-viz.carousel-viz.direction">right</option>
-        <option name="carousel-viz.carousel-viz.forceAllCaps">false</option>
-        <option name="carousel-viz.carousel-viz.numDecimalPlaces">0</option>
+        <option name="carousel-viz.carousel-viz.forceAllCaps">true</option>
+        <option name="carousel-viz.carousel-viz.numDecimalPlaces">2</option>
         <option name="carousel-viz.carousel-viz.orientation">vertical</option>
         <option name="carousel-viz.carousel-viz.rotation">bounce</option>
         <option name="carousel-viz.carousel-viz.showArrows">false</option>
@@ -105,13 +155,18 @@
         <option name="carousel-viz.carousel-viz.size">automatic</option>
         <option name="carousel-viz.carousel-viz.slidesToScroll">1</option>
         <option name="carousel-viz.carousel-viz.slidesToShow">3</option>
-        <option name="carousel-viz.carousel-viz.thousandsSeparator">false</option>
+        <option name="carousel-viz.carousel-viz.thousandsSeparator">true</option>
+        <option name="carousel-viz.carousel-viz.tokenCaption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.tokenFormattedValue">cv_formatted_value</option>
+        <option name="carousel-viz.carousel-viz.tokenRawValue">cv_raw_value</option>
+        <option name="carousel-viz.carousel-viz.tokenUnit">cv_unit</option>
         <option name="carousel-viz.carousel-viz.token_caption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
         <option name="carousel-viz.carousel-viz.token_raw_value">cv_raw_value</option>
-		<option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
-		<option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
+        <option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
         <option name="carousel-viz.carousel-viz.unitPosition">after</option>
-        <option name="height">290</option>
+        <option name="drilldown">none</option>
+        <option name="height">267</option>
         <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
@@ -122,12 +177,12 @@
       <title>Tokens from last clicked slide</title>
       <viz type="carousel-viz.carousel-viz">
         <search>
-          <query>|makeresults count=4
-		  | streamstats count as id
-		| eval caption=if(id=1,"Caption",id=2,"Formatted Value",id=3,"Raw Value",id=4,"Unit")
-		| eval unit=""
-		| eval value=if(id=1,$cv_caption|s$,id=2,$cv_formatted_value|s$,id=3,$cv_raw_value|s$,id=4,$cv_unit|s$)
-		  | table value, unit, caption</query>
+          <query>| makeresults count=4 
+| streamstats count as id 
+| eval caption=case(id==1,"Caption",id==2,"Formatted Value",id==3,"Raw Value",id==4,"Unit") 
+| eval unit="" 
+| eval value=case(id==1,$cv_caption|s$,id==2,$cv_formatted_value|s$,id==3,$cv_raw_value|s$,id==4,$cv_unit|s$) 
+| table value, unit, caption</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -135,23 +190,28 @@
         <option name="carousel-viz.carousel-viz.autoplay">false</option>
         <option name="carousel-viz.carousel-viz.autoplaySpeed">normal</option>
         <option name="carousel-viz.carousel-viz.colorMode">foreground</option>
-        <option name="carousel-viz.carousel-viz.direction">right</option>
+        <option name="carousel-viz.carousel-viz.direction">left</option>
         <option name="carousel-viz.carousel-viz.forceAllCaps">false</option>
         <option name="carousel-viz.carousel-viz.numDecimalPlaces">0</option>
-        <option name="carousel-viz.carousel-viz.orientation">vertical</option>
+        <option name="carousel-viz.carousel-viz.orientation">horizontal</option>
         <option name="carousel-viz.carousel-viz.rotation">bounce</option>
         <option name="carousel-viz.carousel-viz.showArrows">false</option>
         <option name="carousel-viz.carousel-viz.showDots">true</option>
-        <option name="carousel-viz.carousel-viz.size">automatic</option>
+        <option name="carousel-viz.carousel-viz.size">xsmall</option>
         <option name="carousel-viz.carousel-viz.slidesToScroll">1</option>
         <option name="carousel-viz.carousel-viz.slidesToShow">4</option>
         <option name="carousel-viz.carousel-viz.thousandsSeparator">false</option>
+        <option name="carousel-viz.carousel-viz.tokenCaption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.tokenFormattedValue">cv_formatted_value</option>
+        <option name="carousel-viz.carousel-viz.tokenRawValue">cv_raw_value</option>
+        <option name="carousel-viz.carousel-viz.tokenUnit">cv_unit</option>
         <option name="carousel-viz.carousel-viz.token_caption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
         <option name="carousel-viz.carousel-viz.token_raw_value">cv_raw_value</option>
-		<option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
-		<option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
+        <option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
         <option name="carousel-viz.carousel-viz.unitPosition">after</option>
-        <option name="height">290</option>
+        <option name="drilldown">none</option>
+        <option name="height">125</option>
         <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
@@ -209,10 +269,11 @@
         <option name="carousel-viz.carousel-viz.slidesToShow">3</option>
         <option name="carousel-viz.carousel-viz.thousandsSeparator">true</option>
         <option name="carousel-viz.carousel-viz.token_caption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
         <option name="carousel-viz.carousel-viz.token_raw_value">cv_raw_value</option>
-		<option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
-		<option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
+        <option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
         <option name="carousel-viz.carousel-viz.unitPosition">after</option>
+        <option name="drilldown">none</option>
         <option name="height">247</option>
         <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
@@ -265,11 +326,12 @@
         <option name="carousel-viz.carousel-viz.slidesToScroll">1</option>
         <option name="carousel-viz.carousel-viz.slidesToShow">4</option>
         <option name="carousel-viz.carousel-viz.thousandsSeparator">true</option>
-        <option name="carousel-viz.carousel-viz.unitPosition">after</option>
-		<option name="carousel-viz.carousel-viz.token_caption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.token_caption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
         <option name="carousel-viz.carousel-viz.token_raw_value">cv_raw_value</option>
-		<option name="carousel-viz.carousel-viz.token_formatted_value">cv_formatted_value</option>
-		<option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
+        <option name="carousel-viz.carousel-viz.token_unit">cv_unit</option>
+        <option name="carousel-viz.carousel-viz.unitPosition">after</option>
+        <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
       </viz>
     </panel>
