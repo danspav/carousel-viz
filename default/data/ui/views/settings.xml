@@ -39,10 +39,11 @@
     <body>
       <h4>Settings</h4>
 
-<button class="button on" data-on-class="on" data-off-class="button" data-set-token="general" data-unset-token="direction,format,numberformat" data-value="general">General</button>
-<button class="button" data-on-class="on" data-off-class="button" data-set-token="direction" data-unset-token="general,format,numberformat" data-value="direction">Direction</button>
-<button class="button" data-on-class="on" data-off-class="button" data-set-token="format" data-unset-token="general,direction,numberformat" data-value="format">Format</button>
-<button class="button" data-on-class="on" data-off-class="button" data-set-token="numberformat" data-unset-token="general,direction,format" data-value="numberformat">Number Format</button>
+<button class="button on" data-on-class="on" data-off-class="button" data-set-token="general" data-unset-token="direction,format,numberformat,tokens" data-value="general">General</button>
+<button class="button" data-on-class="on" data-off-class="button" data-set-token="direction" data-unset-token="general,format,numberformat,tokens" data-value="direction">Direction</button>
+<button class="button" data-on-class="on" data-off-class="button" data-set-token="format" data-unset-token="general,direction,numberformat,tokens" data-value="format">Format</button>
+<button class="button" data-on-class="on" data-off-class="button" data-set-token="numberformat" data-unset-token="general,direction,format,tokens" data-value="numberformat">Number Format</button>
+<button class="button" data-on-class="on" data-off-class="button" data-set-token="tokens" data-unset-token="general,direction,format,numberformat" data-value="tokens">Tokens</button>
     </body>
     </html>
     </panel>
@@ -137,6 +138,34 @@
             
             </html>
     </panel>
-   
+    <panel depends="$tokens$">
+      <html>  <table cellpadding="10">
+      <tr>
+            <td valign="top">
+              <img src="/static/app/carousel-viz/images/options-tokens.png"/>
+            </td>
+            <td valign="top">
+              <p><h2>Tokens</h2>Tokens are generated eacht time you click a slide. This can be useful if you want to populate another panel on the dashboard with a custom search, or link to a new dashboard with the tokens carying across.
+              </p>
+              <br />
+              <p><h2>Formatted Value</h2>This is the 'value' field, that has undergone any formatting changes from the options, e.g. all-caps for text or decimal places and commas for numbers. Use this token to display to the user. <br/>Default value: $$cv_formatted_value$$
+              <br /></p><br />
+              <p><h2>Raw Value</h2>This is the value as it was defined in the search results. Use this token in searches for exact matches of the raw data. <br />Default value: $$cv_raw_value$$
+              <br /></p><br />
+			  <p><h2>Caption</h2>This is the 'caption' field. If you use the hostname of a server as the caption, you can create additional searches by using this value.<br />Default value: $$cv_caption$$
+              <br /></p>              
+			  <p><h2>Unit</h2>This is the 'unit' field, or the default value for unit. Use this token to help users make sense of the Formatted Value token. <br />Default value: $$cv_unit$$
+              <br /></p>              
+              <br />
+              
+              
+              
+              
+            </td>
+          </tr>
+          </table>
+            
+            </html>
+    </panel>
   </row>
 </dashboard>
