@@ -185,8 +185,11 @@
 
 
 <h1>Tokens</h1>
-<p>This visualization does not generate tokens.</p>
-
+<p>Tokens are generated eacht time you click a slide. This can be useful if you want to populate another panel on the dashboard with a custom search, or link to a new dashboard with the tokens carying across.</p>
+ <ul><li>Formatted Value: This is the 'value' field, that has undergone any formatting changes from the options, e.g. all-caps for text or decimal places and commas for numbers. Use this token to display to the user. Default value: $cv_formatted_value$</li>
+<li>Raw Value: This is the value as it was defined in the search results. Use this token in searches for exact matches of the raw data. Default value: $cv_raw_value$</li>
+<li>Caption: This is the 'caption' field. If you use the hostname of a server as the caption, you can create additional searches by using this value. Default value: $cv_caption$</li>
+<li>Unit: This is the 'unit' field, or the default value for unit. Use this token to help users make sense of the Formatted Value token.  Default value: $cv_unit$</li></ul>
 
 <h1>Limits</h1>
 <p>The visualization is bound by the follwoing limits:</p>
