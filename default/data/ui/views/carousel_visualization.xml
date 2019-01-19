@@ -203,7 +203,7 @@
   <li>Added ability to create tokens on click</li>
   <li>Updated dashboard to show example token usage</li>
   <li>Made value text fit better on fixed-size slides</li>
-  
+  <li>Fixed resizing issue when editing settings</li>
 </ul>
 
 <h2>v 1.0.0</h2>
