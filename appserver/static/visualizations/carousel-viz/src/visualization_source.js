@@ -72,6 +72,7 @@ define([
 			
 			// Now load the visualisation
 			var oCarousel= new carousel_viz.carousel_viz();
+			if(this.myCssHeight) { oCarousel.height=this.myCssHeight;}
 			oCarousel.mvc = mvc;
 			oCarousel.height = this.$el.height();
 			oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
@@ -138,6 +139,7 @@ define([
 
         // Override to respond to re-sizing events
         reflow: function() {
+			this.myCssHeight = this.$el.height();
 			if(this.oCarousel) { this.oCarousel.resize(this.$el.height());}
 		},
     
