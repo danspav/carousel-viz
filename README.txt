@@ -1,4 +1,4 @@
-Carousel Viz ver 1.1.0
+Carousel Viz ver 1.1.2
 
 Daniel Spavin
 daniel@spavin.net
@@ -49,13 +49,16 @@ Limits
 -Total results: 1000
 
 Release Notes
+v 1.1.2
+-Minor change to pass AppInspect checks
+
 v 1.1.0
-Added ability to create tokens on click
-Updated dashboard to show example token usage
-Made value text fit better on fixed-size slides
+-Added ability to create tokens on click
+-Updated dashboard to show example token usage
+-Made value text fit better on fixed-size slides
 
 v 1.0.0
-Initial version
+-Initial version
 
 Issues and Limitations
 -Internet Explorer 11 and Microsoft Edge - Vertical orientation with fixed-sized slides can cause display issues. To workaround this, set the size to Automatic.
