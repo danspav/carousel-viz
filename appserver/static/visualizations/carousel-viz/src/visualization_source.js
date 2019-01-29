@@ -60,8 +60,8 @@ define([
 			}
 
 			// Assign datum to the data object returned from formatData
-			if (!data.meta.done)
-				return;
+			//if (!data.meta.done)
+			//	return;
 			
 			
 			// Clear the div

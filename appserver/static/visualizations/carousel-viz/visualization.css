@@ -413,6 +413,19 @@ div.redNoBackground {
 }
 
 
+div.blueBlock{
+	background-color: #6EB9D9;
+	color: white;
+	border: 1px solid #3691C4l;
+}
+
+div.blueNoBackground{
+	color: #3691C4l;
+	border: 1px solid #3691C4l;
+	
+}
+
+
 div.value{
 	font-family: Splunk Platform Sans,Proxima Nova,Roboto,Droid,Helvetica Neue,Helvetica,Arial,sans-serif;
 	height: 80%;
