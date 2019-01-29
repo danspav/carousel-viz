@@ -97,7 +97,8 @@
               <p><h2>Color Mode</h2>Background - fills in the background of the slides depending on the range field<br />Foreground - colors the text and border based on the range field.</p>
 			  <table width="260" cellpadding="2" cellspacing="0" border="1" style="border: 1px solid #cccccc; border-collapse:collapse;">
               <tr><td align="center"><strong>Color</strong></td><td align="center"><strong>Value for 'range' field</strong></td></tr>
-              <tr><td align="center" style="background-color: #65a637">Green</td><td align="center">green<br />ok<br />low</td></tr>
+              <tr><td align="center" style="background-color: #6EB9D9">Blue</td><td align="center">blue<br />debug<br />unknown</td></tr>
+			  <tr><td align="center" style="background-color: #65a637">Green</td><td align="center">green<br />ok<br />low</td></tr>
               <tr><td align="center" style="background-color: #f7bc38">Amber</td><td align="center">amber<br />warning<br />amber<br />orange<br />elevated</td></tr>
               <tr><td align="center" style="background-color: #D93F3C">Red</td><td align="center">red<br />critical<br />severe</td></tr>
             </table>

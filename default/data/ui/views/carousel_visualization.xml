@@ -1,6 +1,6 @@
 <dashboard theme="light">
   <label>Carousel Visualization</label>
-   <row>
+  <row>
     <panel>
       <html>
       <h2>Carousel Visualization</h2>
@@ -16,10 +16,10 @@
         <search>
           <query>|makeresults count=5 
 | streamstats count as id
-| eval value=case(id==1,9333, id==2,1000, id==3,"98.10%", id=4,"My Account",id==5,"15,320") 
-| eval unit=case(id==1,"RPM", id==2,"Accounts", id==3,"CPU", id=4,"",id==5,"I/O") 
-| eval caption=case(id==1,"Disk Platter Speed", id==2,"Active Users", id==3,"Webserver CPU Use", id=4,"Most Active Webiste Area",id==5,"SAN Performance") 
-| eval range=case(id==1,"low", id==2,"elevated", id==3,"severe", id=4,"low",id==5,"low") 
+| eval value=case(id==1,9333, id==2,1000, id==3,"98.10%", id==4,"My Account",id==5,"15,320") 
+| eval unit=case(id==1,"RPM", id==2,"Accounts", id==3,"CPU", id==4,"",id==5,"I/O") 
+| eval caption=case(id==1,"Disk Platter Speed", id==2,"Active Users", id==3,"Webserver CPU Use", id==4,"Most Active Webiste Area",id==5,"SAN Performance") 
+| eval range=case(id==1,"low", id==2,"elevated", id==3,"severe", id==4,"blue",id==5,"low") 
 | table value, unit, caption, range</query>
           <earliest>-24h@h</earliest>
           <latest>now</latest>
@@ -42,6 +42,10 @@
         <option name="carousel-viz.carousel-viz.slidesToShow">3</option>
         <option name="carousel-viz.carousel-viz.thousandsSeparator">true</option>
         <option name="carousel-viz.carousel-viz.thousandsSeparators">true</option>
+        <option name="carousel-viz.carousel-viz.tokenCaption">cv_caption</option>
+        <option name="carousel-viz.carousel-viz.tokenFormattedValue">cv_formatted_value</option>
+        <option name="carousel-viz.carousel-viz.tokenRawValue">cv_raw_value</option>
+        <option name="carousel-viz.carousel-viz.tokenUnit">cv_unit</option>
         <option name="carousel-viz.carousel-viz.token_capiton">cv_caption</option>
         <option name="carousel-viz.carousel-viz.token_value">cv_value</option>
         <option name="carousel-viz.carousel-viz.unitPosition">after</option>
@@ -59,7 +63,7 @@
         <search>
           <query>| makeresults count=12 
 | eval value=random()%10000 
-| rangemap field=value low=6500-10000 elevated=2500-6500 default=critical 
+| rangemap field=value blue=8500-10000 low=6500-8500 elevated=2500-6500 default=critical 
 | streamstats count as id 
 | eval caption = "Sales for " + tostring(strftime(strptime("01-" + tostring(id) + "-2019","%d-%m-%Y"),"%B" ) )
 | table value, range, caption, bit1, months</query>
@@ -186,10 +190,12 @@
 
 <h1>Tokens</h1>
 <p>Tokens are generated eacht time you click a slide. This can be useful if you want to populate another panel on the dashboard with a custom search, or link to a new dashboard with the tokens carying across.</p>
- <ul><li>Formatted Value: This is the 'value' field, that has undergone any formatting changes from the options, e.g. all-caps for text or decimal places and commas for numbers. Use this token to display to the user. Default value: $cv_formatted_value$</li>
+ <ul>
+          <li>Formatted Value: This is the 'value' field, that has undergone any formatting changes from the options, e.g. all-caps for text or decimal places and commas for numbers. Use this token to display to the user. Default value: $cv_formatted_value$</li>
 <li>Raw Value: This is the value as it was defined in the search results. Use this token in searches for exact matches of the raw data. Default value: $cv_raw_value$</li>
 <li>Caption: This is the 'caption' field. If you use the hostname of a server as the caption, you can create additional searches by using this value. Default value: $cv_caption$</li>
-<li>Unit: This is the 'unit' field, or the default value for unit. Use this token to help users make sense of the Formatted Value token.  Default value: $cv_unit$</li></ul>
+<li>Unit: This is the 'unit' field, or the default value for unit. Use this token to help users make sense of the Formatted Value token.  Default value: $cv_unit$</li>
+        </ul>
 
 <h1>Limits</h1>
 <p>The visualization is bound by the follwoing limits:</p>
@@ -199,14 +205,17 @@
 
 <h1># Release Notes #</h1>
 <h2>v 1.1.2</h2>
-<ul><li>Added blue color whdn using range: range='blue', 'default', 'unknown', 'debug'</li>
+<ul>
+          <li>Added blue color whdn using range: range='blue', 'default', 'unknown', 'debug'</li>
 <li>Fixed bug where the viz would not display when using a base search</li>
 
 </ul>
 
 
 <h2>v 1.1.2</h2>
-<ul><li>Minor change to pass AppInspect checks</li></ul>
+<ul>
+          <li>Minor change to pass AppInspect checks</li>
+        </ul>
 
 <h2>v 1.1.0</h2>
 <ul>
