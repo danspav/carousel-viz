@@ -206,7 +206,7 @@
 <h1># Release Notes #</h1>
 <h2>v 1.1.2</h2>
 <ul>
-          <li>Added blue color whdn using range: range='blue', 'default', 'unknown', 'debug'</li>
+          <li>Added blue color when using range: range='blue', 'unknown', 'debug'</li>
 <li>Fixed bug where the viz would not display when using a base search</li>
 
 </ul>
