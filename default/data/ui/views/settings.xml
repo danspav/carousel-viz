@@ -99,8 +99,8 @@
               <tr><td align="center"><strong>Color</strong></td><td align="center"><strong>Value for 'range' field</strong></td></tr>
               <tr><td align="center" style="background-color: #6EB9D9">Blue</td><td align="center">blue<br />debug<br />unknown</td></tr>
 			  <tr><td align="center" style="background-color: #65a637">Green</td><td align="center">green<br />ok<br />low</td></tr>
-              <tr><td align="center" style="background-color: #f7bc38">Amber</td><td align="center">amber<br />warning<br />amber<br />orange<br />elevated</td></tr>
-              <tr><td align="center" style="background-color: #D93F3C">Red</td><td align="center">red<br />critical<br />severe</td></tr>
+              <tr><td align="center" style="background-color: #f7bc38">Amber</td><td align="center">amber<br />warning<br />orange<br />elevated<br />medium</td></tr>
+              <tr><td align="center" style="background-color: #D93F3C">Red</td><td align="center">red<br />critical<br />severe<br />high</td></tr>
             </table>
               <br />
                <p><h2>Default Caption</h2>If no value is set for the caption field in the search, this value will be used. If left blank, no caption will display.
