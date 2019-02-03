@@ -105,8 +105,8 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 				}
 
 				// Assign datum to the data object returned from formatData
-				if (!data.meta.done)
-					return;
+				//if (!data.meta.done)
+				//	return;
 				
 				
 				// Clear the div
@@ -117,11 +117,13 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 				
 				// Now load the visualisation
 				var oCarousel= new carousel_viz.carousel_viz();
+				if(this.myCssHeight) { oCarousel.height=this.myCssHeight;}
 				oCarousel.mvc = mvc;
 				oCarousel.height = this.$el.height();
 				oCarousel.setConfig(config, this.getPropertyNamespaceInfo().propertyNamespace);
 				oCarousel.setData(data)
 				this.$el.html(oCarousel.getHTML());
+				oCarousel.resize(oCarousel.height);
 				textfill = __webpack_require__(6);
 				slick = __webpack_require__(7);
 				this.oCarousel = oCarousel;
@@ -134,9 +136,10 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 				
 				window.jQuery("div#" + oCarousel.id + " div.singlevaluebox").click(function(){
 					var objValueSpan = $(this).find("div.value span")[0];
-					var rawValue = $(objValueSpan).attr('rawValue');
+					var formattedValue = $(objValueSpan).attr('data-formatted-value');
+					var rawValue =  $(objValueSpan).attr('data-raw-value');
 					var unitValue = $(objValueSpan).attr('data-unit');
-					var formattedValue = $(objValueSpan).attr('valueField');
+					var fieldName = $(objValueSpan).attr('data-field-name');
 					
 					var objCaptionSpan = $(this).find("div.caption span")[0];
 					var caption = $(objCaptionSpan).text();
@@ -147,7 +150,7 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 									"unit" : {"key": vizObj.oCarousel.tokenUnit, "value":unitValue}
 						};
 					vizObj.setTokens(aTokens);
-					vizObj.drilldownToCategory(formattedValue, rawValue, event);
+					vizObj.drilldownToCategory(fieldName, rawValue, event);
 				});
 	        },
 
@@ -182,6 +185,7 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 
 	        // Override to respond to re-sizing events
 	        reflow: function() {
+				this.myCssHeight = this.$el.height();
 				if(this.oCarousel) { this.oCarousel.resize(this.$el.height());}
 			},
 	    
@@ -10265,7 +10269,7 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 
 				var value = this.value;
 				var i = 0;
-				html += '<div id="' + this.id + '" class="carousel-viz-container' + cssClasses + '"' + dir + '>';
+				html += '<div id="' + this.id + '" class="carousel-viz-container' + cssClasses + '" style="height: ' + this.height + 'px;"' + dir + '>';
 				for (i = 0; i < this.slides.length; i++) {
 					html += this.slides[i].getHTML();
 				}
@@ -10412,16 +10416,23 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 						style += " green";
 						break;
 					case "elevated":
-					case "yellow":
 					case "amber":
 					case "orange":
 					case "warning":
+					case "medium":
+					case "yellow":
 						style += " yellow";
 						break;
 					case "severe":
 					case "critical":
+					case "high":
 					case "red":
 						style += " red";
+						break;
+					case "debug":
+					case "unknown":
+					case "blue":
+						style += " blue";
 						break;
 					default:
 						style += " default";
@@ -10480,10 +10491,10 @@ define(["splunkjs/mvc","api/SplunkVisualizationBase","api/SplunkVisualizationUti
 				var unitHTML = "";
 				if (this.unitPosition == "before") {
 					unitHTML = this.unit != "" ? this.unit + '&thinsp;' : "";
-					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '" data-unit="' + vizUtils.escapeHtml(this.unit) + '">' + unitHTML + this.getValue() + '</span></div>';
+					html += '<div class="value"><span data-field-name="' + this.valueField + '" data-raw-value="' + vizUtils.escapeHtml(this.value) + '" data-formatted-value="' + vizUtils.escapeHtml(this.getValue()) + '" data-unit="' + vizUtils.escapeHtml(this.unit) + '">' + unitHTML + this.getValue() + '</span></div>';
 				} else {
 					unitHTML = this.unit != "" ? '&thinsp;' + this.unit : "";
-					html += '<div class="value"><span valueField="' + this.valueField + '" rawValue="' + vizUtils.escapeHtml(this.value) + '" data-unit="' + vizUtils.escapeHtml(this.unit) + '">' + this.getValue() + unitHTML + '</span></div>';
+					html += '<div class="value"><span data-field-name="' + this.valueField + '" data-raw-value="' + vizUtils.escapeHtml(this.value) + '" data-formatted-value="' + vizUtils.escapeHtml(this.getValue()) + '" data-unit="' + vizUtils.escapeHtml(this.unit) + '">' + this.getValue() + unitHTML + '</span></div>';
 				}
 				html += '<div class="caption"><span>' + this.caption + '</span></div>';
 				html += '</div>';
