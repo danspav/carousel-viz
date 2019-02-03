@@ -204,10 +204,10 @@
 </ul>
 
 <h1># Release Notes #</h1>
-<h2>v 1.1.2</h2>
+<h2>v 1.1.3</h2>
 <ul>
         <li>Added blue color when using range: range='blue', 'unknown', 'debug'</li>
-		<li>setting range to 'medium' or 'high' now translates to amber / red</li>
+		<li>Setting range to 'medium' or 'high' now translates to amber / red</li>
 		<li>Fixed bug where the viz would not display when using a base search</li>
 </ul>
 
